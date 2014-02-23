@@ -1,0 +1,19 @@
+Precision           double              
+MapSize             100*10e7    # Maximum size of a memory mapped size in Bytes
+LargestMemoryChunk  100*10e5    # Maximum size for a MATLAB variable
+Verbose             true        # Verbose mode on?
+HeaderFileExt       .mat        # Default header file extension
+DataFileExt         .eegc       # Default data file extension
+MaxNbPoints         1e100       # Maximum number of points in a pset
+MaxNbDims           500         # Maximum dimensionality of a pset
+#
+# Options for event/import_info
+#
+Delimiter           ;           # Default delimiter for ASCII delimited files
+#
+# Options for conversion of event objects to EEGLAB event structures
+#
+GroupIndexedEvents  true        # Group event types which differ only in a
+                                # numeric index? e.g. types 'TR 1' and 
+                                # 'TR 2' will become of type 'TR'
+SortedEvents        true        # Should event arrays be automatically sorted?

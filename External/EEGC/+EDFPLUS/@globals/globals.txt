@@ -1,0 +1,7 @@
+#
+# Generic options
+#
+Precision           double              
+Verbose             true                     # Verbose mode on?
+IgnoreRef           true                     # Ignore reference leads?
+RefLabel            'VREF'                   # Label of a reference lead (case sensitive!)

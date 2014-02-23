@@ -1,0 +1,12 @@
+#
+# EEGC globals
+#
+Precision           double      # Default numeric precision        
+LargestMemoryChunk  100*10e6    # in bytes
+Verbose             true        # Verbose mode on?
+HeaderFileExt       .mat        # Default header file extension
+DataFileExt         .eegc       # Default data file extension
+SamplingRate        250         # Default sampling rate
+DateFormat         dd-mmm-yyyy  # Default date format
+TimeFormat         HH:MM:SS     # Default time format
+ExportFileFormat   'eeglab'     # Default exporting file format
