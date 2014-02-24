@@ -88,17 +88,15 @@ if(isempty(varargin))
         fid = fopen(filename.name, 'r');
         fgetl(fid);
         versionline = fgetl(fid);
-	NBT_version = [versionline(11:end)];
+        NBT_version = [versionline(11:end)];
         fclose(fid);
     catch
-        NBT_version= 'NBT  www.nbtwiki.net';
+        NBT_version= 'NBT www.nbtwiki.net';
     end
     
     %% Make menu
-    %'Position',[200 400 500 0.5]
-    %'position',[390.0000  456.7500  500   88.5000]
     if(standalone)
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 800  88.5000], ...
+    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  88.5000], ...
         'MenuBar','none','NextPlot','new','Resize','off');
    
    %make sure the GUI is onscreen
@@ -110,7 +108,7 @@ if(isempty(varargin))
             nbt_set_name([])
         end
     else
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500  800  0.5], ...
+    NBTMenu = figure('Units','pixels', 'name',['Undocked NBT (EEGLAB) ' NBT_version],'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500  810  0.5], ...
         'MenuBar','none','NextPlot','new','Resize','off');
         
     end
