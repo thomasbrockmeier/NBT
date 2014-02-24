@@ -91,7 +91,7 @@ if(isempty(varargin))
 	NBT_version = [versionline(11:end)];
         fclose(fid);
     catch
-        NBT_version= 'NBT';
+        NBT_version= 'NBT www.nbtwiki.net';
     end
     
     %% Make menu
