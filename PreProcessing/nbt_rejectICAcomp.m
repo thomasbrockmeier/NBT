@@ -52,8 +52,5 @@ elseif(state ==2)
     hh = findobj('Tag','NBTICAfilter');
     set(hh,'Enable','on');    
     disp('Done')
-    evalin('base', 'clear EEG');
-    evalin('base', 'clear ALLEEG');
-    evalin('base', 'clear CURRENTSET');
 end
 end

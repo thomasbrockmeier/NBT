@@ -238,8 +238,8 @@ else
     ICAsub = uimenu(PreProc, 'label', '&ICA');
     uimenu(ICAsub,'label', 'Run ICA on good channels only','callback',['[ALLEEG EEG CURRENTSET]= eeg_store(ALLEEG, EEG,CURRENTSET);EEG = nbt_filterbeforeICA(EEG, ''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4);[ALLEEG EEG CURRENTSET]= eeg_store(ALLEEG, EEG,CURRENTSET); eeglab redraw']);
     uimenu(ICAsub,'label', 'Filter ICA components', 'callback',['EEG = nbt_rejectICAcomp(EEG,''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4,1);'],'Tag','NBTICAfilter');
-    uimenu(ICAsub,'label', 'Reject filtered ICA components','callback',['EEG = nbt_rejectICAcomp(EEG,[],[],2);'],'Enable','off','Tag','NBTICAreject');
-    uimenu(ICAsub,'label', 'Auto reject ICA components', 'callback',['EEG  = nbt_AutoRejectICA(EEG,[],1);'],'Enable','on');
+    uimenu(ICAsub,'label', 'Reject filtered ICA components','callback',['EEG = nbt_rejectICAcomp(EEG,[],[],2);[ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);'],'Enable','off','Tag','NBTICAreject');
+    uimenu(ICAsub,'label', 'Auto reject ICA components', 'callback',['EEG  = nbt_AutoRejectICA(EEG,[],1);[ALLEEG, EEG] = eeg_store(ALLEEG, EEG,CURRENTSET);'],'Enable','on');
     uimenu(ICAsub,'label', 'Mark ICA components as bad', 'callback','EEG=nbt_MarkICBadChannel(EEG);');
     
     VisSub=uimenu( NBTMenu, 'label', '&Visualization tools');
