@@ -52,7 +52,7 @@ DTWobject = nbt_DTW(size(Signal,2));
 %%   Compute markervalues. Add here your algorithm to compute the biomarker
 %%   values, for example:
 for Ch1 = 1:size(Signal,2)
-   for Ch2 = Ch1:size(Signal,2) 
+   for Ch2 = (Ch1+1):size(Signal,2) 
        DTWobject.d(Ch1,Ch2) = nbt_calculateDTW(Signal(:,Ch1), Signal(:,Ch2), window);
    end
 end
