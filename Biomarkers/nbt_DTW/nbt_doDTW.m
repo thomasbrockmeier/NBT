@@ -53,9 +53,7 @@ DTWobject = nbt_DTW(size(Signal,2));
 %%   values, for example:
 for Ch1 = 1:size(Signal,2)
    for Ch2 = Ch1:size(Signal,2) 
-       tic
        DTWobject.d(Ch1,Ch2) = nbt_calculateDTW(Signal(:,Ch1), Signal(:,Ch2), window);
-       toc
    end
 end
 
@@ -81,7 +79,6 @@ end
 D = zeros(2*window+2,2)+Inf;
 D(1,1)=0;
 for i = window+1:(LengthSignal1-window)
-    disp(i)
     jj = 0;
     for j = (i-window):(i+window)
          jj = jj+1;
