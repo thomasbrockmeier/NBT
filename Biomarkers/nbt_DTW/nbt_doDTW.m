@@ -56,7 +56,6 @@ for Ch1 = 1:size(Signal,2)
        tic
        DTWobject.d(Ch1,Ch2) = nbt_calculateDTW(Signal(:,Ch1), Signal(:,Ch2), window);
        toc
-       disp('pp')
    end
 end
 
