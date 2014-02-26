@@ -52,8 +52,11 @@ DTWobject = nbt_DTW(size(Signal,2));
 %%   Compute markervalues. Add here your algorithm to compute the biomarker
 %%   values, for example:
 for Ch1 = 1:size(Signal,2)
-   for Ch2 = Ch1:size(Signal,2)  
+   for Ch2 = Ch1:size(Signal,2) 
+       tic
        DTWobject.d(Ch1,Ch2) = nbt_calculateDTW(Signal(:,Ch1), Signal(:,Ch2), window);
+       toc
+       disp('pp')
    end
 end
 
@@ -76,14 +79,21 @@ if(window < abs(LengthSignal1-LengthSignal2))
 end
 
 %% init
-D = zeros(LengthSignal1+1,LengthSignal2+1)+Inf;
+D = zeros(2*window+2,2)+Inf;
 D(1,1)=0;
-
-for i = 1:LengthSignal1
-    for j = max(i-window,1):min(i+window,LengthSignal2)
+for i = window+1:(LengthSignal1-window)
+    disp(i)
+    jj = 0;
+    for j = (i-window):(i+window)
+         jj = jj+1;
          cost = abs(Signal1(i,1)-Signal2(j,1));
-         D(i+1,j+1) = cost + min([D(i,j+1), D(i+1,j), D(i,j)]);
+         D(jj+1,2) = cost + min([D(jj+1,1), D(jj,2), D(jj,1)]);
     end
+    %shift D
+    D(:,1) = D(:,2);
+    D(:,2) = Inf;
+    D(1:(end-1),1) = D(2:end,1);
+    D(end,1) = Inf;
 end
-d = D(LengthSignal1+1,LengthSignal2+1);
+d = D(end-1,1);
 end
