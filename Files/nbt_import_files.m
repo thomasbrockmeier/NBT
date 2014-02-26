@@ -162,7 +162,14 @@ for i=1:length(directory)
                 stopWhile = 0;
                 while (stopWhile==0)
                     disp(['File: ',directory(i).name])
-                    SubjectID=input('Subject ID? ','s');
+                    while (stopWhile2 == 0)
+                        SubjectID=input('Subject ID? ','s');
+                        if(isnan(str2double(SubjectID)))
+                            disp('The SubjectID should be a number')
+                        else
+                            stopWhile2 = 1;
+                        end
+                    end
                     Date=input('Date of recording? yyyymmdd ','s');
                     Condition=input('Condition? ','s');
                     Notes=input('Notes? ','s');
@@ -296,7 +303,12 @@ for i=1:length(directory)
                         EEG=pop_loadset('filepath',[sourcedirectory,'/',directory(i).name]);
                         EEG.setname = filename;
                         EEG = eeg_checkset(EEG);
-                        Signal=double(EEG.data');
+                        try
+                            Signal=double(EEG.data');
+                        catch
+                            EEG = eeg_epoch2continuous(EEG);
+                            Signal = double(EEG.data');
+                        end
                         EEG=rmfield(EEG,'data');
                         Fs=EEG.srate;
                     case '.dat' %BCI2000 .dat files
