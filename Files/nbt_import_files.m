@@ -162,6 +162,7 @@ for i=1:length(directory)
                 stopWhile = 0;
                 while (stopWhile==0)
                     disp(['File: ',directory(i).name])
+                    stopWhile2 = 0;
                     while (stopWhile2 == 0)
                         SubjectID=input('Subject ID? ','s');
                         if(isnan(str2double(SubjectID)))
