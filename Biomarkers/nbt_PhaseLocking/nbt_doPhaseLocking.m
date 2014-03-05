@@ -38,7 +38,7 @@
 %   and its application to the EEG of epilepsy patients},Physica D:
 %   Nonlinear Phenomena, 144, 3-4, 358-369, 2000
 %
-%   Michael G. Rosenblum, Arkady S. Pikovsky, and J�rgen Kurths, 
+%   Michael G. Rosenblum, Arkady S. Pikovsky, and J???rgen Kurths, 
 %   From Phase to Lag Synchronization in Coupled Chaotic Oscillators
 %   PHYSICAL REVIEW	LETTERS, VOLUME 78, NUMBER 22, 2 JUNE 1997
 % 
@@ -204,7 +204,7 @@ if ~isempty(windowleng)
             disp([' channels ', num2str(k), ' ,' num2str(j), '...'])
             pos=1;
             jump = 0;
-            while (pos+nw <= nx)                       % while enough signal left
+            while (pos+nw-1 <= nx)                       % while enough signal left
                 jump = jump+1;
                 y1 = FilteredSignal(pos:pos+nw-1,k).*w';
                 y2 = FilteredSignal(pos:pos+nw-1,j).*w';
@@ -231,7 +231,7 @@ if ~isempty(windowleng)
                     
             end
         PLV_in_time(k,j,:) =  P_L_V;
-        time_int = linspace(0,(pos-nw*overlap)/Fs,size(PLV_in_time,3));
+        time_int = ((1+(nw-1)/2):nw*overlap:((pos-nw*overlap)+(nw-1)/2))/Fs;
         index1nm(k,j) = mean(ind1nm);
         index2nm(k,j) = mean(ind2nm);
         index3nm(k,j) = mean(ind3nm);
