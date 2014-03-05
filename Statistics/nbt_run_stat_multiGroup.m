@@ -14,7 +14,7 @@ for BId = 1:length(bioms_name)
         end
         DataCell{ChId,1} = DataMatrix;
         %run statistics
-        if (strcmp(s(1).statfuncname, 'One-way ANOVA'))
+        if (strcmp(s(1).statname, 'One-way ANOVA'))
             [pvalues(ChId), table, MultiStats{ChId, 1}] = anova1(DataMatrix,[],'off');
         elseif(strcmp(s(1).statfuncname, 'Two-way ANOVA'))
             if(any(isnan(DataMatrix)))
@@ -23,9 +23,9 @@ for BId = 1:length(bioms_name)
             [dummy, table, MultiStats{ChId, 1}] = anova2(DataMatrix,[],'off');
             F = table(2,5);
             pvalues(ChId) = adjPF(DataMatrix,F{1,1});
-        elseif(strcmp(s(1).statfuncname, 'Kruskal-Wallis test'))
+        elseif(strcmp(s(1).statname, 'Kruskal-Wallis test'))
             [pvalues(ChId), t, MultiStats{ChId, 1}] = kruskalwallis(DataMatrix,[],'off');
-        elseif(strcmp(s(1).statfuncname, 'Friedman test'))
+        elseif(strcmp(s(1).statname, 'Friedman test'))
             if(any(isnan(DataMatrix)))
                 DataMatrix=removeNANsubjects(DataMatrix);
             end
