@@ -37,7 +37,7 @@ for BId = 1:length(bioms_name)
         end
     end
     s(BId).statistic = s(1).statistic;
-    s(BId).statfun = s(1).statfun;
+    s(BId).statfunc = s(1).statfunc;
     s(BId).statfuncname  = s(1).statfuncname;
     s(BId).statname = s(1).statname;
     s(BId).p = pvalues;

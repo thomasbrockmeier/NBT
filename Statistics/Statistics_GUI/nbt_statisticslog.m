@@ -129,22 +129,22 @@ switch index
         s.statname='correlation';
     case 16 % ANOVA one-way
         s.statistic = @nanmean;
-        s.statfun = @anova1;
+        s.statfunc = @anova1;
         s.statfuncname = 'One-way ANOVA';
         s.statname = 'One-way ANOVA';
     case 17 % ANOVA two-way
         s.statistic = @nanmean;
-        s.statfun = @anova2;
+        s.statfunc = @anova2;
         s.statfuncname = 'Two-way ANOVA';
         s.statname = 'Two-way ANOVA'; 
     case 18 %Kruskal-Wallis test
         s.statistic = @nanmedian;
-        s.statfun = @kruskalwallis;
+        s.statfunc = @kruskalwallis;
         s.statfuncname = 'Kruskal-Wallis test';
         s.statname = 'Kruskal-Wallis test';
     case 19 %Friedman test
         s.statistic = @nanmedian;
-        s.statfun = @friedman;
+        s.statfunc = @friedman;
         s.statfuncname = 'Friedman test';
         s.statname = 'Friedman test';
     otherwise
