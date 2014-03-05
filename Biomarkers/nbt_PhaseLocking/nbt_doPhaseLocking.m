@@ -194,7 +194,8 @@ if ~isempty(windowleng)
     Twind = Nwind/Fs; % length of the window in seconds
     nx = size(Signal(:,:),1);                            % size of signal
     w = hanning(Nwind)';                          % hamming window
-    nw = length(w);                            % size of window
+    nw = length(w);   % size of window
+    WindowStep = floor(nw*overlap);
     
     PhaseLockingObject =nbt_PhaseLocking(signallength,nchannels);
 
@@ -227,11 +228,11 @@ if ~isempty(windowleng)
                     end
 
                     %%%% process window y %%%%
-                    pos = floor(pos + nw*overlap);                 % 20%overlap next window
+                    pos = pos + WindowStep;                 % 20%overlap next window
                     
             end
         PLV_in_time(k,j,:) =  P_L_V;
-        time_int = ((1+(nw-1)/2):nw*overlap:((pos-nw*overlap)+(nw-1)/2))/Fs;
+        time_int = ((1+(nw-1)/2):WindowStep:((pos-WindowStep)+(nw-1)/2))/Fs;
         index1nm(k,j) = mean(ind1nm);
         index2nm(k,j) = mean(ind2nm);
         index3nm(k,j) = mean(ind3nm);
