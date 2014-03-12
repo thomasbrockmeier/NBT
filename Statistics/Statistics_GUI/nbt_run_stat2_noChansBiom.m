@@ -262,8 +262,8 @@ end
         xlabel('Channels');
         axis square;
 %         set(bh,'uicontextmenu',hh);
-        nameG1=Group1(1).fileslist(1).group_name;        
-        nameG2=Group2(1).fileslist(1).group_name; 
+        nameG1=Group1.selection.group_name;        
+        nameG2=Group2.selection.group_name; 
 %         B2 = reshape(B2,sqrt(size(B2,1)),sqrt(size(B2,1)),size(B2,2));
 %         B1 = reshape(B1,sqrt(size(B2,1)),sqrt(size(B2,1)),size(B2,2));
         title(['P-values for', statfuncname, ' between ''', regexprep(nameG1,'_',''),' and ', regexprep(nameG2,'_',''),''''],'fontweight','bold','fontsize',12)
