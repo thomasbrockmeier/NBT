@@ -18,7 +18,7 @@
 %
 % Optional inputs:
 %   plotlab     - 1: default->plot  |  0: ->no plot
-%   dlabel      - A label for the data ([]: default->'Potential [?V]')
+%   dlabel      - A label for the data ([]: default->'Potential [µV]')
 %   percent     - percentage of data to exclude for trimmed mean & SD ([]:default->5)
 %                 Excluded is 'percent'/2 high % and 'percent'/2 low %
 %   dlabel2     - A title label for the statistics table
@@ -109,7 +109,7 @@ if nargin < 4
 end
 
 if (nargin < 3 | isempty(dlabel))
-	dlabel='Potential [?V]';
+	dlabel='Potential [µV]';
 end
 		
 if nargin < 2
@@ -283,12 +283,12 @@ if plotlab
   
   if istats
 	  set(gca,'XTick',[])	  
-  elseif ~istats & strcmp(dlabel,'Potential [?V]')
+  elseif ~istats & strcmp(dlabel,'Potential [µV]')
 	  set(gca,'XTick',[-125, -75, -25, 0, 25, 75,  125],...
 			  'XTickLabel',['-125' ; ' -75' ; ' -25' ; '  0 ' ; ' 25 ' ; ' 75 ' ; ' 125'])
   end
   
-  if strcmp(dlabel,'Potential [?V]')
+  if strcmp(dlabel,'Potential [µV]')
 	  set(gca,'XLim',[-125 125])
   end
 
@@ -315,7 +315,7 @@ if plotlab
 	  set(gca,'FontSize',14,'XMinorTick','on') 
       set(gca,'XLim',xlim)
 	  
-      if strcmp(dlabel,'Potential [?V]')
+      if strcmp(dlabel,'Potential [µV]')
 		  set(gca,'XTick',[-125 -75 -25 0 25 75  125],...
 				  'XTickLabel',['-125' ; ' -75' ; ' -25' ; '  0 ' ; ' 25 ' ; ' 75 ' ; ' 125'],...
 				  'XLim',[-125 125])
@@ -343,10 +343,10 @@ if plotlab
   %plot([0 0],ymin,'k--')
   set(gca,'FontSize',14)
   xlabel('Standard Normal Quantiles [Std.Dev.]')
-  if strcmp(dlabel,'Potential [?V]')
-	  ylabel('Ordered Observations [?V]')
+  if strcmp(dlabel,'Potential [µV]')
+	  ylabel('Ordered Observations [µV]')
   elseif strcmp(dlabel,'Component Activity')
-	  ylabel('Ordered Observations [rel. ?V]')
+	  ylabel('Ordered Observations [rel. µV]')
   else
 	  ylabel('Ordered Observations')
   end
@@ -365,7 +365,7 @@ if plotlab
 		  topoplot(map,chan_locs,'electrodes','off', ...
 				   'style', 'blank', 'emarkersize1chan', 10);
 	  else
-		  topoplot(map,chan_locs,'electrodes','off','plotchans',1:length(map));
+		  topoplot(map,chan_locs,'electrodes','off');
 	  end;
 	  axis('square')
   end 

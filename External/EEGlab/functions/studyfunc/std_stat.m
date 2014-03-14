@@ -42,7 +42,7 @@
 %  'fieldtripnaccu'   - 'numrandomization' Fieldtrip parameter
 %  'fieldtripalpha'   - 'alpha' Fieldtrip parameter. Default is 0.05.
 %  'fieldtripmethod'  - 'method' Fieldtrip parameter. Default is 'analytic'
-%  'fieldtripmcorrect' - 'mcorrect' Fieldtrip parameter. Default is 'no'.
+%  'fieldtripmcorrect' - 'mcorrect' Fieldtrip parameter. Default is 'none'.
 %  'fieldtripclusterparam' - string or cell array for optional parameters
 %                            for cluster correction method, see function
 %                            ft_statistics_montecarlo for more information.
@@ -156,8 +156,8 @@ if strcmpi(opt.mode, 'eeglab')
     end;
     
     if ~isempty(opt.groupstats) || ~isempty(opt.condstats)
-        if strcmpi(opt.eeglab.mcorrect, 'fdr'),
-            disp('Applying FDR correction for multiple comparisons');
+        if ~strcmpi(opt.eeglab.mcorrect, 'none'),
+            disp([ 'Applying ' upper(opt.eeglab.mcorrect) ' correction for multiple comparisons' ]);
             for ind = 1:length(pcond),  pcond{ind}  = mcorrect( pcond{ind} , opt.eeglab.mcorrect ); end;
             for ind = 1:length(pgroup), pgroup{ind} = mcorrect( pgroup{ind}, opt.eeglab.mcorrect ); end;
             if ~isempty(pinter),
@@ -173,6 +173,8 @@ if strcmpi(opt.mode, 'eeglab')
         end;
     end;
 else
+    if ~exist('ft_freqstatistics'), error('Install Fieldtrip-lite to use Fieldtrip statistics'); end;
+
     % Fieldtrip statistics
     % --------------------
     params = {};
@@ -243,7 +245,7 @@ end;
 function pvals = mcorrect(pvals, method);
 
 switch method
-    case 'none', return;
+    case {'no' 'none'}, return;
     case 'bonferoni', pvals = pvals*prod(size(pvals));
     case 'holms',     [tmp ind] = sort(pvals(:)); [tmp ind2] = sort(ind); pvals(:) = pvals(:).*(prod(size(pvals))-ind2+1);
     case 'fdr',       pvals = fdr(pvals);

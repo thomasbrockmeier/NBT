@@ -26,7 +26,7 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 
-function [vers versnum releaseDate] = eeg_getversion;
+function [vers, versnum, releaseDate] = eeg_getversion;
 
 vers = '';
 filepath = fileparts(which('eeglab.m'));
@@ -45,5 +45,5 @@ fclose(fid);
 tmpvers = vers; if isempty(str2num(tmpvers(end))), tmpvers(end) = [];
 end; indsDot = find(tmpvers == '.' ); tmpvers(indsDot(2:end)) = [];
 versnum = str2num(tmpvers);
-vers = '12.0.2.2b with NBT';
+vers = '13.0.1.1b with NBT';
 end

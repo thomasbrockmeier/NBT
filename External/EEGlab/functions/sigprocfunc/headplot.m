@@ -26,11 +26,15 @@
 %
 % Optional Setup-mode Inputs:
 %
-%   'meshfile'    - ['string'] Matlab files containing at least two variables:
+%   'meshfile'    - ['string' or structure] Matlab files containing a mesh. The 
+%                   mesh may be of different formats. It may be a Dipfit mesh as
+%                   defined in the file standard_vol.mat. It may contain 
+%                   a structure with the fields 'vertices' and 'faces' or it
+%                   it may contain a structure with at least two fields:
 %                      POS    - 3-D positions of vertices: 
 %                               x=left-right; y=back-front; z=up-down
 %                      TRI1   - faces on which the scalp map should be computed
-%                     plus possible optional variables:
+%                   plus possible optional fields are:
 %                     center (optional) - 3-D center of head mesh
 %                     TRI2   (optional) - faces in skin color
 %                     NORM   (optional) - normal for each vertex (better shading)
@@ -82,6 +86,7 @@
 %   'lights'     - (3,N) matrix whose rows give [x y z] pos. of each of
 %                   N lights {default: four lights at corners}
 %   'lighting'   - 'off' = show wire frame head {default 'on'} 
+%   'material'   - [see material function] {default 'dull'}
 %   'colormap'   -  3-column colormap matrix {default: jet(64)}
 %   'verbose'    - 'off' -> no msgs, no rotate3d {default: 'on'}
 %   'orilocs'    - [channel structure or channel file name] Use original 
@@ -183,7 +188,7 @@ if isstr(values)
                                        'plotchans'    'integer' []                         [];
                                        'ica'          'string'  { 'on','off' }             'off';
                                        'transform'    'real'    []                         DEFAULT_TRANSFORM;
-                                       'comment'      'string'  []                         '' });
+                                       'comment'      'string'  []                         '' }, 'headplot', 'ignore');
     if isstr(g), 
         error(g);
     end;
@@ -438,6 +443,7 @@ else
        'transform'  'real'   []              [];
        'meshfile'   {'string','struct' } []  DEFAULT_MESH;
        'electrodes' 'string' { 'on','off' }  'on';            
+       'material'     'string'            [] 'dull';
        'orilocs'    { 'string','struct' } [] '';            
        'labels'     'integer' [0 1 2]        0 }, 'headplot');
    if isstr(g) error(g); end;
@@ -583,6 +589,7 @@ else
     set(p1,'DiffuseStrength',.6,'SpecularStrength',0,...
     'AmbientStrength',.3,'SpecularExponent',5)
     lighting phong  % all this gives a matte reflectance
+    material(g.material);
   end  
 
   %%%%%%%%%%%%%%%%%%%%%%%%%

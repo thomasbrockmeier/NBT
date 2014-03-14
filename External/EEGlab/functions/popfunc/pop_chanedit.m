@@ -707,15 +707,19 @@ else
                 if isempty(tmpargs), return; end;
                 fid = fopen(tmpargs, 'w');
                 if fid ==-1, error('Cannot open file'); end;
+                
                 allfields = fieldnames(chans);
+                fields = { 'labels' 'theta' 'radius' 'X' 'Y' 'Z' 'sph_theta' 'sph_phi' 'sph_radius' 'type' };
+                tmpdiff = setdiff(fields, allfields);
+                if ~isempty(tmpdiff), error(sprintf('Field "%s" missing in channel location structure', tmpdiff{1})); end;
                 fprintf(fid, 'Number\t');
-                for field = 1:length(allfields)
-                    fprintf(fid, '%s\t', allfields{field});
+                for field = 1:length(fields)
+                    fprintf(fid, '%s\t', fields{field});
                 end;
                 fprintf(fid, '\n');
                 for index=1:length(chans)
                     fprintf(fid, '%d\t',  index);
-                    for field = 1:length(allfields)
+                    for field = 1:length(fields)
                         tmpval = getfield(chans, {index}, allfields{field});
                         if isstr(tmpval)
                             fprintf(fid, '%s\t',  tmpval);
@@ -732,6 +736,11 @@ else
                 if ~isempty(fig)
                     tmpval = get(findobj(gcbf, 'tag', 'nosedir'), 'value');
                     args{ curfield+1 } = nosevals{tmpval};
+                    warndlg2( [ 'Changing the nose direction will force EEGLAB to physically rotate ' 10 ...
+                                'electrodes, so next time you call this interface, nose direction will' 10 ...
+                                'be +X. If your electrodes are currently aligned with a specific' 10 ...
+                                'head model, you will have to rotate them in the model coregistration' 10 ... 
+                                'interface to realign them with the model.'], 'My Warn Dialog');
                 end;
                 chaninfo.nosedir = args{ curfield+1 };
                 if isempty(strmatch(chaninfo.nosedir, nosevals))
