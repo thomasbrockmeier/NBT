@@ -18,7 +18,7 @@ function [HDR]=swrite(HDR,data)
 % Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-%	$Id: swrite.m 2686 2011-05-12 07:48:47Z schloegl $
+%	$Id: swrite.m 3157 2012-11-26 09:05:55Z schloegl $
 %	Copyright (c) 1997-2005,2011 by Alois Schloegl <alois.schloegl@gmail.com>	
 %       This file is part of the biosig project http://biosig.sf.net/
 
@@ -54,7 +54,7 @@ if strcmp(HDR.TYPE,'EDF') || strcmp(HDR.TYPE,'GDF') || strcmp(HDR.TYPE,'BDF'),
                 D = data; 
                 
         elseif (HDR.SPR == 1), 
-                D = data'; 
+                D = data(:, HDR.AS.SPR > 0)'; 
                 
         else    
                 % fill missing data with NaN

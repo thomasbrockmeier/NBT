@@ -19,7 +19,7 @@ function [HDR] = getfiletype(arg1)
 % as published by the Free Software Foundation; either version 3
 % of the License, or (at your option) any later version.
 
-%	$Id: getfiletype.m 2930 2012-03-30 08:13:05Z schloegl $
+%	$Id: getfiletype.m 3057 2012-08-24 15:04:16Z schloegl $
 %	(C) 2004,2005,2007,2008 by Alois Schloegl <a.schloegl@ieee.org>	
 %    	This is part of the BIOSIG-toolbox http://biosig.sf.net/
 
@@ -343,6 +343,8 @@ else
                         HDR.TYPE='NEX';
                 elseif all(s([1:6])==abs('Neuron')); 
                         HDR.TYPE='NEURON';
+                elseif all(strcmp(ss([1:10]),'[FileInfo]')); 
+                        HDR.TYPE='Persyst';
                 elseif all(s([1:4])==abs('SXDF')); 
                         HDR.TYPE='OpenXDF';
                 elseif all(s([1:4,6:132])==[abs('PLEX'),zeros(1,127)]); 	% http://WWW.PLEXONINC.COM

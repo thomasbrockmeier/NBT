@@ -16,7 +16,7 @@ function [HDR] = ssave(FILENAME,DATA,TYPE,Fs,gdftyp)
 % see also: SSAVE, SOPEN, SWRITE, SCLOSE, doc/README
 %
 
-% $Id: ssave.m 2627 2011-02-21 22:44:12Z schloegl $
+% $Id: ssave.m 3061 2012-08-27 09:19:14Z schloegl $
 % Copyright (C) 2003,2004,2007 by Alois Schloegl <a.schloegl@ieee.org>	
 % This file is part of the biosig project http://biosig.sf.net/
 
@@ -100,7 +100,7 @@ if (nargin > 1),
 	HDR = sclose(HDR);
 end;
 
-if strcmp(TYPE,'EVENT') return; end; 
+if (nargin>2) && strcmp(TYPE,'EVENT') return; end; 
 
 % Convert EVENT into WSCORE event format
 if all([length(HDR.EVENT.POS), length(HDR.EVENT.TYP)]),

@@ -240,7 +240,7 @@ EMARKER2COLOR = 'r';     % mark subset of electrode locations with small disks
 EMARKERSIZE2 = 10;      % default selected channel location marker size
 EMARKER2LINEWIDTH = 1;
 EFSIZE = get(0,'DefaultAxesFontSize'); % use current default fontsize for electrode labels
-HLINEWIDTH = 1.7;         % default linewidth for head, nose, ears
+HLINEWIDTH = 2;         % default linewidth for head, nose, ears
 BLANKINGRINGWIDTH = .035;% width of the blanking ring 
 HEADRINGWIDTH    = .007;% width of the cartoon head ring
 SHADING = 'flat';       % default 'shading': flat|interp
@@ -1334,7 +1334,7 @@ headx = [[rx(:)' rx(1) ]*(hin+hwidth)  [rx(:)' rx(1)]*hin];
 heady = [[ry(:)' ry(1) ]*(hin+hwidth)  [ry(:)' ry(1)]*hin];
 
 if ~isstr(HEADCOLOR) | ~strcmpi(HEADCOLOR,'none')
-   ringh= patch(headx,heady,ones(size(headx)),HEADCOLOR,'edgecolor',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
+   %ringh= patch(headx,heady,ones(size(headx)),HEADCOLOR,'edgecolor',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
    headx = [rx(:)' rx(1)]*hin;
    heady = [ry(:)' ry(1)]*hin;
    ringh= plot(headx,heady);
@@ -1401,8 +1401,8 @@ end
  set(plotax,'ylim',ylm);                               % copy position and axis limits again
 
 axis equal;
-set(gca, 'xlim', [-0.6 0.6]); set(plotax, 'xlim', [-0.6 0.6]);
-set(gca, 'ylim', [-0.6 0.6]); set(plotax, 'ylim', [-0.6 0.6]);
+set(gca, 'xlim', [-0.525 0.525]); set(plotax, 'xlim', [-0.525 0.525]);
+set(gca, 'ylim', [-0.525 0.525]); set(plotax, 'ylim', [-0.525 0.525]);
  
 %get(textax,'pos')    % test if equal!
 %get(plotax,'pos')

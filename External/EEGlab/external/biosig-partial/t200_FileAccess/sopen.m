@@ -44,7 +44,7 @@ function [HDR,H1,h2] = sopen(arg1,PERMISSION,CHAN,MODE,arg5,arg6)
 % see also: SLOAD, SREAD, SSEEK, STELL, SCLOSE, SWRITE, SEOF, BDF2BIOSIG_EVENTS
 
 
-%	$Id: sopen.m 2997 2012-06-18 15:15:49Z schloegl $
+%	$Id: sopen.m 3165 2012-12-03 13:39:25Z schloegl $
 %	(C) 1997-2006,2007,2008,2009,2011,2012 by Alois Schloegl <alois.schloegl@gmail.com>	
 %    	This is part of the BIOSIG-toolbox http://biosig.sf.net/
 %
@@ -614,7 +614,7 @@ end;
 			if ~isfield(HDR,'THRESHOLD')
 	                        HDR.THRESHOLD  = [HDR.DigMin',HDR.DigMax'];       % automated overflow detection 
 	                        if (HDR.VERSION <= 0) && HDR.FLAG.OVERFLOWDETECTION,   % in case of EDF and OVERFLOWDETECTION
-					HHDR.FLAG.OVERFLOWDETECTION = 0;
+					HDR.FLAG.OVERFLOWDETECTION = 0;
 	                        	fprintf(2,'WARNING SOPEN(EDF): Automated Overflowdetection not supported for EDF and BDF data, because \n'); 
 					fprintf(2,'   Physical Max/Min values of EDF/BDF data are not necessarily defining the dynamic range.\n'); 
 	                        	fprintf(2,'   For more information see: http://dx.doi.org/10.1016/S1388-2457(99)00172-8 (A. Schloegl et al. Quality Control ... Clin. Neurophysiol. 1999, Dec; 110(12): 2165 - 2170).\n'); 
@@ -1034,23 +1034,31 @@ end;
 			%% decode EDF+/BDF+ annotations
                         N = 0; 
                         onset = []; dur=[]; Desc = {};
-			[s,t] = strtok(HDR.EDFplus.ANNONS,0);
-    			while ~isempty(s)
-    				N  = N + 1; 
-    				ix = find(s==20);
-    				[s1,s2] = strtok(s(1:ix(1)-1),21);
-    				s1;
+			t = HDR.EDFplus.ANNONS;
+    			while ~isempty(t)
+				% remove leading 0
+				t  = t(find(t>0,1):end);
+
+				ix = find(t==20,2); 		
+				if isempty(ix) break; end;
+
+				% next event 
+    				N = N + 1; 
+				[s1,s2] = strtok(t(1:ix(1)-1),21);
+				s3 = t(ix(1)+1:ix(2)-1);
+
     				tmp = str2double(s1);
     				onset(N,1) = tmp;
-   				tmp = str2double(s2(2:end));
-   				if  ~isempty(tmp)
+   				if  ~isempty(s2)
+	   				tmp = str2double(s2(2:end));
    					dur(N,1) = tmp; 	
    				else 
    					dur(N,1) = 0; 	
    				end;
-    				Desc{N} = char(s(ix(1)+1:end-1));
-				[s,t] = strtok(t,0);
+				if all(s3(2:2:end)==0) s3 = s3(1:2:end); end; %% unicode to ascii - FIXME 
+    				Desc{N} = s3;
 	                        HDR.EVENT.TYP(N,1) = length(Desc{N});
+				t = t(ix(2)+1:end);
     			end;		
                         HDR.EVENT.POS = onset * HDR.SampleRate;
                         if any(HDR.EVENT.POS - ceil(HDR.EVENT.POS))
@@ -1059,6 +1067,7 @@ end;
                         end
                         HDR.EVENT.DUR = dur * HDR.SampleRate;
                         HDR.EVENT.CHN = zeros(N,1); 
+                        %% TODO: use eventcodes.txt for predefined event types e.g. QRS->0x501
                         [HDR.EVENT.CodeDesc, CodeIndex, HDR.EVENT.TYP] = unique(Desc(1:N)');
 		end
 
@@ -3371,12 +3380,37 @@ elseif strcmp(HDR.TYPE,'Sigma'),	% SigmaPLpro
 		HDR.NRec = (HDR.FILE.size-HDR.HeadLen)/(2*HDR.NS); 
         end;
         
+
 elseif strncmp(HDR.TYPE,'EEG-1100',8),
+    try
+	[s,H]  = mexSLOAD(HDR.FileName,ReRefMx);
+	H.data = s; 
+	H.TYPE = 'native'; 
+	H.FILE.stderr = HDR.FILE.stderr;
+	H.FILE.PERMISSION = HDR.FILE.PERMISSION;
+	H.FLAG.FORCEALLCHANNEL = HDR.FLAG.FORCEALLCHANNEL;
+	H.FLAG.TRIGGERED = 0;
+	H.FILE.POS = 0;
+	H.FLAG.OUTPUT = HDR.FLAG.OUTPUT;
+	H.FILE.OPEN = HDR.FILE.OPEN;
+	H.FILE.FID = HDR.FILE.FID;
+        HDR = H;
+
+    catch
+	fprintf(HDR.FILE.stderr,'Warning SOPEN: family of Nihon-Kohden 1100 format is implemented only fully in libbiosig.\n');
+	fprintf(HDR.FILE.stderr,'You need to have mexSLOAD installed in order to load file %s,\n',HDR.FileName);
+	fprintf(HDR.FILE.stderr,' or you get only some limited header information');
+
+	%% TODO: use mexSOPEN and SREAD.M together in order to avoid the need to load the whole data section 
+
+	H = mexSSOPEN(HDR.FileName); 
+	%% This will do some parts, but the internal fields needed by SREAD() and channel selection need still be defined. 
+	
         HDR.FILE.FID = fopen(HDR.FileName,[HDR.FILE.PERMISSION,'b'],'ieee-le');
         if any(HDR.FILE.PERMISSION=='r'),		%%%%% READ 
                 [H1,count] = fread(HDR.FILE.FID,[1,6160],'uint8');
-                %HDR.Patient.Name = char(H1(79+(1:32)));
-                if count<6160, 
+                % HDR.Patient.Name = char(H1(79+(1:32)));
+                if count < 6160, 
                         fclose(HDR.FILE.FID);
                         return;
                 end;
@@ -3393,7 +3427,8 @@ elseif strncmp(HDR.TYPE,'EEG-1100',8),
                 end;
                 fclose(HDR.FILE.FID);
         end;
-        
+    end        
+
         
 elseif strcmp(HDR.TYPE,'GTF'),          % Galileo EBNeuro EEG Trace File
         HDR.FILE.FID = fopen(HDR.FileName,[HDR.FILE.PERMISSION,'b'],'ieee-le');
@@ -4451,6 +4486,182 @@ elseif strcmp(HDR.TYPE,'OGG'),
 		return;
         end;
 
+        
+elseif strcmp(HDR.TYPE,'Persyst'),
+        if any(HDR.FILE.PERMISSION=='r');
+                [HDR.FILE.FID] = fopen(HDR.FileName,['rb']);          
+                if HDR.FILE.FID < 0, 
+                        HDR.ErrNum = [32,HDR.ErrNum];
+                        return;
+                end;
+                [H1,count] = fread(HDR.FILE.FID, [1,inf], 'uint8=>char');
+		fclose(HDR.FILE.FID); 
+
+		HDR.EVENT.N = 0;
+		HDR.NS = 0;
+		HDR.Endianity ='ieee-le';
+		HDR.FLAG.OVERFLOWDETECTION = 0; 		
+		flag_interleaved = 1;
+		flag_nk = 0;
+		status = 0; 
+		line = H1;
+		Desc = {}; 
+		HDR.EVENT.POS = [];
+		HDR.EVENT.DUR = [];
+		HDR.EVENT.CHN = [];
+		HDR.EVENT.TYP = [];
+		while (~isempty(line))
+			[line,H1] = strtok(H1,char([10,13]));
+			if strcmp(line,'[FileInfo]')
+				status = 1; 
+			elseif strcmp(line,'[ChannelMap]')
+				status = 2;
+%%				HDR.AS.bpb = HDR.NS* 	%% todo
+				HDR.PhysDimCode = zeros(HDR.NS,1);      % unknown
+			elseif strcmp(line,'[Sheets]')
+				status = 3; 
+			elseif strcmp(line,'[Comments]')
+				status = 4; 
+			elseif strcmp(line,'[Patient]')
+				status = 5; 
+			elseif strcmp(line,'[SampleTimes]')
+				status = 6; 
+			elseif isempty(line)
+				; %% ignore 
+			elseif isempty(line)
+				status = -1;  
+			else
+				switch (status)
+				case {1}
+					[tag,val]=strtok(line,'=');
+					val = val(2:end);
+					switch (tag)
+					case {'File'}
+						val(val=='\')='/';
+						ix = find(val=='/');
+						if isempty(ix), ix = 0; end; 
+						datfile = val(ix(end)+1:end);
+					case {'FileType'}
+						flag_interleaved = strcmp(val,'Interleaved');
+						flag_NK = strcmp(val,'NihonKohden');
+					case {'SamplingRate'}
+						HDR.SampleRate = str2double(val); 
+						HDR.EVENT.SampleRate = HDR.SampleRate; 
+					case {'Calibration'}
+						HDR.Cal = str2double(val); 
+					case {'WaveformCount'}
+						HDR.NS = str2double(val); 
+					case {'DataType'}
+						switch (val)	
+						case {'0'} 
+							HDR.GDFTYP = 3;  
+							HDR.AS.bpb = 2*HDR.NS;
+						case {'4'}
+							HDR.GDFTYP = 3;  
+							HDR.AS.bpb = 2*HDR.NS;
+							HDR.Endianity = 'ieee-be';
+						case {'6'} 
+							HDR.GDFTYP = 1;  
+							HDR.AS.bpb = HDR.NS;
+						otherwise
+		
+						end;
+					end; 
+				case {2}
+					[tag,val]=strtok(line,'=');
+					ch = str2double(val(2:end));
+					HDR.Label{ch} = tag; 
+				case {3}
+				case {4}
+					HDR.EVENT.N = HDR.EVENT.N + 1;
+					[pos,ll]=strtok(line,',');
+					[dur,ll]=strtok(ll,',');
+					[ign,ll]=strtok(ll,',');
+					[ign,ll]=strtok(ll,',');
+					Desc{HDR.EVENT.N} = ll(2:end); 
+					HDR.EVENT.POS(HDR.EVENT.N) = str2double(pos)*HDR.EVENT.SampleRate;	
+					HDR.EVENT.DUR(HDR.EVENT.N) = str2double(dur)*HDR.EVENT.SampleRate;	
+				case {5}
+					[tag,val]=strtok(line,'=');
+					val = val(2:end);
+					switch (tag)
+					case {'First'}
+						FirstName = val;
+					case {'MI'}
+						MiddleName = val; 
+					case {'Last'}
+						SurName = val; 
+					case {'Hand'}
+						HDR.Patient.Handedness = any(val(1)=='rR') + any(val(1)=='lL') * 2;
+					case {'Sex'}
+						HDR.Patient.Sex = any(val(1)=='mM') + any(val(1)=='fF') * 2;
+					case {'BirthDate'}
+						val(val==47)=' ';
+						t = str2double(val);
+						if t(3) < 30, 	c = 2000; 
+						else 		c = 1900; 
+						end; 
+						HDR.Patient.Birthday = [t(3)+c,t(1),t(2), 0, 0, 0]; 
+					case {'TestDate'}
+						val(val=='/')=' ';
+						t = str2double(val);
+						if t(3) < 80, 	c = 2000; 
+						else 		c = 1900; 
+						end; 
+						HDR.T0(1:3) = [t(3)+c,t(1),t(2)]; 
+					case {'TestTime'}
+						val(val==':')=' ';
+						t = str2double(val);
+						HDR.T0(4:6) = t; 
+					case {'ID'}
+						HDR.Patient.Id = val;
+					%case {'Physician'}
+					%	This is not really needed
+					%	HDR.REC.Doctor = val;
+					case {'Technician'}
+						HDR.REC.Technician = val;
+					case {'Medications'}
+						HDR.Patient.Medication = val;
+					end;
+				case {6}		
+				end;
+			end;
+		end;
+
+		if (flag_nk) 
+			HDR = sopen(fullfile(HDR.FILE.Path,datfile));
+		end; 			
+		HDR.FILE.POS = 0;
+		HDR.FILE.Ext = '.dat'; 
+		fid = fopen(fullfile(HDR.FILE.Path,datfile),'r', HDR.Endianity);
+		if HDR.GDFTYP==3, 
+			s = fread(fid,inf,'int16');
+		elseif HDR.GDFTYP==1
+			s = fread(fid,inf,'int8');
+		end 
+		fclose(fid); 
+		
+		if flag_interleaved,
+			HDR.data = reshape(s,HDR.NS,[])';
+		else 
+			HDR.data = reshape(s,[],HDR.NS);
+		end; 
+		HDR.data = HDR.data*HDR.Cal;
+
+		HDR.SPR     = 1; 
+		HDR.NRec    = size(HDR.data,1); 
+		HDR.TYPE    = 'native';	
+		HDR.DigMax  = max(HDR.data); 
+		HDR.DigMin  = min(HDR.data); 
+		HDR.PhysMax = HDR.Cal*HDR.DigMax;
+		HDR.PhysMin = HDR.Cal*HDR.DigMin;
+
+		HDR.Calib = sparse(2:HDR.NS+1, 1:HDR.NS, HDR.Cal);        
+
+		[HDR.EVENT.CodeDesc, j, HDR.EVENT.TYP] = unique(Desc); 
+		HDR.EVENT.CHN = zeros(size(HDR.EVENT.POS));
+	end 
+        
         
 elseif strcmp(HDR.TYPE,'RMF'),
         HDR.FILE.FID = fopen(HDR.FileName,[HDR.FILE.PERMISSION,'b'],'ieee-le');
@@ -6905,12 +7116,12 @@ elseif strncmp(HDR.TYPE,'MAT',3),
                         end;        
                         HDR.TYPE = 'native'; 
                 end;
+
                 
-                
-        elseif isfield(tmp,'EEGdata');  % Telemonitoring Daten (Reinhold Scherer)
+        elseif isfield(tmp,'EEGdata') && isfield(tmp,'classlabel');  % Telemonitoring Daten (Reinhold Scherer)
                 HDR.NS = size(tmp.EEGdata,2);
                 HDR.NRec = 1; 
-                HDR.Classlabel = tmp.classlabel;
+               	HDR.Classlabel = tmp.classlabel;
                 if ~isfield(tmp,'SampleRate')
                         fprintf(HDR.FILE.stderr,'Warning SLOAD: Samplerate not known in %s. 125Hz is chosen\n',HDR.FileName);
                         HDR.SampleRate=125;
@@ -6921,7 +7132,23 @@ elseif strncmp(HDR.TYPE,'MAT',3),
                 fprintf(HDR.FILE.stderr,'Sensitivity not known in %s. 50µV is chosen\n',HDR.FileName);
                         HDR.data = tmp.EEGdata*50;
                 HDR.TYPE = 'native'; 
-                
+
+
+        elseif isfield(tmp,'EEGdata') && isfield(tmp,'EEGdatalabel') && isfield(tmp,'configuration_channel');
+        	%% some gtec data 
+                HDR.NS = size(tmp.EEGdata,1);
+                HDR.SPR = size(tmp.EEGdata,2); 
+                HDR.NRec = size(tmp.EEGdata,3); 
+               	HDR.Classlabel = tmp.EEGdatalabel;
+               	HDR.TRIG = [0:HDR.NRec-1]'*HDR.SPR+1;
+                fprintf(HDR.FILE.stderr,'Warning SLOAD: Samplerate not known in %s. Samplingrate is normalized to 1.\n',HDR.FileName);
+               	HDR.SampleRate = 1; 
+              	% values for samplerate, channel label, physical units etc. not supported. 
+		HDR.PhysDim = 'uV';
+                HDR.data = reshape(tmp.EEGdata,HDR.NS,HDR.SPR*HDR.NRec)';
+                HDR.TYPE = 'native'; 
+                                
+
         elseif isfield(tmp,'daten');	% EP Daten von Michael Woertz
                 HDR.NS = size(tmp.daten.raw,2)-1;
                 HDR.NRec = 1; 

@@ -154,7 +154,6 @@ if EEG.trials == 1 && ~isempty(EEG.event) ...
         EEG.data = rmbase( EEG.data, EEG.pnts, pointrange );    
     end;		
 else
-    % EEG.data = rmbase( EEG.data(:,:), EEG.pnts, pointrange ); 
     for indc = 1:EEG.nbchan
         tmpmean  = mean(double(EEG.data(indc,pointrange,:)),2);
         EEG.data(indc,:,:) = EEG.data(indc,:,:) - repmat(tmpmean, [1 EEG.pnts 1]);

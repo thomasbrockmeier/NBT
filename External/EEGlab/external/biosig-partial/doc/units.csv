@@ -7,11 +7,13 @@
 # CEN/TC251/PT40 2001	
 # File Exchange Format for Vital Signs - Annex A 
 #
-# $Id: units.csv,v 1.12 2008/08/29 16:30:14 schloegl Exp $
-# Copyright (C) 2005,2006,2008 Alois Schloegl <alois.schloegl@gmail.com>
+# $Id: units.csv 3110 2012-10-09 07:23:43Z schloegl $
+# Copyright (C) 2005,2006,2008,2012 Alois Schloegl <alois.schloegl@ist.ac.at>
 # This file is part of the biosig project http://biosig.sf.net/
 #
-#
+# In some cases, there are more than one text representation for a certain code.
+# The text-to-binary conversion should accept all listed representations;
+# the binary-to-text conversion should return the first representation. 
 #"Code (base code)","Symbol  (not normative)","Dimension","Unit of Measurement"
 ,,"Unspecified",
 0,"?",,"<Unspecified>"
@@ -129,7 +131,7 @@
 3136,"l d-1",,"<magnitude> litre(s) per day"
 ,,"L3M-1 (volume content)",
 3168,"l kg-1",,"<magnitude> litre(s) per kilogram"
-3200,"m3 d-1",,"cubic <magnitude> metre(s) per kilogram"
+3200,"m3 kg-1",,"cubic <magnitude> metre(s) per kilogram"
 ,,"L2M-1T (permeability)",
 3232,"m Pa-1s-1",,"<magnitude> meter per pascal second"
 3264,"l min-1 mmHG-1",,"<magnitude> litre per min. per millimetre of mercury"
@@ -262,6 +264,11 @@
 6624,"m s-2", "meter per second squared", "acceleration"
 6624,"m/s²", "meter per second squared", "acceleration"
 6656,"rad s2-2", "radians per second squared", "(angular) acceleration" 
+6688,"ft min-1",,"Foot per minute"
+6720,"in min-1",,"Inch per minute"
+6752,"step min-1",,"Step per minute"
+6784,"kcal","Energy","Calorie (equal to 4.184 Joule)"
+6816,"rpm","Cadence","Revolution per minute"
 ### private: units with no standardized code
 #,"kgf m [J]",,Left Stroke Work (LSW)
 #,"kgf m min-1 [W]",,Left Cardiac Work (LCW)
@@ -279,6 +286,5 @@
 65472,"l m-2","stroke index","litres per square meter"
 65472,"l/m²","stroke index","litres per square meter"
 65504,"T",,"<magnitude> Tesla" 
-65504,"ml/m²",,"<magnitude> Tesla" 
 #
 #

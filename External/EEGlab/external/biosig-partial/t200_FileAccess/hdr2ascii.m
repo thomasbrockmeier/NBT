@@ -12,7 +12,7 @@ function [argout,H1,h2] = hdr2ascii(source,dest)
 %  
 % see also: SLOAD, SOPEN
 
-%	$Id: hdr2ascii.m 2997 2012-06-18 15:15:49Z schloegl $
+%	$Id: hdr2ascii.m 3169 2012-12-04 15:39:03Z schloegl $
 %	Copyright (C) 2007,2008 by Alois Schloegl <a.schloegl@ieee.org>	
 %    	This is part of the BIOSIG-toolbox http://biosig.sf.net/
 %
@@ -253,7 +253,11 @@ for k = 1:length(HDR.EVENT.POS);
 	else
 		T0 = datenum(HDR.T0);
 	end;
-	t = datevec(HDR.EVENT.POS(k)/(24*3600*HDR.SampleRate)+T0);
+	if isfield(HDR.EVENT,'TimeStamp');
+		t = datevec(HDR.EVENT.TimeStamp(k));
+	else		
+		t = datevec(HDR.EVENT.POS(k)/(24*3600*HDR.SampleRate)+T0);
+	end
 	fprintf(fid,'0x%04x\t%9i\t%04i-%02i-%02i %02i:%02i:%07.4f',[HDR.EVENT.TYP(k),HDR.EVENT.POS(k),t(1:6)]); 
 %%	fprintf(fid,'0x%04x\t%9i',[HDR.EVENT.TYP(k),HDR.EVENT.POS(k)]'); 
 	if isfield(HDR.EVENT,'CHN')

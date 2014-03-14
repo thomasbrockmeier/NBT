@@ -12,6 +12,8 @@ function [signal,H] = sload(FILENAME,varargin)
 % [signal,header] = sload(..., PropertyName1,PropertyValue1,...)
 %  	PropertyName(s)		PropertyValue
 %	'UCAL'			-		data uncalibrated (not scaled)
+%				'On'		data uncalibrated (not scaled)
+%				'Off'		data calibrated (scaled) [default]
 %	'OVERFLOWDETECTION'	'On'		[default] 
 %				'Off'		no overflow detection 
 %	'OUTPUT'		'single'	single precision data [default: 'double'] 
@@ -37,15 +39,15 @@ function [signal,H] = sload(FILENAME,varargin)
 %       [s,HDR]=sread(HDR,duration_segmentM); 
 %       HDR = sclose(HDR); 
 %
-% see also: SVIEW, SOPEN, SREAD, SCLOSE, SAVE2BKR, TLOAD
+% see also: SVIEW, SOPEN, SREAD, SCLOSE, SAVE2BKR, BDF2BIOSIG_EVENTS, TLOAD
 %
 % In order to increase the speed, install mexSLOAD.mex from biosig4c++
 %
 % Reference(s):
 
 
-%	$Id: sload.m 2930 2012-03-30 08:13:05Z schloegl $
-%	Copyright (C) 1997-2007,2008,2009,2010,2011 by Alois Schloegl 
+%	$Id: sload.m 3169 2012-12-04 15:39:03Z schloegl $
+%	Copyright (C) 1997-2007,2008,2009,2010,2011,2012 by Alois Schloegl 
 %    	This is part of the BIOSIG-toolbox http://biosig.sf.net/
 
 %
@@ -350,7 +352,7 @@ if exist('mexSLOAD','file')==3,
 			if isfield(HDR.FLAG,'ROW_BASED_CHANNELS') && HDR.FLAG.ROW_BASED_CHANNELS, signal = signal.'; end;
 			FlagLoaded   = isfield(HDR,'NS');
 			HDR.InChanSelect = InChanSelect(InChanSelect <= HDR.NS);
-			signal = signal*ReRefMx(HDR.InChanSelect,:); %% can be sparse if just a single channel is loaded
+			signal = signal*ReRefMx(InChanSelect,:); %% can be sparse if just a single channel is loaded
 			signal = full(signal);  %% make sure signal is not sparse 
 		end;
 		HDR = bdf2biosig_events(HDR, STATE.BDF);
@@ -387,6 +389,9 @@ if exist('mexSLOAD','file')==3,
 			if isfield(H.EVENT,'DUR')
 				H.EVENT.DUR = H.EVENT.DUR(ix);
 			end; 	
+			if isfield(H.EVENT,'TimeStamp')
+				H.EVENT.TimeStamp = H.EVENT.TimeStamp(ix);
+			end; 	
 
 			if (length(H.EVENT.TYP)>0)
                                 ix = (H.EVENT.TYP>hex2dec('0300')) & (H.EVENT.TYP<hex2dec('030d'));
@@ -420,6 +425,9 @@ if exist('mexSLOAD','file')==3,
 				H.EVENT.TYP = H.EVENT.TYP(sel);
 				H.EVENT.DUR = H.EVENT.DUR(sel);	% if EVENT.CHN available, also EVENT.DUR is defined. 
 				H.EVENT.CHN = H.EVENT.CHN(sel);
+				if isfield(H.EVENT,'TimeStamp')
+					H.EVENT.TimeStamp = H.EVENT.TimeStamp(sel);
+				end; 	
 				% assigning new channel number 
 				a = zeros(1,HDR.NS);
 				for k = 1:length(InChanSelect),		% select channel specific elements
@@ -1386,8 +1394,9 @@ if STATE.FLAG_NUM_NAN,
 	if H.SPR * H.NRec ~= size(signal,1),
 		H.SPR = H.SPR + winlen * (n - 1);
 	end;
-	if H.SPR * H.NRec ~= size(signal,1),
-		warning('Undefined state: HDR.SPR*HDR.NRec does not match size of data - if you see this message contact <alois.schloegl@gmail.com> and provide the details'); 
+
+	if ~STATE.FLAG_NUM_NAN && (H.SPR * H.NRec ~= size(signal,1))
+		warning('Undefined state: HDR.SPR*HDR.NRec does not match size of data - if you see this message contact <alois.schloegl@gmail.com> and provide the details %s', HDR.FileName); 
 	end; 
 	% [HDR.SPR, HDR.NRec, size(signal)]
 end;
