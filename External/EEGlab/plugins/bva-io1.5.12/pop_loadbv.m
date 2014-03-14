@@ -21,6 +21,16 @@
 %   EEG       - EEGLAB EEG structure
 %   com       - history string
 %
+% Note:
+%   Import "Brain Vision Data Exchange" format files with this function.
+%   Brain Vision Data Exchange files consist of a set of 3 files, a header
+%   file (.vhdr), a marker file (.vmrk), and a data file. Export from
+%   BrainVision Analyzer with "Generic Data" export. Select header and
+%   marker file for export (text format; XML format is not yet supported).
+%   Binary and text data formats, in both multiplexed and vectorized data
+%   orientation are supported. Binary data formats offer higher precision
+%   and faster file import.
+%
 % Author: Andreas Widmann & Arnaud Delorme, 2004-
 
 % Copyright (C) 2004 Andreas Widmann, University of Leipzig, widmann@uni-leipzig.de
@@ -164,7 +174,7 @@ end
 disp('pop_loadbv(): reading EEG data');
 [IN, message] = fopen(fullfile(path, hdr.commoninfos.datafile), 'r');
 if IN == -1
-     [IN, message] = fopen(fullfile(path, ([hdrfile(1:end-5) '.dat'])));
+    [IN, message] = fopen(fullfile(path, lower(hdr.commoninfos.datafile)));
     if IN == -1
         error(message)
     end;
@@ -186,16 +196,20 @@ else
 end
 
 if ~strcmpi(hdr.commoninfos.dataformat, 'binary') % ASCII
-    tmppoint = hdr.commoninfos.datapoints;
+    % tmppoint = hdr.commoninfos.datapoints;
     tmpchan = fscanf(IN, '%s', 1);
-    tmpdata = fscanf(IN, '%f', inf);
-    hdr.commoninfos.datapoints = length(tmpdata);
-    chanlabels = 1;
+    
+    % AW: Determination of number of datapoints will not work for files without chanlabels and/or multiplexed dataformat. Suggest trusting in header.
+    % tmpdata = fscanf(IN, '%f', inf);
+    % hdr.commoninfos.datapoints = length(tmpdata);
+    % chanlabels = 1;
     if isnan(str2double(tmpchan)) 
-        hdr.commoninfos.datapoints = hdr.commoninfos.datapoints+1; 
+        % hdr.commoninfos.datapoints = hdr.commoninfos.datapoints+1; 
+        chanlabels = 1;
+    else
         chanlabels = 0;
-    end;
-end;
+    end
+end
 
 % Sample range
 if ~exist('srange', 'var') || isempty(srange)
@@ -238,43 +252,90 @@ if strcmpi(hdr.commoninfos.dataformat, 'binary')
             error('Unsupported data orientation')
     end
 else % ASCII data
-    disp('If this function does not work, export your data in binary format');
-    EEG.data = repmat(single(0), [EEG.nbchan, EEG.pnts]);
-    if strcmpi(lower(hdr.commoninfos.dataorientation), 'vectorized')
-        count = 1;
-        fseek(IN, 0, 'bof');
-        len = inf;
-        for chan = 1:hdr.commoninfos.numberofchannels
-            if chanlabels, tmpchan = fscanf(IN, '%s', 1); end;
-            tmpdata = fscanf(IN, '%f', len); len = length(tmpdata);
-            if ismember(chan, chans)
-                EEG.data(count, :) = tmpdata(srange(1):srange(2))';
-                count = count + 1;
-            end;
-        end;
-    elseif strcmpi(lower(hdr.commoninfos.dataorientation), 'multiplexed')
-%         fclose(IN);
-%         error('ASCII multiplexed reading not implemeted yet; export as a different format');
-        if EEG.nbchan == hdr.commoninfos.numberofchannels % Read all channels
-            tmpchan= fgetl(IN);
-            count = 1;
-            while ~feof(IN)
-                tmpstr = fgetl(IN);
-                if ~isempty(tmpstr)
-                    temp_ind = tmpstr==',';
-                    tmpstr(temp_ind) = '.';
-                    tmpdata = strread(tmpstr);
-                    EEG.data(:,count) = tmpdata';
-                    count = count + 1;
-                end;
-            end;
-            EEG.pnts = count - 1;
-        else
-            
-        end;
-    end;
-    
-end;
+%     disp('If this function does not work, export your data in binary format');
+%     EEG.data = repmat(single(0), [EEG.nbchan, EEG.pnts]);
+%     if strcmpi(lower(hdr.commoninfos.dataorientation), 'vectorized')
+%         count = 1;
+%         fseek(IN, 0, 'bof');
+%         len = inf;
+%         for chan = 1:hdr.commoninfos.numberofchannels
+%             if chanlabels, tmpchan = fscanf(IN, '%s', 1); end;
+%             tmpdata = fscanf(IN, '%f', len); len = length(tmpdata);
+%             if ismember(chan, chans)
+%                 EEG.data(count, :) = tmpdata(srange(1):srange(2))';
+%                 count = count + 1;
+%             end;
+%         end;
+%     elseif strcmpi(lower(hdr.commoninfos.dataorientation), 'multiplexed')
+% %         fclose(IN);
+% %         error('ASCII multiplexed reading not implemeted yet; export as a different format');
+%         if EEG.nbchan == hdr.commoninfos.numberofchannels % Read all channels
+%             tmpchan= fgetl(IN);
+%             count = 1;
+%             while ~feof(IN)
+%                 tmpstr = fgetl(IN);
+%                 if ~isempty(tmpstr)
+%                     temp_ind = tmpstr==',';
+%                     tmpstr(temp_ind) = '.';
+%                     tmpdata = strread(tmpstr);
+%                     EEG.data(:,count) = tmpdata';
+%                     count = count + 1;
+%                 end;
+%             end;
+%             EEG.pnts = count - 1;
+%         else
+%             
+%         end;
+%     end;
+
+    % Rewritten by AW, 2013-10-02. Old version by Arno did no longer work. MATLAB changes?
+    tmpdata = zeros([hdr.commoninfos.numberofchannels, hdr.commoninfos.datapoints], 'single');
+    fseek(IN, 0, 'bof');
+    switch lower(hdr.commoninfos.dataorientation)
+
+        case 'vectorized'
+            if chanlabels || (isfield(hdr, 'asciiinfos') && isfield(hdr.asciiinfos, 'decimalsymbol') && ~strcmp(hdr.asciiinfos.decimalsymbol, '.')) % Read line by line
+ 
+                for iChan = 1:hdr.commoninfos.numberofchannels
+                    tmpstr = fgetl(IN);
+                    if chanlabels
+                        [tmpchan, count, errmsg, nextindex] = sscanf(tmpstr, '%s', 1);
+                        tmpstr = tmpstr(nextindex:end);
+                    end
+                    if isfield(hdr, 'asciiinfos') && isfield(hdr.asciiinfos, 'decimalsymbol') && ~strcmp(hdr.asciiinfos.decimalsymbol, '.')
+                        tmpdata(iChan, :) = sscanf(regexprep(tmpstr, hdr.asciiinfos.decimalsymbol, '.'), '%f', inf);
+                    else
+                        tmpdata(iChan, :) = sscanf(tmpstr, '%f', inf);
+                    end
+                end
+                
+            else
+                tmpdata = fscanf(IN, '%f', inf);
+                tmpdata = reshape(tmpdata, hdr.commoninfos.datapoints, hdr.commoninfos.numberofchannels)';
+            end
+
+        case 'multiplexed'
+            if chanlabels
+                tmpchan = fgetl(IN);
+            end
+            if isfield(hdr, 'asciiinfos') && isfield(hdr.asciiinfos, 'decimalsymbol') && ~strcmp(hdr.asciiinfos.decimalsymbol, '.')  % Read line by line
+               for iPnt = 1:hdr.commoninfos.datapoints
+                    tmpstr = fgetl(IN);
+                    tmpdata(:, iPnt) = sscanf(regexprep(tmpstr, hdr.asciiinfos.decimalsymbol, '.'), '%f', inf);
+                end
+            else
+                tmpdata = fscanf(IN, '%f', inf);
+                tmpdata = reshape(tmpdata, hdr.commoninfos.numberofchannels, hdr.commoninfos.datapoints);
+            end
+
+        otherwise
+            error('Unknown data orientation')
+
+    end
+
+    EEG.data = tmpdata(chans, srange(1):srange(2));
+
+end
 
 fclose(IN);
 EEG.trials = 1;
@@ -299,7 +360,7 @@ end
 % Marker file
 if isfield(hdr.commoninfos, 'markerfile')
     disp('pop_loadbv(): reading marker file');
-    MRK = readbvconf(path, [ hdrfile(1:end-5) '.vmrk']);
+    MRK = readbvconf(path, hdr.commoninfos.markerfile);
 
     if hdr.commoninfos.datafile ~= MRK.commoninfos.datafile
         disp('pop_loadbv() warning: data files in header and marker files inconsistent.');
@@ -350,7 +411,7 @@ if isfield(hdr.commoninfos, 'markerfile')
             end
         else
             for index = 1:length(boundaries)
-                EEG.event(index).duration = NaN;
+                EEG.event(boundaries(index)).duration = NaN;
             end;
         end
     end
