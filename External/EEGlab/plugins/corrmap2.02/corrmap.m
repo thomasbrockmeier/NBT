@@ -232,41 +232,41 @@ if length(ch_aux)==0 || length(ch_aux)<n-1
 
     %%%%%%%%%%% Added by Romain 20 Aug, 2010 %%%%%%%%%%
 
-    % Get labels for channels used in all datasets
-    nbDatasets = length(SELEEG);
-    chanLabels = {};
-    nbChans = 0;
-    for i=1:nbDatasets
-        for j=1:length({SELEEG(i).chanlocs.labels})
-            nbChans = nbChans+1;
-            chanLabels(nbChans) = {SELEEG(i).chanlocs(j).labels};
-        end
-    end
-    % Get unique labels
-    uniChanLabels =  unique(chanLabels);
-
-    % Find matching channels indexes in loc file
-    chanIndexes = [];
-    for i=1:length(uniChanLabels)
-        chanIndex = find(strcmp({CHANS.labels}, uniChanLabels(i)));
-        if length(chanIndex)==1
-            chanIndexes(i) = chanIndex;
-        elseif length(chanIndex)==0
-            fprintf('>');
-            fprintf('ERROR: No channel in location file match channel %s.\n', uniChanLabels{i});
-            fprintf('> \n');
-            return
-        else
-            fprintf('>');
-            fprintf('ERROR: Several channels in location file match channel %s.\n', uniChanLabels{i});
-            fprintf('> \n');
-            return
-        end
-    end
-
-    % Use only channels from loc file which are present in datasets
-    CHANS = CHANS(chanIndexes);
-
+%     % Get labels for channels used in all datasets
+%     nbDatasets = length(SELEEG);
+%     chanLabels = {};
+%     nbChans = 0;
+%     for i=1:nbDatasets
+%         for j=1:length({SELEEG(i).chanlocs.labels})
+%             nbChans = nbChans+1;
+%             chanLabels(nbChans) = {SELEEG(i).chanlocs(j).labels};
+%         end
+%     end
+%     % Get unique labels
+%     uniChanLabels =  unique(chanLabels);
+% 
+%     % Find matching channels indexes in loc file
+%     chanIndexes = [];
+%     for i=1:length(uniChanLabels)
+%         chanIndex = find(strcmp({CHANS.labels}, uniChanLabels(i)));
+%         if length(chanIndex)==1
+%             chanIndexes(i) = chanIndex;
+%         elseif length(chanIndex)==0
+%             fprintf('>');
+%             fprintf('ERROR: No channel in location file match channel %s.\n', uniChanLabels{i});
+%             fprintf('> \n');
+%             return
+%         else
+%             fprintf('>');
+%             fprintf('ERROR: Several channels in location file match channel %s.\n', uniChanLabels{i});
+%             fprintf('> \n');
+%             return
+%         end
+%     end
+% 
+%     % Use only channels from loc file which are present in datasets
+%     CHANS = CHANS(chanIndexes);
+% 
     % Use only channels with location
     % CHANS = CHANS(~cellfun(@isempty, { chanlocs.theta })); % Modified by Romain 20 Aug. 2010
     CHANS = CHANS(~cellfun(@isempty, { CHANS.theta }));
@@ -622,9 +622,15 @@ if strcmp(badcomps,'yes')
     for i=1:length(CORRMAP.output.sets{2})
         a=CORRMAP.output.sets{2}(i);
         if ~isfield(SELEEG, 'badcomp'), SELEEG(a).badcomps = []; end;
-        nbc=length(SELEEG(a).badcomps); %number of bad components already stored
-        SELEEG(a).badcomps(nbc+1)=CORRMAP.output.ics{2}(i);
-                
+        %nbc=length(SELEEG(a).badcomps); %number of bad components already stored
+        %SELEEG(a).badcomps(nbc+1)=CORRMAP.output.ics{2}(i);
+        
+        if isempty(SELEEG(a).badcomps) % EEG.badcomponents is empty
+            SELEEG(a).badcomps(i)=CORRMAP.output.ics{2}(i);
+        else
+            nbc=length(SELEEG(a).badcomps); %number of bad components already stored
+            SELEEG(a).badcomps(nbc+1)=CORRMAP.output.ics{2}(i);
+        end                
     end
     
     for jj=1:length(CORRMAP.datasets.index)
