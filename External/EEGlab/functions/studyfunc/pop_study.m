@@ -320,7 +320,7 @@ elseif strcmpi(mode, 'gui') % GUI mode
     
     % run command and create history
     % ------------------------------
-    com = sprintf( '[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, %s );', vararg2str(options) );
+    com = sprintf( '[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, %s );\n[STUDY ALLEEG] = std_checkset(STUDY, ALLEEG);', vararg2str(options) );
     if ~isfield(STUDY, 'history'), STUDY.history = ''; end;
     STUDY.history = sprintf('%s\n%s', STUDY.history, com);
     [STUDY ALLEEG] = std_editset(STUDY, ALLEEG, options{:});
@@ -650,7 +650,7 @@ for index = 1:length(Prompt)
 		geometry = { geometry{:} [ 1 0.6 ]};
 	end;
 	listgui = { listgui{:} { 'Style', 'text', 'string', Prompt{index}}  ...
-				{ 'Style', 'edit', 'string', DefAns{index} } { 'Style', 'checkbox', 'string','Keep only in-brain dipoles.','value',1 }  };
+				{ 'Style', 'edit', 'string', DefAns{index} } { 'Style', 'checkbox', 'string','Keep only in-brain dipoles (requires Fieldtrip extension).','value',1 }  };
 end;
 geometry = [1 1 1];geomvert = [2 1 1];
 result = inputgui(geometry, listgui, ['pophelp(''' funcname ''');'], Title, [], 'normal', geomvert);

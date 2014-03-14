@@ -50,15 +50,40 @@
 %  'savetrials'  - ['on'|'off'] save single-trials ERSP. Requires a lot of disk
 %                  space (dataset space on disk times 10) but allow for refined
 %                  single-trial statistics.
+%  'customfunc'  - [function_handle] execute a specific function on each
+%                  EEGLAB dataset of the selected STUDY design. The fist 
+%                  argument to the function is an EEGLAB dataset. Example is 
+%                  @(EEG)mean(EEG.data,3)
+%                  This will compute the ERP for the STUDY design. EEG is the
+%                  EEGLAB dataset corresponding to each cell design. It
+%                  corresponds to a dataset computed dynamically based on
+%                  the design selection. If 'rmclust', 'rmicacomps' or 'interp'
+%                  are being used, the channel data is affected
+%                  accordingly. Anonymous and non-anonymous functions may be 
+%                  used. The output is returned in CustomRes or saved on
+%                  disk. The output of the custom function may be an numerical 
+%                  array or a structure.
+%  'customparams' - [cell array] Parameters for the custom function above.
+%  'customfileext' - [string] file extension for saving custom data. Use
+%                    function to read custom data. If left empty, the
+%                    result is returned in the customRes output. Note that
+%                    if the custom function does not return a structure,
+%                    the data is automatically saved in a variable named
+%                    'data'.
+%  'customclusters' - [integer array] load only specific clusters. This is
+%                    used with SIFT. chanorcomp 3rd input must be 'components'.
+% 
 % Outputs:
 %   ALLEEG       - the input ALLEEG vector of EEG dataset structures, modified  
 %                  by adding preprocessing data as pointers to Matlab files that 
 %                  hold the pre-clustering component measures.
 %   STUDY        - the input STUDY set with pre-clustering data added,
 %                  for use by pop_clust()
+%   customRes    - cell array of custom results (one cell for each pair of
+%                  independent variables as defined in the STUDY design).
 %
 % Example:
-%   >> [STUDY ALLEEG] = std_precomp(STUDY, ALLEEG, { 'cz' 'oz' }, 'interpo', ...
+%   >> [STUDY ALLEEG customRes] = std_precomp(STUDY, ALLEEG, { 'cz' 'oz' }, 'interp', ...
 %               'on', 'erp', 'on', 'spec', 'on', 'ersp', 'on', 'erspparams', ...
 %               { 'cycles' [ 3 0.5 ], 'alpha', 0.01, 'padratio' 1 });
 %                          
@@ -66,6 +91,17 @@
 %           % If a data channel is missing in one dataset, it will be
 %           % interpolated (see eeg_interp()). The ERP, spectrum, ERSP, and 
 %           % ITC for each dataset is then computed. 
+%
+% Example of custom call:
+%   The function below computes the ERP of the EEG data for each channel and plots it.
+%   >> [STUDY ALLEEG customres] = std_precomp(STUDY, ALLEEG, 'channels', 'customfunc', @(EEG,varargin)(mean(EEG.data,3)));
+%   >> std_plotcurve([1:size(customres{1})], customres, 'chanlocs', ALLEEG(1).chanlocs); % plot data
+%
+%   The function below uses a data file to store the information then read
+%   the data and eventyally plot it
+%   >> [STUDY ALLEEG customres] = std_precomp(STUDY, ALLEEG, 'channels', 'customfunc', @(EEG,varargin)(mean(EEG.data,3)), 'customfileext', 'tmperp');
+%   >> erpdata = std_readcustom(STUDY, ALLEEG, 'tmperp');
+%   >> std_plotcurve([1:size(erpdata{1})], erpdata, 'chanlocs', ALLEEG(1).chanlocs); % plot data
 %
 % Authors: Arnaud Delorme, SCCN, INC, UCSD, 2006-
 
@@ -85,7 +121,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [ STUDY, ALLEEG ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
+function [ STUDY, ALLEEG customRes ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
     
     if nargin < 2
         help std_precomp;
@@ -95,6 +131,7 @@ function [ STUDY, ALLEEG ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
     if nargin == 2
         chanlist = 'channels'; % default to clustering the whole STUDY 
     end   
+    customRes = [];
     Ncond = length(STUDY.condition);
     if Ncond == 0
         Ncond = 1;
@@ -117,6 +154,10 @@ function [ STUDY, ALLEEG ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
                                 'rmbase'      'integer' []                 []; % deprecated, for backward compatibility purposes, not documented
                                 'specparams'        'cell'    {}                 {};
                                 'erpparams'         'cell'    {}                 {};
+                                'customfunc'  {'function_handle' 'integer' } { { } {} }     [];
+                                'customparams'      'cell'    {}                 {};
+                                'customfileext'     'string'  []                 '';
+                                'customclusters'    'integer' []                 [];
                                 'erpimparams'       'cell'    {}                 {};
                                 'erspparams'        'cell'    {}                 {}}, 'std_precomp');
     if isstr(g), error(g); end;
@@ -171,6 +212,53 @@ function [ STUDY, ALLEEG ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
     else curstruct = STUDY.cluster;
     end;
     
+    % compute custom measure
+    % ----------------------
+    if ~isempty(g.customfunc)
+        nc = max(length(STUDY.design(g.design).variable(1).value),1);
+        ng = max(length(STUDY.design(g.design).variable(2).value),1);
+        allinds = curstruct(1).allinds; % same for all channels and components (see std_selectdesign)
+        setinds = curstruct(1).setinds; % same for all channels and components (see std_selectdesign)
+        if ~isempty(g.customclusters)
+            allinds = curstruct(g.customclusters).allinds; % same for all channels and components (see std_selectdesign)
+            setinds = curstruct(g.customclusters).setinds; % same for all channels and components (see std_selectdesign)
+        end;
+        
+        for cInd = 1:nc
+            for gInd = 1:ng
+                if ~isempty(setinds{cInd,gInd})
+                    desset = STUDY.design(g.design).cell(setinds{cInd,gInd}(:));
+                    for iDes = 1:length(desset)
+                        if strcmpi(computewhat, 'channels')
+                             [tmpchanlist opts] = getchansandopts(STUDY, ALLEEG, chanlist, desset(iDes).dataset, g);
+                             TMPEEG = std_getdataset(STUDY, ALLEEG, 'design', g.design, 'cell', setinds{cInd,gInd}(iDes), opts{:}); % trial indices included in cell selection
+                        else TMPEEG = std_getdataset(STUDY, ALLEEG, 'design', g.design, 'cell', setinds{cInd,gInd}(iDes), 'cluster', g.customclusters);
+                        end;
+                        addopts = { 'savetrials', g.savetrials, 'recompute', g.recompute }; % not currently used
+                        
+                        tmpData = feval(g.customfunc, TMPEEG, g.customparams{:});
+                        if isempty(g.customfileext)
+                            resTmp(:,:,iDes) = tmpData;
+                        else
+                            fileName = [ desset(iDes).filebase '.' g.customfileext ];
+                            clear data;
+                            data.data = tmpData;
+                            data.datafile   = computeFullFileName( { ALLEEG(desset(iDes).dataset).filepath }, { ALLEEG(desset(iDes).dataset).filename });
+                            data.datatrials = desset(iDes).trials;
+                            data.datatype = upper(g.customfileext);
+                            if ~isempty(g.customparams) data.parameters = g.customparams; end;
+                            std_savedat(fileName, data);
+                        end;
+                    end;
+                    if isempty(g.customfileext)
+                        customRes{cInd,gInd} = resTmp;
+                    end;
+                    clear resTmp;
+                end;
+            end;
+        end;
+    end;
+
     % compute ERPs
     % ------------
     if strcmpi(g.erp, 'on')
@@ -479,3 +567,9 @@ function [ STUDY, ALLEEG ] = std_precomp(STUDY, ALLEEG, chanlist, varargin)
             tmpchanlist = { tmpchanlocs(newchanlist).labels };
         end;
         
+    % compute full file names
+    % -----------------------
+    function res = computeFullFileName(filePaths, fileNames);
+        for index = 1:length(fileNames)
+            res{index} = fullfile(filePaths{index}, fileNames{index});
+        end;

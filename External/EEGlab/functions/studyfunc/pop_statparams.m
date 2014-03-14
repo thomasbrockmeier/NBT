@@ -94,6 +94,8 @@ if isfield(STUDY, 'etc')
 end;
 
 if isempty(varargin) && ~isempty(STUDY)
+    if ~exist('ft_freqstatistics'), fieldtripInstalled = false; else fieldtripInstalled = true; end;
+    
     opt.enablecond  = fastif(length(STUDY.design(STUDY.currentdesign).variable(1).value)>1, 'on', 'off');
     opt.enablegroup = fastif(length(STUDY.design(STUDY.currentdesign).variable(2).value)>1, 'on', 'off');
     opt.enablesingletrials = 'on';
@@ -103,7 +105,7 @@ if isempty(varargin) && ~isempty(STUDY)
     paramstruct         = STUDY.etc.statistics;
     eeglabStatvalues    = { 'param' 'perm' 'bootstrap' };
     fieldtripStatvalues = { 'analytic' 'montecarlo' };
-    mCorrectList        = { 'no' 'bonferoni' 'holms' 'fdr' 'max' 'cluster' };
+    mCorrectList        = { 'none' 'bonferoni' 'holms' 'fdr' 'max' 'cluster' };
     condstats   = fastif(strcmpi(paramstruct.condstats, 'on'), 1, 0);
     groupstats  = fastif(strcmpi(paramstruct.groupstats,'on'), 1, 0);
     statmode    = fastif(strcmpi(paramstruct.singletrials,'on'), 1, 0);
@@ -185,6 +187,16 @@ if isempty(varargin) && ~isempty(STUDY)
     inds = findstr('gcbf', evalstr);
     evalstr(inds+2) = [];
     
+    % special case if Fieldtrip is not installed
+    if ~fieldtripInstalled
+        strFieldtrip = 'Use Fieldtrip statistics (to use install "Fieldtrip-lite" using File > Manage EEGLAB extensions)';
+        fieldtripEnable = 'off';
+        cb_select_eeglab = 'set(findobj(gcbf, ''tag'', ''but_eeglab''),''value'', 1)';
+    else
+        strFieldtrip = 'Use Fieldtrip statistics';
+        fieldtripEnable = 'on';
+    end;
+    
     opt.uilist = { ...
         {'style' 'text'        'string' 'General statistical parameters' 'fontweight' 'bold' } ...
         {} {'style' 'checkbox' 'string' 'Compute 1st independent variable statistics' 'value' condstats  'enable' opt.enablecond  'callback' cb_select_fieldtrip 'tag' 'condstats' } ...
@@ -199,7 +211,7 @@ if isempty(varargin) && ~isempty(STUDY)
         {'style' 'text' 'string' '   Randomization (n)' 'userdata' 'eeglab' 'tag' 'eeglabnaccutext' } ...
         {'style' 'edit' 'string' eeglabRand          'userdata' 'eeglab' 'tag' 'eeglabnaccu' } ...
         {} ...
-        {'style' 'checkbox'     'string' 'Use Fieldtrip statistics' 'fontweight' 'bold' 'tag' 'but_fieldtrip' 'callback' cb_select_fieldtrip } ...
+        {'style' 'checkbox'     'string' strFieldtrip 'enable' fieldtripEnable 'fontweight' 'bold' 'tag' 'but_fieldtrip' 'callback' cb_select_fieldtrip } ...
         {} {'style' 'popupmenu' 'string' 'Use analytic/parametric statistics|Use montecarlo/permutation statistics' 'tag' 'statfieldtrip' 'value' fieldtripStat 'listboxtop' fieldtripStat 'callback' cb_fieldtrip_mcorrect 'userdata' 'fieldtrip' } ...
         {'style' 'text'        'string' 'Statistical threshold (p-value)' 'userdata' 'fieldtrip' } ...
         {'style' 'edit'        'string' fieldtripThresh 'tag' 'fieldtripalpha' 'userdata' 'fieldtrip' } ...
@@ -326,12 +338,14 @@ if ~isfield(paramstruct, 'fieldtrip'),     paramstruct.fieldtrip    = []; end;
 if ~isfield(paramstruct.eeglab, 'naccu'),    paramstruct.eeglab.naccu = []; end;
 if ~isfield(paramstruct.eeglab, 'alpha' ),   paramstruct.eeglab.alpha = NaN; end;
 if ~isfield(paramstruct.eeglab, 'method'),   paramstruct.eeglab.method = 'param'; end;
-if ~isfield(paramstruct.eeglab, 'mcorrect'), paramstruct.eeglab.mcorrect = 'no'; end;
+if ~isfield(paramstruct.eeglab, 'mcorrect'), paramstruct.eeglab.mcorrect = 'none'; end;
 if ~isfield(paramstruct.fieldtrip, 'naccu'),  paramstruct.fieldtrip.naccu = []; end;
 if ~isfield(paramstruct.fieldtrip, 'method'), paramstruct.fieldtrip.method = 'analytic'; end;
 if ~isfield(paramstruct.fieldtrip, 'alpha'),  paramstruct.fieldtrip.alpha  = NaN; end;
-if ~isfield(paramstruct.fieldtrip, 'mcorrect'),   paramstruct.fieldtrip.mcorrect = 'no'; end;
+if ~isfield(paramstruct.fieldtrip, 'mcorrect'),   paramstruct.fieldtrip.mcorrect = 'none'; end;
 if ~isfield(paramstruct.fieldtrip, 'clusterparam'),   paramstruct.fieldtrip.clusterparam = '''clusterstatistic'',''maxsum'''; end;
 if ~isfield(paramstruct.fieldtrip, 'channelneighbor'),   paramstruct.fieldtrip.channelneighbor = []; end;
 if ~isfield(paramstruct.fieldtrip, 'channelneighborparam'),   paramstruct.fieldtrip.channelneighborparam = '''method'',''triangulation'''; end;
 if strcmpi(paramstruct.eeglab.mcorrect, 'benferoni'), paramstruct.eeglab.mcorrect = 'bonferoni'; end;
+if strcmpi(paramstruct.eeglab.mcorrect,    'no'), paramstruct.eeglab.mcorrect = 'none'; end;
+if strcmpi(paramstruct.fieldtrip.mcorrect, 'no'), paramstruct.fieldtrip.mcorrect = 'none'; end;

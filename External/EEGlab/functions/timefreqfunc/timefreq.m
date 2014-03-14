@@ -429,6 +429,7 @@ else % wavelet
         % apply filters
         % -------------
         verboseprintf(g.verbose, 'Processing time point (of %d):',length(g.timesout));
+        tmpall = zeros(length(g.win), length(g.indexout), size(data,2));
         for index = 1:length(g.indexout)
             if rem(index,10) == 0,  verboseprintf(g.verbose, ' %d',index); end
             if rem(index,120) == 0, verboseprintf(g.verbose, '\n'); end
@@ -517,7 +518,7 @@ if ~isempty(g.timestretch) && length(g.timestretch{1}) > 0
         TStheta = zeros(size(theta,1), size(theta,2));
 
         for freqInd=1:size(TStheta,1)
-            TStheta(freqInd, :) = angTimeWarp(marksPos, refsPos, theta(freqInd, :));            
+            TStheta(freqInd, :) = angtimewarp(marksPos, refsPos, theta(freqInd, :));            
         end
         TStmpall = TSr.*exp(i*TStheta);
 
