@@ -143,7 +143,11 @@ end
 if strcmp(extension,'.txt')
     disp(['Test read in of ',directory(1).name])
     D=importdata([sourcedirectory,'/',directory(1).name]);
-    Signal=D.data;
+    try
+        Signal = D.data;
+    catch
+        Signal = D;
+    end
     %Signal=D;
     if strcmp(Columns,'r')
         Signal=Signal';
@@ -203,8 +207,11 @@ for i=1:length(directory)
                         else
                             D=uiimport([sourcedirectory,'/',directory(i).name]);
                         end
-                        Signal=D.data;
-                       % Signal=D;
+                        try
+                            Signal = D.data;
+                        catch
+                            Signal = D;
+                        end
                         if strcmp(Columns,'r')
                             Signal = double(Signal');
                         end

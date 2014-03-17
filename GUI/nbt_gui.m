@@ -81,11 +81,11 @@ if(isempty(varargin))
     
     try
         filepath = fileparts(which('NBT.m'));
-        filename = dir(fullfile(filepath, 'Contents.m'));
+        filename = fullfile(filepath, 'Contents.m');
         
         if isempty(filename), throwerro; end;
         
-        fid = fopen(filename.name, 'r');
+        fid = fopen(filename, 'r');
         fgetl(fid);
         versionline = fgetl(fid);
         NBT_version = [versionline(11:end)];
