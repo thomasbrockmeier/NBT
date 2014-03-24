@@ -247,9 +247,7 @@ else
     uimenu(VisSub,'label', 'Plot bad channels', 'callback', 'nbt_plotBadChannels(EEG)');
     
     Stat = uimenu(NBTMenu, 'label', '&Biomarker statistics');
-    uimenu(Stat, 'label', ' &Within a group','callback', 'nbt_stat_group;');
-    uimenu(Stat, 'label', ' &Between two conditions','callback', 'nbt_stat_conditions;');
-    uimenu(Stat, 'label', ' &Between two groups','callback', 'nbt_stat_groups;');
+    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectrunstatistics;');
     
     
     nbt_commonMenu
@@ -276,7 +274,7 @@ end
         uimenu(HelpMenu, 'label','NBT wiki', 'callback','web http://www.nbtwiki.net -browser');
         uimenu(HelpMenu, 'label','Tutorials', 'callback','web http://www.nbtwiki.net/doku.php?id=tutorial:start -browser');
         uimenu(HelpMenu, 'label','Documentation', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdocumentation:start -browser');
-        uimenu(HelpMenu, 'label','How to contribute', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdev:start -browser');
+        uimenu(HelpMenu, 'label','Get involved', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdev:start -browser');
         uimenu(HelpMenu, 'label','Copyrights','Separator', 'on',  'callback','web http://www.nbtwiki.net/doku.php?id=copyrights -browser');
         uimenu(HelpMenu, 'label', 'About NBT','Separator', 'on', 'callback',['help NBT']);
     end
