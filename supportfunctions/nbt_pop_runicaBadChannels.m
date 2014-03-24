@@ -634,10 +634,10 @@ switch lower(g.icatype)
     case 'runica'
         tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) | pca_opt
-            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'on', g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'off', g.options{:} );
         else
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'on', 'pca', tmprank, g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'off', 'pca', tmprank, g.options{:} );
         end;
     case 'binica'
         icadefs;
