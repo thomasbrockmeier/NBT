@@ -329,8 +329,13 @@ for i=1:length(directory)
                         Signal=EEG.data';
                         EEG=rmfield(EEG,'data');
                         Fs=EEG.srate;
+                        nr_ch = EEG.nbchan;
+                        fileloc =  ['GSN-HydroCel-' num2str(nr_ch) '.sfp'];
+                     
                         if(strcmpi(doReadLoc,'y'))
                             EEG.chanlocs = readlocs(ReadLocFilename);
+                        else
+                            EEG.chanlocs = readlocs(fileloc);
                         end
                         EEG.ref = EEG.nbchan;
                         
