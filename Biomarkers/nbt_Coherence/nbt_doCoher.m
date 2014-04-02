@@ -31,6 +31,8 @@
 % ChangeLog - see version control log at NBT website for details.
 % 9 October 2013: Added Fisher Z transform by advice of Vladimir Miskovic (Department of Psychology
 % State University of New York at Binghamton)
+% 2 April 2013: Added ICoherence (imaginary part of Coherence) by advice of
+% Vladimir Miskovic
 %
 % Copyright (C) <year>  <Main Author>  (Neuronal Oscillations and Cognition group, 
 % Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research, 
@@ -93,18 +95,27 @@ Index = find(floor(f)>= FrequencyBand(1,1) &  floor(f)<= FrequencyBand(1,2));
 FrequencyIndex= [Index(1) Index(end)];
 %--- compute coherence matrix
 CoherenceMatrix = nan(size(Signal(:,:),2),size(Signal(:,:),2));
+CoherenceMatrixI = nan(size(Signal(:,:),2),size(Signal(:,:),2));
 disp([' Frequency band ', num2str(FrequencyBand(1,1)), '-', num2str(FrequencyBand(1,2)),' Hz'])
 
 try
   for i=1:size(Signal(:,:),2)
        disp([' channel ', num2str(i), ' ...'])
+       [Pxx] = cpsd(Signal(:,i), Signal(:,i), W, [], W_length, Fs);
         for j=i+1:size(Signal(:,:),2)
-            [t,f]=mscohere(Signal(:,i),Signal(:,j),W,[],W_length,Fs);
+            [Pyy] = cpsd(Signal(:,j), Signal(:,j), W, [], W_length, Fs);
+            [Pxy] = cpsd(Signal(:,i), Signal(:,j), W, [], W_length, Fs);
+            Cxy=Pxy./sqrt(Pxx.*Pyy);
+            Coh  = (abs(Cxy)).^2;
+            ICoh = (imag(Cxy)).^2;
             % mean of the coherence function is computed along each
             % frequency band
-            t=.5 * log((1+t)./(1-t)); %first do Fisher's Z
-            CoherenceMatrix(i,j) = nanmean(t(FrequencyIndex(1):FrequencyIndex(2)));
+            Coh = 0.5*log((1+Coh)./(1-Coh)); %first do Fisher's Z
+            CoherenceMatrix(i,j) = nanmean(Coh(FrequencyIndex(1):FrequencyIndex(2)));
             CoherenceMatrix(i,j) = (exp(2*CoherenceMatrix(i,j))-1)./(exp(2*CoherenceMatrix(i,j))+1); %now do an inverse-Fisher's Z to transform back to coherence
+            ICoh = 0.5*log((1+ICoh)./(1-ICoh)); %first do Fisher's Z
+            ICoherenceMatrix(i,j) = nanmean(ICoh(FrequencyIndex(1):FrequencyIndex(2)));
+            ICoherenceMatrix(i,j) = (exp(2*ICoherenceMatrix(i,j))-1)./(exp(2*ICoherenceMatrix(i,j))+1); %now do an inverse-Fisher's Z to transform back to coherence
         end
   end
 catch Er
@@ -113,6 +124,7 @@ catch Er
 end
 
 CoherenceObject.Coherence = CoherenceMatrix;
+CoherenceObject.ICoherence = ICoherenceMatrix;
 CoherenceObject.interval = interval;
 SignalInfo.frequencyRange = FrequencyBand;
 %% update biomarker objects (here we used the biomarker template):

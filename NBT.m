@@ -1,4 +1,4 @@
-% NBT Toolbox -- pre-alpha: Development Head (NBT), see https://github.com/NeurophysiologicalBiomarkerToolbox/NBT 
+% NBT Toolbox -- pre-alpha: NBT Alpha RC4 (NBT), see https://github.com/NeurophysiologicalBiomarkerToolbox/NBT 
 % See our webpage http://www.nbtwiki.net/ for more information
 % Copyright (C) 2008-2014 The developers, see http://www.nbtwiki.net/doku.php?id=copyrights 
 % Main development team: Simon-Shlomo Poil, Rick Jansen, Klaus Linkenkaer-Hansen.
