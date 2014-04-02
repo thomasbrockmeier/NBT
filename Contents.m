@@ -1,5 +1,5 @@
 % Neurophysiological Biomarker Toolbox (NBT) 
-% Version NBT Alpha RC4 www.nbtwiki.net
+% Version NBT Alpha RC4dev www.nbtwiki.net
 
 % NBT Toolbox --
 % Use the NBTwiki at http://www.nbtwiki.net
