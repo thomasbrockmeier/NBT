@@ -3,7 +3,7 @@
 % ***
 % *** automatic time-frequency algorithm for detection of HFOs
 % *** for more details refer to the publication 
-% *** "publication"
+% *** http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0094381
 % ***
 % ***----------------------------------------------------------------------
 % *** Analysis:
@@ -31,10 +31,10 @@
 % *** for more details, refer to publication, data taken from patient 1
 % ***
 % *** load('example.mat')
-% *** result = do_detect_HFO(data, 2000, 80, 500, channel_name);
+% *** result = nbt_do_detect_HFO(data, 2000, 80, 500, channel_name);
 % ***
 % *** ---------------------------------------------------------------------
-% *** for Matlab R12
+% *** programmed in Matlab R2012b
 % *** version 1.0 (Apr 2014)
 % *** (c)  Sergey Burnos
 % *** email: sergey.burnos@gmail.com
@@ -206,6 +206,7 @@ end
 function joinedDetections = joinDetections(Detections, p)
            
     % Merge EoIs with inter-event-interval less than 10 ms into one EoI
+    % ---------------------------------------------------------------------
     nOrigDetections    = length(Detections);  
 
     % fill result with first detection
@@ -361,12 +362,6 @@ function PSvalidated = PS_validation_all(Detections, data, env, p)
                 det_peak = mod(Detections(n).peak, p.fs);
                 intervalST=data(length(data)-p.fs+1: length(data));
                 interval_env=env(length(data)-p.fs+1: length(data));
-% 
-%             elseif (Detections(n).peak==fs*10) % last 0.5 
-%                 
-%                 det_peak = mod(Detections(n).peak-1, fs);
-%                 intervalST=data(length(data)-fs+1: length(data));
-%                 interval_env=env(length(data)-fs+1: length(data));
             
             else
                  
