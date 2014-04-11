@@ -3,7 +3,7 @@
 % ***
 % *** automatic time-frequency algorithm for detection of HFOs
 % *** for more details refer to the publication
-% *** "publication"
+% *** http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0094381
 % ***
 % ***----------------------------------------------------------------------
 % *** Analysis:
@@ -367,12 +367,7 @@ for n = 1 : length(Detections)
             det_peak = mod(Detections(n).peak, p.fs);
             intervalST=Signal(length(Signal)-p.fs+1: length(Signal));
             interval_env=env(length(Signal)-p.fs+1: length(Signal));
-            %
-            %             elseif (Detections(n).peak==fs*10) % last 0.5
-            %
-            %                 det_peak = mod(Detections(n).peak-1, fs);
-            %                 intervalST=Signal(length(Signal)-fs+1: length(Signal));
-            %                 interval_env=env(length(Signal)-fs+1: length(Signal));
+        
             
         else
             
