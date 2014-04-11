@@ -47,10 +47,13 @@
 % =========================================================================
 function [HFOobj, results] = nbt_doHFO(Signal,SignalInfo,hp,lp, channel_name)
 %NBT interface
-HFOobj = nbt_HFO;
-fs = SignalInfo.converted_sample_frequency;
-Signal = Signal';
 
+try
+    fs = SignalInfo.converted_sample_frequency;
+    HFOobj = nbt_HFO;
+catch %in case: standalone 
+    fs = SignalInfo;
+end
 % ---------------------------------------------------------------------
 % set parameters
 
@@ -182,8 +185,12 @@ else
     results(1).peakAmplitude   =  0;
 end
 
-HFOobj.results = results;
-HFOobj = nbt_UpdateBiomarkerInfo(HFOobj, SignalInfo);
+try
+    HFOobj = nbt_UpdateBiomarkerInfo(HFOobj, SignalInfo);
+    HFOobj.results = results;
+catch 
+    %in case: standalone: do nothing here.
+end
 end
 
 % =========================================================================
