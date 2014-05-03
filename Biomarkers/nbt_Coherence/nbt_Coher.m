@@ -60,7 +60,7 @@ classdef nbt_Coher < nbt_Biomarker
             end
             % Define coherence matrix values
             BiomarkerObject.Coherence = nan(NumChannels, NumChannels);
-            BiomarkerObject.ICoherence = nan(NumChannels, NumChannesl);
+            BiomarkerObject.ICoherence = nan(NumChannels, NumChannels);
             BiomarkerObject.interval =  nan(1,2); 
             % Define fields for additional information           
             BiomarkerObject.DateLastUpdate = datestr(now);
