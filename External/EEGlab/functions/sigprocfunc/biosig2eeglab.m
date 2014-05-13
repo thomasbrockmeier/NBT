@@ -55,9 +55,7 @@ end;
 
 % import data
 % -----------
-if abs(dat.NS - size(DAT,1)) > 1
-    DAT = DAT';
-end;
+DAT = DAT';
 EEG = eeg_emptyset;
 
 % convert to seconds for sread
@@ -79,21 +77,11 @@ nepoch              = dat.NRec;
 EEG.trials   = nepoch;
 EEG.pnts     = size(EEG.data,2)/nepoch;
 
-if isfield(dat,'T0')
-    EEG.etc.T0 = dat.T0; % added sjo
-end
-
 if isfield(dat, 'Label') & ~isempty(dat.Label)
-    if isstr(dat.Label)
-        EEG.chanlocs = struct('labels', cellstr(char(dat.Label)));
-    else
-        % EEG.chanlocs = struct('labels', dat.Label(1:min(length(dat.Label), size(EEG.data,1))));
-        EEG.chanlocs = struct('labels', dat.Label); % sjo added 120907 to avoid error below
-    end;
+    EEG.chanlocs = struct('labels', cellstr(char(dat.Label)));
     if ~isempty(channels)
         EEG.chanlocs = EEG.chanlocs(channels);
     end;
-    if length(EEG.chanlocs) > EEG.nbchan, EEG.chanlocs = EEG.chanlocs(1:EEG.nbchan); end;
 end
 EEG = eeg_checkset(EEG);
 
@@ -136,11 +124,6 @@ EEG.event = [];
 %    codeout = nextcode;
 %end;
 
-% if strcmp(dat.TYPE,'EDF') % sjo added 120907
-%     disp('filetype EDF does not support events');
-%     importevent = 0;
-% end
-
 if importevent
     if isfield(dat, 'BDF')
         if dat.BDF.Status.Channel <= size(EEG.data,1)
@@ -154,8 +137,6 @@ if importevent
         disp('Extracting events from last EEG channel...');
         %Modifieded by Andrey (Aug.5,2008) to detect all non-zero codes: 
         if length(unique(EEG.data(end, 1:100))) > 20
-            disp('Warning: event extraction failure, the last channel contains data');
-        elseif length(unique(EEG.data(end, :))) > 5000
             disp('Warning: event extraction failure, the last channel contains data');
         else
             thiscode = 0;

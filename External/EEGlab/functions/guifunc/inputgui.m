@@ -11,7 +11,7 @@
 %             inputgui( 'key1', 'val1', 'key2', 'val2', ... );
 % 
 % Inputs:
-%   'geom'       - cell array of cell array of integer vector. Each cell
+%   'geom '      - cell array of cell array of integer vector. Each cell
 %                  array defines the coordinate of a given input in the 
 %                  following manner: { nb_row nb_col [x_topcorner y_topcorner]
 %                  [x_bottomcorner y_bottomcorner] };
@@ -33,9 +33,6 @@
 %                  input (fignumber). Default is 'normal'.
 %   'eval'       - [string] command to evaluate at the end of the creation 
 %                  of the GUI but before waiting for user input. 
-%   'screenpos'  - see supergui.m help message.
-%   'skipline'   - ['on'|'off'] skip a row before the "OK" and "Cancel"
-%                  button. Default is 'on'.
 %
 % Output:
 %   outparam   - list of outputs. The function scans all lines and
@@ -104,14 +101,11 @@ end;
 g = finputcheck(options, { 'geom'     'cell'                []      {}; ...
                            'geometry' {'cell','integer'}    []      []; ...
                            'uilist'   'cell'                []      {}; ...
-                           'helpcom'  { 'string','cell' }   { [] [] }      ''; ...
+                           'helpcom'  { 'string' 'cell' }   { [] [] }      ''; ...
                            'title'    'string'              []      ''; ...
                            'eval'     'string'              []      ''; ...
-                           'skipline' 'string'              { 'on' 'off' } 'on'; ...
-                           'addbuttons' 'string'            { 'on' 'off' } 'on'; ...
                            'userdata' ''                    []      []; ...
                            'getresult' 'real'               []      []; ...
-                           'screenpos' ''                   []      []; ...
                            'mode'     ''                    []      'normal'; ...
                            'geomvert' 'real'                []       [] ...
                           }, 'inputgui');
@@ -129,46 +123,41 @@ if isempty(g.getresult)
                 g.geometry = { g.geometry{:} ones(1, oldgeom(row)) };
             end;
         end
-        if strcmpi(g.skipline, 'on'),   g.geometry = { g.geometry{:} [1] }; end; 
-        if strcmpi(g.addbuttons, 'on'), g.geometry = { g.geometry{:} [1 1 1] }; end;  % add button to geometry
+        g.geometry = { g.geometry{:} [1] [1 1 1] }; % add button to geometry
         if ~isempty(g.geom)
             for ind = 1:length(g.geom)
                 g.geom{ind}{2} = g.geom{ind}{2}+2;
             end;
-            g.geom = { g.geom{:}, ...
-                      {1 g.geom{1}{2} [0 g.geom{1}{2}-2] [1 1] }, ... 
-                      {3 g.geom{1}{2} [0 g.geom{1}{2}-1] [1 1] }, ... 
-                      {3 g.geom{1}{2} [1 g.geom{1}{2}-1] [1 1] }, ...
+            g.geom = { g.geom{:} ...
+                      {1 g.geom{1}{2} [0 g.geom{1}{2}-2] [1 1] } ... 
+                      {3 g.geom{1}{2} [0 g.geom{1}{2}-1] [1 1] } ... 
+                      {3 g.geom{1}{2} [1 g.geom{1}{2}-1] [1 1] } ...
                       {3 g.geom{1}{2} [2 g.geom{1}{2}-1] [1 1] } };
         end;
 
         % add the three buttons (CANCEL HELP OK) at the bottom of the GUI
         % ---------------------------------------------------------------
-        if strcmpi(g.skipline, 'on'),  g.uilist = { g.uilist{:}, {} }; end;
+        g.uilist = { g.uilist{:}, {} };
         options = { 'width' 80 'stickto' 'on' };
-        if strcmpi(g.addbuttons, 'on')
-            if ~isempty(g.helpcom)
-                if ~iscell(g.helpcom) | isempty(g.geom)
-                    g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'Help', 'tag', 'help', 'callback', g.helpcom } };
-                else
-                    g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'Help gui', 'callback', g.helpcom{1} } };
-                    g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'More help', 'callback', g.helpcom{2} } };
-                    g.geometry{end} = [1 1 1 1];
-                end;
+        if ~isempty(g.helpcom)
+            if ~iscell(g.helpcom) | isempty(g.geom)
+                g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'Help', 'tag', 'help', 'callback', g.helpcom } };
             else
-                g.uilist = { g.uilist{:}, {} };
+                g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'Help gui', 'callback', g.helpcom{1} } };
+                g.uilist = { g.uilist{:}, { 'width' 80 'align' 'left' 'Style', 'pushbutton', 'string', 'More help', 'callback', g.helpcom{2} } };
+                g.geometry{end} = [1 1 1 1];
             end;
-            g.uilist = { g.uilist{:}, { 'width' 80 'align' 'right' 'Style', 'pushbutton', 'string', 'Cancel', 'tag' 'cancel' 'callback', 'close gcbf' } };
-            g.uilist = { g.uilist{:}, { 'width' 80 'align' 'right' 'stickto' 'on' 'Style', 'pushbutton', 'tag', 'ok', 'string', 'OK', 'callback', 'set(gcbo, ''userdata'', ''retuninginputui'');' } };
-        end;
-        if ~isempty(g.geom)
-            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geom', g.geom, 'uilist', g.uilist, 'screenpos', g.screenpos );
-        elseif isempty(g.geomvert)
-            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geomhoriz', g.geometry, 'uilist', g.uilist, 'screenpos', g.screenpos );
         else
-            if strcmpi(g.skipline, 'on'),  g.geomvert = [g.geomvert(:)' 1]; end;
-            if strcmpi(g.addbuttons, 'on'),g.geomvert = [g.geomvert(:)' 1]; end;
-            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geomhoriz', g.geometry, 'uilist', g.uilist, 'screenpos', g.screenpos, 'geomvert', g.geomvert(:)' );
+            g.uilist = { g.uilist{:}, {} };
+        end;
+        g.uilist = { g.uilist{:}, { 'width' 80 'align' 'right' 'Style', 'pushbutton', 'string', 'Cancel', 'tag' 'cancel' 'callback', 'close gcbf' } };
+        g.uilist = { g.uilist{:}, { 'width' 80 'align' 'right' 'stickto' 'on' 'Style', 'pushbutton', 'tag', 'ok', 'string', 'OK', 'callback', 'set(gcbo, ''userdata'', ''retuninginputui'');' } };
+        if ~isempty(g.geom)
+            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geom', g.geom, 'uilist', g.uilist );
+        elseif isempty(g.geomvert)
+            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geomhoriz', g.geometry, 'uilist', g.uilist );
+        else
+            [tmp tmp2 allobj] = supergui( 'fig', fig, 'minwidth', 200, 'geomhoriz', g.geometry, 'uilist', g.uilist, 'geomvert', [g.geomvert(:)' 1 1] );
         end;
     else 
         fig = g.mode;
@@ -207,55 +196,42 @@ strhalt = get(findobj('parent', fig, 'tag', 'ok'), 'userdata');
 % output parameters
 % -----------------
 counter = 1;
-resstruct = [];
 for index=1:length(allobj)
-    if isnumeric(allobj), currentobj = allobj(index);
-    else                  currentobj = allobj{index};
-    end;
-    if isnumeric(currentobj)
-        try,
-          objstyle = get(currentobj, 'style');
-          switch lower( objstyle )
-          case { 'listbox', 'checkbox', 'radiobutton' 'popupmenu' 'radio' }
-             result{counter} = get( currentobj, 'value');
-             if ~isempty(get(currentobj, 'tag')), resstruct = setfield(resstruct, get(currentobj, 'tag'), result{counter}); end;
-             counter = counter+1;
-          case 'edit' 
-             result{counter} = get( currentobj, 'string');
-             if ~isempty(get(currentobj, 'tag')), resstruct = setfield(resstruct, get(currentobj, 'tag'), result{counter}); end;
-             counter = counter+1;
-          end;
-        catch, end;
-    else
-        ps              = currentobj.GetPropertySpecification;
-        result{counter} = arg_tovals(ps,false);
-        count = 1;
-        while isfield(resstruct, ['propgrid' int2str(count)])
-            count = count + 1;
-        end;    
-        resstruct = setfield(resstruct, ['propgrid' int2str(count)], arg_tovals(ps,false));
-    end;
+   try,
+      objstyle = get(allobj( index ), 'style');
+      switch lower( objstyle )
+      case { 'listbox', 'checkbox', 'radiobutton' 'popupmenu' }
+         result{counter} = get( allobj( index ), 'value');
+         counter = counter+1;
+      case 'edit' 
+         result{counter} = get( allobj( index ), 'string');
+         counter = counter+1;
+      end;
+   catch, end;
 end;   
 userdat = get(fig, 'userdata');
-% if nargout >= 4
-% 	resstruct = myguihandles(fig, g);
-% end;
+if nargout >= 4
+	resstruct = myguihandles(fig);
+end;
 
 if isempty(g.getresult) && isstr(g.mode) && ( strcmp(g.mode, 'normal') || strcmp(g.mode, 'return') )
 	close(fig);
 end;
 drawnow; % for windows
 
-% function for gui res (deprecated)
+% function for gui res
 % --------------------
-% function g = myguihandles(fig, g)
-% 	h = findobj('parent', fig);
-%         if ~isempty(get(h(index), 'tag'))
-% 			try, 
-% 				switch get(h(index), 'style')
-% 				 case 'edit', g = setfield(g, get(h(index), 'tag'), get(h(index), 'string'));
-% 				 case { 'value' 'radio' 'checkbox' 'listbox' 'popupmenu' 'radiobutton'  }, ...
-% 					  g = setfield(g, get(h(index), 'tag'), get(h(index), 'value'));
-%                 end;
-% 			catch, end; 
-% 		end;
+function g = myguihandles(fig)
+	g = [];
+	h = findobj('parent', fig);
+	for index = 1:length(h)
+		if ~isempty(get(h(index), 'tag'))
+			try, 
+				switch get(h(index), 'style')
+				 case 'edit', g = setfield(g, get(h(index), 'tag'), get(h(index), 'string'));
+				 case { 'value' 'radio' 'checkbox' 'listbox' 'popupmenu' }, ...
+					  g = setfield(g, get(h(index), 'tag'), get(h(index), 'value'));
+				end;
+			catch, end;
+		end;
+	end;

@@ -66,6 +66,8 @@
 %   'nochannel'   - vector of channel indices to exclude from the new
 %                   dataset. Can also be a cell array of channel names.
 %   'newname'     - name for the new dataset (OUTEEG)
+%   'sort'        - automatically sort the specified trial range and channel range 
+%                   (0|1, default: 1)
 %
 % Outputs:
 %   OUTEEG        - new EEG dataset structure
@@ -200,25 +202,19 @@ g = finputcheck(args, { 'time'    'real'      []         []; ...
                         'notrial' 'integer'   []         []; ...
                         'point'   'integer'   []         []; ...
                         'nopoint' 'integer'   []         []; ...
-                        'channel'   { 'integer','cell' }  []  chanlist;
-                        'nochannel' { 'integer','cell' }   []  [];
+                        'channel'   { 'integer' 'cell' }  []  chanlist;
+                        'nochannel' { 'integer' 'cell' }   []  [];
                         'trialcond'   'integer'   []         []; ...
                         'notrialcond' 'integer'   []         []; ...
-                        'sort'        'integer'   []         []; ...
-                        'sorttrial'   'string'    { 'on','off' } 'on' }, 'pop_select');
+                        'sorttrial'   'string'    { 'on' 'off' } 'on' }, 'pop_select');
 if isstr(g), error(g); end;
-if ~isempty(g.sort)
-    if g.sort, g.sorttrial = 'on';
-    else       g.sorttrial = 'off';
-    end;
-end;
+
 if strcmpi(g.sorttrial, 'on')
     g.trial = sort(setdiff( g.trial, g.notrial ));
-    if isempty(g.trial), error('Error: dataset is empty'); end;
 else
     g.trial(ismember(g.trial,g.notrial)) = [];
     % still warn about & remove duplicate trials (may be removed in the future)
-    [p,q] = unique_bc(g.trial);
+    [p,q] = unique(g.trial);
     if length(p) ~= length(g.trial)
         disp('Warning: trial selection contained duplicated elements, which were removed.'); 
     end    
@@ -238,14 +234,11 @@ if iscell(g.channel) && ~iscell(g.nochannel) && ~isempty(EEG.chanlocs)
 end;
 
 if strcmpi(g.sorttrial, 'on')
-    if iscell(g.channel)
-         g.channel = sort(setdiff( lower(g.channel), lower(g.nochannel) ));
-    else g.channel = sort(setdiff( g.channel, g.nochannel ));
-    end;
+    g.channel = sort(setdiff( lower(g.channel), lower(g.nochannel) ));
 else
     g.channel(ismember(lower(g.channel),lower(g.nochannel))) = [];
     % still warn about & remove duplicate channels (may be removed in the future)
-    [p,q] = unique_bc(g.channel);
+    [p,q] = unique(g.channel);
     if length(p) ~= length(g.channel)
         disp('Warning: channel selection contained duplicated elements, which were removed.'); 
     end    
@@ -261,22 +254,20 @@ if ~isempty(EEG.chanlocs)
             % translate channel names into indices
             [inds,names] = eeg_decodechan(EEG.chanlocs, g.channel);
             % and sort the indices back into the original order of channel names
-            [tmp,I] = ismember_bc(lower(g.channel),lower(names)); 
+            [tmp,I] = ismember(lower(g.channel),lower(names)); 
             g.channel = inds(I);
         end
     end
 end;
 
-if ~isempty(g.time) && (g.time(1) < EEG.xmin*1000) && (g.time(2) > EEG.xmax*1000)
+if ~isempty(g.time) & (g.time(1) < EEG.xmin*1000) & (g.time(2) > EEG.xmax*1000)
    error('Wrong time range');
 end;
-if min(g.trial) < 1 || max( g.trial ) > EEG.trials  
+if min(g.trial) < 1 | max( g.trial ) > EEG.trials  
    error('Wrong trial range');
 end;
-if ~isempty(g.channel)
-    if min(double(g.channel)) < 1 || max(double(g.channel)) > EEG.nbchan  
-        error('Wrong channel range');
-    end;
+if min(g.channel) < 1 | max( g.channel ) > EEG.nbchan  
+   error('Wrong channel range');
 end;
 
 if size(g.point,2) > 2, 
@@ -347,8 +338,8 @@ if ~isempty(g.trialcond)
         tmpepoch = EEG.epoch;
 	    eval( [ 'Itriallow  = find( [ tmpepoch(:).' ttfields{index} ' ] >= tt.' ttfields{index} '(1) );' ] );
 	    eval( [ 'Itrialhigh = find( [ tmpepoch(:).' ttfields{index} ' ] <= tt.' ttfields{index} '(end) );' ] );
-	    Itrialtmp = intersect_bc(Itriallow, Itrialhigh);
-	    g.trial = intersect_bc( g.trial(:)', Itrialtmp(:)');
+	    Itrialtmp = intersect(Itriallow, Itrialhigh);
+	    g.trial = intersect( g.trial(:)', Itrialtmp(:)');
    end;	   
 end;
 
@@ -362,37 +353,33 @@ if length(g.channel) ~= EEG.nbchan
 	fprintf('Removing %d channel(s)...\n', EEG.nbchan - length(g.channel));
 end;
 
-try
-    % For AMICA probabilities...
-    %-----------------------------------------------------
-    if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
-        if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
-            if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
-
-                EEG = eeg_formatamica(EEG);
-
-                %-------------------------------------------
-
-                [EEG com] = pop_select(EEG,args{:});
-
-                %-------------------------------------------
-
-                EEG = eeg_reformatamica(EEG);
-                EEG = eeg_checkamica(EEG);
-                return;
-            else
-                disp('AMICA probabilities not compatible with size of data, probabilities cannot be rejected')
-
-                disp('Resuming rejection...')
-            end
+% For AMICA probabilities...
+%-----------------------------------------------------
+if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
+    if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
+        if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
+            
+            EEG = eeg_formatamica(EEG);
+            
+            %-------------------------------------------
+            
+            [EEG com] = pop_select(EEG,args{:});
+            
+            %-------------------------------------------
+            
+            EEG = eeg_reformatamica(EEG);
+            EEG = eeg_checkamica(EEG);
+            return;
+        else
+            disp('AMICA probabilities not compatible with size of data, probabilities cannot be rejected')
+            
+            disp('Resuming rejection...')
         end
-
     end
-    % ------------------------------------------------------
-catch
-    warnmsg = strcat('your dataset contains amica information, but the amica plugin is not installed.  Continuing and ignoring amica information.');
-    warning(warnmsg)
+    
 end
+% ------------------------------------------------------
+
 
 
 % recompute latency and epoch number for events
@@ -402,56 +389,25 @@ if length(g.trial) ~= EEG.trials & ~isempty(EEG.event)
         disp('Pop_epoch warning: bad event format with epoch dataset, removing events');
         EEG.event = [];
     else
-        if isfield(EEG.event, 'epoch')
-            keepevent = [];
-            for indexevent = 1:length(EEG.event)
-                newindex = find( EEG.event(indexevent).epoch == g.trial );% For AMICA probabilities...
-                %-----------------------------------------------------
-                try
-                    if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
-                        if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
-                            if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
-                                
-                                EEG = eeg_formatamica(EEG);
-                                
-                                %-------------------------------------------
-                                
-                                [EEG com] = pop_select(EEG,args{:});
-                                
-                                %-------------------------------------------
-                                
-                                EEG = eeg_reformatamica(EEG);
-                                EEG = eeg_checkamica(EEG);
-                                return;
-                            else
-                                disp('AMICA probabilities not compatible with size of data, probabilities cannot be rejected')
-                                
-                                disp('Resuming rejection...')
-                            end
-                        end
-                        
-                    end
-                catch
-                    warnmsg = strcat('your dataset contains amica information, but the amica plugin is not installed.  Continuing and ignoring amica information.');
-                    warning(warnmsg)
-                end;                
-                % ------------------------------------------------------
-                
-                if ~isempty(newindex)
-                    keepevent = [keepevent indexevent];
-                    if isfield(EEG.event, 'latency')
-                        EEG.event(indexevent).latency = EEG.event(indexevent).latency - (EEG.event(indexevent).epoch-1)*EEG.pnts + (newindex-1)*EEG.pnts;
-                    end;
-                    EEG.event(indexevent).epoch = newindex;
-                end;
-            end;
-            diffevent = setdiff_bc([1:length(EEG.event)], keepevent);
-            if ~isempty(diffevent)
-                disp(['Pop_select: removing ' int2str(length(diffevent)) ' unreferenced events']);
-                EEG.event(diffevent) = [];
-            end;
-        end;
-    end;
+		if isfield(EEG.event, 'epoch')
+			keepevent = [];
+			for indexevent = 1:length(EEG.event)
+				newindex = find( EEG.event(indexevent).epoch == g.trial );
+				if ~isempty(newindex)
+					keepevent = [keepevent indexevent];
+					if isfield(EEG.event, 'latency')
+						EEG.event(indexevent).latency = EEG.event(indexevent).latency - (EEG.event(indexevent).epoch-1)*EEG.pnts + (newindex-1)*EEG.pnts;
+					end;
+					EEG.event(indexevent).epoch = newindex;
+				end;                
+			end;
+            diffevent = setdiff([1:length(EEG.event)], keepevent);
+			if ~isempty(diffevent)
+				disp(['Pop_select: removing ' int2str(length(diffevent)) ' unreferenced events']);
+				EEG.event(diffevent) = [];
+			end;    
+		end;
+    end;        
 end;
 
 
@@ -535,18 +491,7 @@ end;
 
 % performing removal
 % ------------------
-if ~isequal(g.channel,1:size(EEG.data,1)) || ~isequal(g.trial,1:size(EEG.data,3))
-    %EEG.data  = EEG.data(g.channel, :, g.trial);
-    % this code belows is prefered for memory mapped files
-    diff1 = setdiff_bc([1:size(EEG.data,1)], g.channel);
-    diff2 = setdiff_bc([1:size(EEG.data,3)], g.trial);
-    if ~isempty(diff1)
-         EEG.data(diff1, :, :) = [];
-    end;
-    if ~isempty(diff2)
-         EEG.data(:, :, diff2) = [];
-    end;
-end
+EEG.data      = EEG.data(g.channel, :, g.trial);
 if ~isempty(EEG.icaact), EEG.icaact = EEG.icaact(:,:,g.trial); end;
 EEG.trials    = length(g.trial);
 EEG.pnts      = size(EEG.data,2);
@@ -570,7 +515,7 @@ end;
 % ------------
 if ~isempty(EEG.icachansind)
     
-    rmchans = setdiff_bc( EEG.icachansind, g.channel ); % channels to remove
+    rmchans = setdiff( EEG.icachansind, g.channel ); % channels to remove
     
     % channel sub-indices
     % -------------------
@@ -596,10 +541,11 @@ else
     icachans = 1:size(EEG.icasphere,2);
 end;
 
+if ~isempty(EEG.icasphere)
+   EEG.icasphere = EEG.icasphere(:,icachans);
+end;
 if ~isempty(EEG.icawinv)
-    EEG.icawinv = EEG.icawinv(icachans,:);
-    EEG.icaweights = pinv(EEG.icawinv);
-    EEG.icasphere  = eye(size(EEG.icaweights,2));
+   EEG.icawinv = EEG.icawinv(icachans,:);
 end;
 if ~isempty(EEG.specicaact)
     if length(g.point) == EEG.pnts
@@ -607,31 +553,21 @@ if ~isempty(EEG.specicaact)
     else
         EEG.specicaact = [];
         fprintf('Warning: spectral ICA data were removed because of the change in the numner of points\n');
-    end;
+    end;	
 end;
 
-% check if only one epoch
-% -----------------------
-if EEG.trials == 1
-    if isfield(EEG.event, 'epoch')
-        EEG.event = rmfield(EEG.event, 'epoch');
-    end;
-    EEG.epoch = [];
-end;
-
-EEG.reject = [];
-EEG.stats  = [];
+EEG = rmfield( EEG, 'reject');
 EEG.reject.rejmanual = [];
+
 % for stats, can adapt remove the selected trials and electrodes
 % in the future to gain time -----------------------------------  
+EEG = rmfield( EEG, 'stats');
 EEG.stats.jp = [];
 EEG = eeg_checkset(EEG, 'eventconsistency');
 
 % generate command
 % ----------------
-if nargout > 1
 com = sprintf('EEG = pop_select( %s,%s);', inputname(1), vararg2str(args));
-end
 
 return;
 
@@ -651,7 +587,7 @@ if ~isempty(EEG.event)
     for index = 1:length( g.trial )
         currentevents = find( EEG.event(:,2) == g.trial(index));
         Indexes = [ Indexes ones(1, length(currentevents))*index ];
-        Ievent  = union_bc( Ievent, currentevents );
+        Ievent  = union( Ievent, currentevents );
     end;
     EEG.event = EEG.event( Ievent,: );
     EEG.event(:,2) = Indexes(:);

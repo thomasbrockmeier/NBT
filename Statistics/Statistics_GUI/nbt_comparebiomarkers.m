@@ -54,55 +54,18 @@
 function G = nbt_comparebiomarkers(G)
 
 %create panel
-global Questionnaire
-global Factors
 
+
+global rsq
 
 for i = 1:length(G(1).biomarkerslist)
-    b(i) = ~isempty(strfind(G(1).biomarkerslist{i},'Answers'));
-%     [firstname,secondname]=strtok(bioms_name2{dim2},'.');
+    b(i) = strcmp(G(1).biomarkerslist{i},'rsq.Answers');
 end
 
-
 if nnz(b(i)) > 0
-    temp = find(b);
-    [firstname,secondname]=strtok(G(1).biomarkerslist{temp(1)},'.');
-    data = load([G(1).fileslist(1).path '/' G(1).fileslist(1).name],firstname);
-    if ~isempty(strfind(firstname,'Factors'))
-        name = genvarname(char(fields(data)));
-        if eval(['isa(data.' name ',''nbt_questionnaire'')']);
-            eval(['Factors = data.' name ';'])       
-        else
-            Factors = [];
-        end
-        temp2 = strfind(firstname,'Factors');
-        name2 = name(1:temp2-1);
-        name = genvarname( name2);
-        if eval(['isa(data.' name ',''nbt_questionnaire'')']);
-            eval(['Questionnaire = data.' name ';'])       
-        else
-            Questionnaire = [];
-        end
-        
-    else
-        name = genvarname(char(fields(data)));
-        if eval(['isa(data.' name ',''nbt_questionnaire'')']);
-            eval(['Questionnaire = data.' name ';'])       
-        else
-            Questionnaire = [];
-        end
-        name = [name 'Factors'];
-        try
-            data = load([G(1).fileslist(1).path '/' G(1).fileslist(1).name],name);
-            if eval(['isa(data.' name ',''nbt_questionnaire'')']);
-                eval(['Factors = data.' name ';'])       
-            else
-                Factors = [];
-            end
-        catch me
-
-        end
-    end
+    %load rsq
+    rs = load([G(1).fileslist(1).path '/' G(1).fileslist(1).name],'rsq');
+    rsq = rs.rsq;
 end
 
 

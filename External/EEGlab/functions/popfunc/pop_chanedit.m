@@ -707,19 +707,15 @@ else
                 if isempty(tmpargs), return; end;
                 fid = fopen(tmpargs, 'w');
                 if fid ==-1, error('Cannot open file'); end;
-                
                 allfields = fieldnames(chans);
-                fields = { 'labels' 'theta' 'radius' 'X' 'Y' 'Z' 'sph_theta' 'sph_phi' 'sph_radius' 'type' };
-                tmpdiff = setdiff(fields, allfields);
-                if ~isempty(tmpdiff), error(sprintf('Field "%s" missing in channel location structure', tmpdiff{1})); end;
                 fprintf(fid, 'Number\t');
-                for field = 1:length(fields)
-                    fprintf(fid, '%s\t', fields{field});
+                for field = 1:length(allfields)
+                    fprintf(fid, '%s\t', allfields{field});
                 end;
                 fprintf(fid, '\n');
                 for index=1:length(chans)
                     fprintf(fid, '%d\t',  index);
-                    for field = 1:length(fields)
+                    for field = 1:length(allfields)
                         tmpval = getfield(chans, {index}, allfields{field});
                         if isstr(tmpval)
                             fprintf(fid, '%s\t',  tmpval);
@@ -736,11 +732,6 @@ else
                 if ~isempty(fig)
                     tmpval = get(findobj(gcbf, 'tag', 'nosedir'), 'value');
                     args{ curfield+1 } = nosevals{tmpval};
-                    warndlg2( [ 'Changing the nose direction will force EEGLAB to physically rotate ' 10 ...
-                                'electrodes, so next time you call this interface, nose direction will' 10 ...
-                                'be +X. If your electrodes are currently aligned with a specific' 10 ...
-                                'head model, you will have to rotate them in the model coregistration' 10 ... 
-                                'interface to realign them with the model.'], 'My Warn Dialog');
                 end;
                 chaninfo.nosedir = args{ curfield+1 };
                 if isempty(strmatch(chaninfo.nosedir, nosevals))
@@ -758,7 +749,7 @@ else
                     for indexchan = 1:length(chans)
                         if isempty(chans(indexchan).labels), chans(indexchan).labels = ''; end;
                     end;
-                    [tmp1 ind1 ind2] = intersect_bc( lower(standardchans), {chans.labels});
+                    [tmp1 ind1 ind2] = intersect( lower(standardchans), {chans.labels});
                     if ~isempty(tmp1) | isfield(chans, 'theta')
 
                         % finding template location files
@@ -770,11 +761,9 @@ else
                         try
                             EEG = eeg_emptyset; % for dipfitdefs
                             dipfitdefs;
-                            tmpp = which('eeglab.m');
-                            tmpp = fullfile(fileparts(tmpp), 'functions', 'resources', 'Standard-10-5-Cap385_witheog.elp');
-                            userdatatmp = { template_models(1).chanfile template_models(2).chanfile  tmpp };
+                            userdatatmp = { template_models(1).chanfile template_models(2).chanfile };
                             clear EEG;
-                        catch, userdatatmp = { 'Standard-10-5-Cap385.sfp' 'Standard-10-5-Cap385.sfp' 'Standard-10-5-Cap385_witheog.elp' };
+                        catch, userdatatmp = { 'Standard-10-5-Cap385.sfp' 'Standard-10-5-Cap385.sfp' };
                         end;
 
                         % other commands for help/load
@@ -803,7 +792,7 @@ else
                         end;
                         uilist = { { 'style' 'text' 'string' textcomment } ...
                             { 'style' 'popupmenu'  'string' [ 'use BESA file for 4-shell dipfit spherical model' ...
-                            '|use MNI coordinate file for BEM dipfit model|Use spherical file with eye channels' ] ...
+                            '|use MNI coordinate file for BEM dipfit model' ] ...
                             'callback' setmodel } ...
                             { } ...
                             { 'style' 'edit'       'string' userdatatmp{1} 'tag' 'elec' } ...
@@ -833,7 +822,7 @@ else
                 for indexchan = 1:length(chans)
                     if isempty(chans(indexchan).labels), chans(indexchan).labels = ''; end;
                 end;
-                [tmp ind1 ind2] = intersect_bc(lower({ tmplocs.labels }), lower({ chans.labels }));
+                [tmp ind1 ind2] = intersect(lower({ tmplocs.labels }), lower({ chans.labels }));
                 if ~isempty(tmp)
                     chans = struct('labels', { chans.labels }, 'datachan', { chans.datachan }, 'type', { chans.type });
                     [ind2 ind3] = sort(ind2);
@@ -849,7 +838,7 @@ else
                         chans(ind2(index)).sph_phi    = tmplocs(ind1(index)).sph_phi;
                         chans(ind2(index)).sph_radius = tmplocs(ind1(index)).sph_radius;
                     end;
-                    tmpdiff = setdiff_bc([1:length(chans)], ind2);
+                    tmpdiff = setdiff([1:length(chans)], ind2);
                     if ~isempty(tmpdiff)
                         fprintf('Channel lookup: no location for ');
                         for index = 1:(length(tmpdiff)-1)
@@ -895,9 +884,7 @@ if ~isempty(fig)
             if strcmpi(allfields{index}, 'datachan') 
                 set(obj, 'value', getfield(chans(currentpos), allfields{index}));
             else
-                tmpval = getfield(chans(currentpos), allfields{index});
-                if isstr(tmpval) && strcmpi(tmpval, '[]'), tmpval = ''; end;
-                set(obj, 'string', num2str(tmpval));
+                set(obj, 'string', num2str(getfield(chans(currentpos), allfields{index})));
             end;
         end;
     else
@@ -911,14 +898,13 @@ if ~isempty(fig)
         end;
     end;
 else
-    [chans chaninfo] = eeg_checkchanlocs(chans, chaninfo);
+    [chans chaninfo] = eeg_checkchanlocs(chans);
     if dataset_input,
          if nchansori == length(chans)
              for index = 1:length(EEG)
                  EEG(index).chanlocs = chans;
                  EEG(index).chaninfo = chaninfo;
              end;
-             EEG = eeg_checkset(EEG); % for channel orientation
          else
              disp('Wrong channel structure size, changes ignored');
          end;

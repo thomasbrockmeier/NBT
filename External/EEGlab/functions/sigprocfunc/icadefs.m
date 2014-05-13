@@ -29,10 +29,8 @@
 % ------ EEGLAB DEFINITION - YOU MAY CHANGE THE TEXT BELOW -------------
 % ----------------------------------------------------------------------
 
-EEGOPTION_PATH = ''; % if empty, the home folder of the current user is used
-                     % Note that this may create problems under Windows
-                     % when unicode characters are part of the user name
-                     % In this case, enter the path name manually here.
+% INSERT location of ica executable for binica.m below
+ICABINARY = '/data/common/matlab/eeglab/functions/resources/ica_linux'; 
 
 YDIR  = 1;                  % positive potential up = 1; negative up = -1 
                             % for most ERP plots
@@ -40,47 +38,11 @@ YDIR  = 1;                  % positive potential up = 1; negative up = -1
 HZDIR = 'up';               % ascending freqs = 'up'; descending = 'down' 
                             % (e.g., timef/newtimef frequency direction)
 
-% font size
-tmpComputer   = computer;
-tmpScreenSize = get(0, 'ScreenSize');
-retinaDisplay = false;
-if tmpScreenSize(3) == 1440 && ( tmpScreenSize(3) == 878 || tmpScreenSize(3) == 900 )
-    retinaDisplay = true;
-end;
-    
-% retinaDisplay = false; % uncoment this line if not retina display
-if retinaDisplay && strcmpi(tmpComputer(1:3), 'MAC')
-    W_MAIN = findobj('tag', 'EEGLAB');
-    if isempty(W_MAIN)
-        disp('Mac OSX retina display detected. If this is not the case uncoment line 50 of icadefs.m');
-    end;
-    GUI_FONTSIZE  = 18; % graphic interface font size
-    AXES_FONTSIZE = 18; % Axis labels and legend font size
-    TEXT_FONTSIZE = 18; % Miscellaneous font sizes
-else
-    GUI_FONTSIZE  = 10; % graphic interface font size
-    AXES_FONTSIZE = 10; % Axis labels and legend font size
-    TEXT_FONTSIZE = 10; % Miscellaneous font sizes
-end;
-clear retinaDisplay tmpScreenSize tmpComputer;
-
 % the eeg_options.m file also countains additional options
 
 % ----------------------------------------------------------------------
 % ------------------------ END OF DEFINITIONS --------------------------
 % ----------------------------------------------------------------------
-
-% INSERT location of ica executable (LINUX ONLY) for binica.m below
-eeglab_p = fileparts(which('eeglab'));
-ICABINARY = fullfile(eeglab_p, 'functions', 'resources', 'ica_linux'); 
-
-try
-    set(0,'defaultaxesfontsize',AXES_FONTSIZE);
-    set(0,'defaulttextfontsize',TEXT_FONTSIZE);
-    set(0,'DefaultUicontrolFontSize',GUI_FONTSIZE);
-catch
-    % most likely Octave here
-end;
 
 TUTORIAL_URL = 'http://sccn.ucsd.edu/wiki/EEGLAB'; % online version
 DEFAULT_SRATE = 256.0175;      % default local sampling rate (rarely used)
@@ -95,7 +57,7 @@ if ~exist('OCTAVE_VERSION')
     end;
 end;
 if lowscreendepth    
-    %fprintf('icadefs(): Setting display parameters for mono or 8-bit color\n');
+    fprintf('icadefs(): Setting display parameters for mono or 8-bit color\n');
     BACKCOLOR           = [1 1 1];    % Background figure color 
     BACKEEGLABCOLOR     = [1 1 1];    % EEGLAB main window background
     GUIBUTTONCOLOR      = [1 1 1];    % Buttons colors in figures

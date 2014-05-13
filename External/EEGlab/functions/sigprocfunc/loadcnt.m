@@ -7,10 +7,8 @@
 %   filename - name of the file with extension
 %
 % Optional inputs:
-%  't1'         - start at time t1, default 0. Warning, events latency
-%                 might be innacurate (this is an open issue).
-%  'sample1'    - start at sample1, default 0, overrides t1. Warning, 
-%                 events latency might be innacurate.
+%  't1'         - start at time t1, default 0
+%  'sample1'    - start at sample1, default 0, overrides t1
 %  'lddur'      - duration of segment to load, default = whole file
 %  'ldnsamples' - number of samples to load, default = whole file, 
 %                 overrides lddur
@@ -71,7 +69,7 @@ try, r.lddur;      catch, r.lddur=[]; end
 try, r.ldnsamples; catch, r.ldnsamples=[]; end
 try, r.scale;      catch, r.scale='on'; end
 try, r.blockread;  catch, r.blockread = []; end
-try, r.dataformat; catch, r.dataformat = 'auto'; end
+try, r.dataformat; catch, r.dataformat = 'int16'; end
 try, r.memmapfile; catch, r.memmapfile = ''; end
 
 
@@ -310,21 +308,10 @@ end
 % finding if 32-bits of 16-bits file
 % ----------------------------------
 begdata = ftell(fid);
-if strcmpi(r.dataformat, 'auto')
-    r.dataformat = 'int16';
-    if (h.nextfile > 0)
-        fseek(fid,h.nextfile+52,'bof');
-        is32bit = fread(fid,1,'char');       
-        if (is32bit == 1)
-            r.dataformat = 'int32';
-        end;
-        fseek(fid,begdata,'bof');
-    end;
-end;
 enddata = h.eventtablepos;   % after data
 if strcmpi(r.dataformat, 'int16')
-     nums    = floor((enddata-begdata)/h.nchannels/2); % floor due to bug 1254
-else nums    = floor((enddata-begdata)/h.nchannels/4);
+     nums    = (enddata-begdata)/h.nchannels/2;
+else nums    = (enddata-begdata)/h.nchannels/4;
 end;
 
 % number of sample to read
@@ -383,9 +370,9 @@ if type == 'cnt'
           data_block = 4000000 ;
           max_rows =  data_block / h.nchannels ;
 
-          %warning off ;
+          warning off ;
           max_written = h.nchannels * uint32(max_rows) ;
-          %warning on ;
+          warning on ;
 
           % This while look tracks the remaining samples.  The 
           % data is processed in chunks rather than put into 

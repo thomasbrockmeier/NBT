@@ -4,9 +4,7 @@ StatSelection = figure('Units','points', 'name','Biomarkers Comparison' ,'number
 % regions or channels
 reglist{1} = 'Channels';
 reglist{2} = 'Regions';
-reglist{3} = 'Components';
-
-hp = uipanel(StatSelection,'Title','Select Channels,Regions,Components','FontSize',8,'Units','pixels','Position',[5 340 300 50]);
+hp = uipanel(StatSelection,'Title','Select Channels or Regions','FontSize',8,'Units','pixels','Position',[5 340 300 50]);
 ListRegion = uicontrol(hp,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 290 30],'fontsize',8,'String',reglist);
 % biomarkers
 hp2 = uipanel(StatSelection,'Title','Biomarker to split on','FontSize',8,'Units','pixels','Position',[325 410 300 150]);
@@ -21,11 +19,11 @@ for i = 1:length(G)
 end
 
 %select test
-hp4 = uipanel(StatSelection,'Title','Type of Test','FontSize',8,'Units','pixels','Position',[5 250 300 80]);
-ListTest = uicontrol(hp4,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 290 60],'fontsize',8,'String',{'Spearman Correlation','TTest after splitting on Biomarker','Pearson Correlation','Kendall Correlation'});
+hp4 = uipanel(StatSelection,'Title','Type of Test','FontSize',8,'Units','pixels','Position',[5 280 300 50]);
+ListTest = uicontrol(hp4,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 290 30],'fontsize',8,'String',{'Spearman Correlation','TTest after splitting on Biomarker'});
 
 %select display
-hp5 = uipanel(StatSelection,'Title','Type of Display','FontSize',8,'Units','pixels','Position',[5 190 300 50]);
+hp5 = uipanel(StatSelection,'Title','Type of Display','FontSize',8,'Units','pixels','Position',[5 210 300 50]);
 ListDisplay = uicontrol(hp5,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 290 30],'fontsize',8,'String',{'Individual Channels','Topoplots'});
     
  
@@ -39,7 +37,7 @@ ListDisplay = uicontrol(hp5,'Units', 'pixels','style','listbox','Max',1,'Units',
  hp9 = uipanel(StatSelection,'Title','value','FontSize',8,'Units','pixels','Position',[325 280 300 50]);
  ListSplitValue = uicontrol(hp9,'Units', 'pixels','style','edit','Max',1,'Units', 'pixels','Position',[5 5 290 30],'fontsize',8,'String','50');
 
- hp6 = uipanel(StatSelection,'Title','Select Group(s)','FontSize',8,'Units','pixels','Position',[5 120 300 60]);
+ hp6 = uipanel(StatSelection,'Title','Select Group(s)','FontSize',8,'Units','pixels','Position',[5 140 300 60]);
 
 ListGroup = uicontrol(hp6,'Units', 'pixels','style','listbox','Max',length(groupList),'Units', 'pixels','Position',[5 5 290 40],'fontsize',8,'String',groupList);
 % run test

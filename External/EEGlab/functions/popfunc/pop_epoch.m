@@ -31,7 +31,7 @@
 %                the time-locking event {default: [-1 2]}
 %
 % Optional inputs:
-%   'eventindices'- [integer vector] Extract data epochs time locked to the 
+%   'eventindices'- [int indices] Extract data epochs time locked to the 
 %                indexed event numbers. 
 %   'valuelim' - [min max] or [max]. Lower and upper bound latencies for 
 %                trial data. Else if one positive value is given, use its 
@@ -230,69 +230,28 @@ if isempty(alllatencies)
 end;
 fprintf('pop_epoch():%d epochs selected\n', length(alllatencies));
 
-try
-    % ----------------------------------------------------
-    % For AMICA probabilities...Temporarily add model probabilities as channels
-    %-----------------------------------------------------
-    if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
-        if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
-            if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
-
-                EEG = eeg_formatamica(EEG);
-                %--------------------
-                [EEG indices com] = pop_epoch(EEG,events,lim,args{:});
-                %---------------------------------
-
-                EEG = eeg_reformatamica(EEG);
-                EEG = eeg_checkamica(EEG);
-                return;
-            else
-                disp('AMICA probabilities not compatible with size of data, model probabilities cannot be epoched...')
-
-            end
+% ----------------------------------------------------
+% For AMICA probabilities...Temporarily add model probabilities as channels
+%-----------------------------------------------------
+if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
+    if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
+        if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
+            
+            EEG = eeg_formatamica(EEG);
+            %--------------------
+            [EEG indices com] = pop_epoch(EEG,events,lim,args{:});
+            %---------------------------------
+            
+            EEG = eeg_reformatamica(EEG);
+            EEG = eeg_checkamica(EEG);
+            return;
+        else
+            disp('AMICA probabilities not compatible with size of data, model probabilities cannot be epoched...')
+            
         end
     end
-    % ----------------------------------------------------
-catch
-    warnmsg = strcat('your dataset contains amica information, but the amica plugin is not installed.  Continuing and ignoring amica information.');
-    warning(warnmsg)
 end
-
-% change boundaries in rare cases when limits do not include time-locking events
-% ------------------------------------------------------------------------------
-tmpevents = EEG.event;
-if lim(1) > 0 && ischar(EEG.event(1).type)
-   % go through all onset latencies
-   for Z1 = length(alllatencies):-1:1
-      % if there is any event in between trigger and epoch onset which are boundary events
-      selEvt = find([tmpevents.latency] > alllatencies(Z1) & [tmpevents.latency] < alllatencies(Z1) + lim(1) * EEG.srate);
-      selEvt = selEvt(strcmp({tmpevents(selEvt).type}, 'boundary'));
-      if any(selEvt)
-          if sum([tmpevents(selEvt).duration]) > lim(1) * EEG.srate
-              alllatencies(Z1) = [];
-          else
-              % correct the latencies by the duration of the data that were cutout
-              alllatencies(Z1) = alllatencies(Z1) - sum([tmpevents(selEvt).duration]);
-          end;
-      end
-   end
-end
-if lim(2) < 0 && ischar(EEG.event(1).type)
-   % go through all onset latencies
-   for Z1 = length(alllatencies):-1:1
-      % if there is any event in between trigger and epoch onset which are boundary events
-      selEvt = find([tmpevents.latency] < alllatencies(Z1) & [tmpevents.latency] > alllatencies(Z1) + lim(2) * EEG.srate);
-      selEvt = selEvt(strcmp({tmpevents(selEvt).type}, 'boundary'));
-      if any(selEvt)
-          if sum([tmpevents(selEvt).duration]) > -lim(2) * EEG.srate
-              alllatencies(Z1) = [];
-          else
-              % correct the latencies by the duration of the data that were cutout
-              alllatencies(Z1) = alllatencies(Z1) + sum([tmpevents(selEvt).duration]);
-          end;
-      end
-   end
-end
+% ----------------------------------------------------
 
 % select event time format and epoch
 % ----------------------------------
@@ -367,8 +326,6 @@ if ~isempty(EEG.event) & isstr(EEG.event(1).type)
 			indexepoch = [indexepoch tmpevent(tmpindex).epoch ];
 		end;
 		EEG = pop_select(EEG, 'notrial', indexepoch);
-        % update the "indices of accepted events", too
-        indices = indices(setdiff(1:length(indices),indexepoch));
 	end;
 end;
 

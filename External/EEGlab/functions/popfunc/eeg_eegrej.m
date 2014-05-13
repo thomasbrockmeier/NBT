@@ -49,36 +49,33 @@ if isempty(regions)
 	return;
 end;
 
-try
-    % For AMICA probabilities...Temporarily add model probabilities as channels
-    %-----------------------------------------------------
-    if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
-        if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
-            if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
 
-                EEG = eeg_formatamica(EEG);
-                %-------------------------------------------
-
-                [EEG com] = eeg_eegrej(EEG,regions);
-
-                %-------------------------------------------
-
-                EEG = eeg_reformatamica(EEG);
-                EEG = eeg_checkamica(EEG);
-                return;
-            else
-                disp('AMICA probabilities not compatible with size of data, probabilities cannot be epoched')
-                disp('Load AMICA components before extracting epochs')
-                disp('Resuming rejection...')
-            end
+% For AMICA probabilities...Temporarily add model probabilities as channels
+%-----------------------------------------------------
+if isfield(EEG.etc, 'amica') && ~isempty(EEG.etc.amica) && isfield(EEG.etc.amica, 'v_smooth') && ~isempty(EEG.etc.amica.v_smooth) && ~isfield(EEG.etc.amica,'prob_added')
+    if isfield(EEG.etc.amica, 'num_models') && ~isempty(EEG.etc.amica.num_models)
+        if size(EEG.data,2) == size(EEG.etc.amica.v_smooth,2) && size(EEG.data,3) == size(EEG.etc.amica.v_smooth,3) && size(EEG.etc.amica.v_smooth,1) == EEG.etc.amica.num_models
+            
+            EEG = eeg_formatamica(EEG);
+            %-------------------------------------------
+            
+            [EEG com] = eeg_eegrej(EEG,regions);
+            
+            %-------------------------------------------
+            
+            EEG = eeg_reformatamica(EEG);
+            EEG = eeg_checkamica(EEG);
+            return;
+        else
+            disp('AMICA probabilities not compatible with size of data, probabilities cannot be epoched')
+            disp('Load AMICA components before extracting epochs')
+            disp('Resuming rejection...')
         end
-
     end
-    % ------------------------------------------------------
-catch
-    warnmsg = strcat('your dataset contains amica information, but the amica plugin is not installed.  Continuing and ignoring amica information.');
-    warning(warnmsg)
+    
 end
+% ------------------------------------------------------
+
 
 
 if isfield(EEG.event, 'latency'),
@@ -90,13 +87,13 @@ end;
 % handle regions from eegplot
 % ---------------------------
 if size(regions,2) > 2, regions = regions(:, 3:4); end;
-regions = combineregions(regions);
 
 [EEG.data EEG.xmax tmpalllatencies boundevents] = eegrej( EEG.data, ...
 												  regions, EEG.xmax-EEG.xmin, tmpalllatencies);
 oldEEGpnts = EEG.pnts;
 EEG.pnts   = size(EEG.data,2);
 EEG.xmax   = EEG.xmax+EEG.xmin;
+
 
 % add boundary events
 % -------------------
@@ -106,17 +103,4 @@ if ~isempty(boundevents) % boundevent latencies will be recomputed in the functi
 end;
 
 com = sprintf('%s = eeg_eegrej( %s, %s);', inputname(1), inputname(1), vararg2str({ regions })); 
-
-% combine regions if necessary
-% it should not be necessary but a 
-% bug in eegplot makes that it sometimes is
-% ----------------------------
-function newregions = combineregions(regions)
-newregions = regions;
-for index = size(regions,1):-1:2
-    if regions(index-1,2) >= regions(index,1)
-        disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
-        newregions(index-1,:) = [regions(index-1,1) regions(index,2) ];
-        newregions(index,:)   = [];
-    end;
-end;
+return;

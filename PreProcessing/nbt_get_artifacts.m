@@ -66,19 +66,17 @@ disp(['nbt_get_artifacts(Signal,SignalInfo,',char(39),Save_dir,char(39),')'])
 disp(' ')
 
 original_Signal=Signal;
-timescale='samples';
+timescale='seconds';
 frequencyinterval = [1 45];
 filterorder= 4;
 addlegend=0;
-addcolors='n';
-distance=6*median(std(Signal));
+addcolors='1';
+distance= 50;
 nr_channels=size(Signal,2);
 fs=SignalInfo.converted_sample_frequency;
 I_file = [Save_dir,'/',SignalInfo.file_name,'_info.mat'];
 channels=1:nr_channels;
 interval=1:size(Signal,1);
-linepoint='L';
-
 if ~isfield(SignalInfo.Interface,'noisey_intervals');
     SignalInfo.Interface.noisey_intervals=[];
 end
@@ -88,13 +86,13 @@ if~isempty(SignalInfo.BadChannels)
     SignalInfo.BadChannels = tmp;
     disp(['previously identified bad channels: ',num2str(find(SignalInfo.BadChannels')')])
 else
-    SignalInfo.BadChannels = zeros(size(Signal(1,:)));
+    SignalInfo.BadChannels =zeros(size(Signal(1,:)));
     disp('No previously identified bad channels')
 end
 disp(' ')
 disp('Plotting signal...')
-
-set_para([],[])  %  set parameters and make plot
+plotting
+% set_para([],[])  %  set parameters and make plot
 
 function plotting
 
@@ -118,14 +116,13 @@ function plotting
 
     %--- apply frequency filter
     Signal=original_Signal(interval,channels);
-    if ~isempty(frequencyinterval)
-        if isempty(filterorder)
-            filterorder=4;
-        end
-        [b,a] = butter(filterorder,[frequencyinterval(1) frequencyinterval(2)]/(fs/2)) ;
-        for i=1:length(channels)
-            Signal(:,i) = filtfilt(b,a,Signal(:,i));
-        end
+
+    if isempty(filterorder)
+        filterorder=4;
+    end
+    [b,a] = butter(filterorder,[frequencyinterval(1) frequencyinterval(2)]/(fs/2)) ;
+    for i=1:length(channels)
+        Signal(:,i) = filtfilt(b,a,Signal(:,i));
     end
 
     %--- get time scale axes
@@ -171,35 +168,21 @@ function plotting
         uimenu(hh(channels(ii)), 'Label','Set as noisy channel','callback',{@set_bad_channel,channels(ii)});
         uimenu(hh(channels(ii)), 'Label','Unset as noisy channel','callback',{@unset_bad_channel,channels(ii)});
         uimenu(hh(channels(ii)), 'Label','Remove channel from plot','callback',{@remove_channel,channels(ii)});
-        if strcmp(linepoint,'P')
-            hold on
-            LP(channels(ii))=plot(index,Signal(:,ii),'.','color',colors(ii,:));
-        end
         hold on
-    end
-  if isfield(SignalInfo.Interface,'EEG') && ~isempty(SignalInfo.Interface.EEG.chanlocs)
-        for i=1:size(Signal,2)
-            label{i}=[num2str(channels(i)) '(' SignalInfo.Interface.EEG.chanlocs(i).labels ')'];
-        end      
-        set(gca,'YTick', temp(1,:), 'YTickLabel',label)
-
-       
-    else
-        for i=1:size(Signal,2)
-            label{i}=[num2str(channels(i))];
-        end      
-        set(gca,'YTick', temp(1,:), 'YTickLabel',label)
-        
-
     end
     hold off
     xlabel(xl)
 
+    
+    set(gca,'ytick',[0:5*distance:size(Signal,2)*distance]);
+    set(gca,'yticklabel',[0:5:size(Signal,2)]);
+    ylabel('Channel Number')
     %--- set axes
-    y=ylim;
+    %y=ylim;
+    y(1) = distance; y(2) = size(Signal,2)*distance;
     x=xlim;
     axis tight
-    y=ylim;
+    %y=ylim;
     ylim([y(1)-distance,y(2)+distance])
     yoriginal=ylim;
     xoriginal=xlim;
@@ -215,9 +198,6 @@ function plotting
         findbadchannel = find(channels == tmpBadChannels(j));
         if ~isempty(findbadchannel)
             set(h(tmpBadChannels(j)),'color','k')
-            if strcmp(linepoint,'P')
-                set(LP(tmpBadChannels(j)),'color','k')
-            end
         end
     end
     %         for i=1:length(tmpBadChannels)
@@ -266,8 +246,7 @@ function plotting
         'min',yoriginal(1),'max',yoriginal(2),...
         'value',yoriginal(1)+(yoriginal(2)-yoriginal(1))/100,...
         'position',[0 0.1 0.05 0.2])
-    
-    
+
     %---  buttons
     button2=uicontrol('Units', 'normalized', ...
         'callback',{@select_interval} ,...
@@ -280,11 +259,6 @@ function plotting
 
     uicontrol('Units', 'normalized', ...
         'callback',{@set_para},'position',[0.7864    0.0000    0.2107    0.0476],'string','Edit plot parameters')
-    
-    if isfield(SignalInfo.Interface,'EEG')
-        uicontrol('Units', 'normalized', ...
-            'callback',{@select_channel},'position',[ 0.5799    0.0    0.2107    0.0476],'string','Select channel(s) to plot')
-    end
 
     %---  support callback functions
 
@@ -436,50 +410,6 @@ function plotting
         set(h(ii),'visible','off')
     end
 end
-
-function[] = select_channel(d1,d2)
-
-    %%load locations
-    [inty,intx]=nbt_loadintxinty(SignalInfo.Interface.EEG.chanlocs);
-
-    %% make figure
-    figure()
-    axis off
-    set(gcf,'Tag','select_channel');
-    set(gcf,'numbertitle','off');
-    set(gcf,'name','NBT: EEG Topography');
-    scrsz = get(0,'ScreenSize');
-    set(gcf,'Position',[scrsz(3)/2 scrsz(4)/3 scrsz(3)/2 scrsz(4)/2])
-    set(gcf,'toolbar','figure')
-
-    %% plot
-    for i=1:length(intx)
-        hh(i)=uicontextmenu;
-        plot(intx(i),inty(i),'.','markersize',15,'displayname',num2str(i),'uicontextmenu',hh(i));
-        uimenu(hh(i), 'Label', ['Plot Channel ',num2str(i)],'callback',@plot_channel);
-        hold on
-    end
-    axis off
-    hold off
-    title('Right click on a channel to plot or select multiple channels by zooming in and pushing the button','fontweight','bold')
-    uicontrol('Units', 'normalized', ...
-        'callback',{@get_channels},'string','Plot channels in current axes','position',[0.0370    0.0262    0.3487    0.0476])
-end
-
-function get_channels(d1,d2)
-    [inty,intx]=nbt_loadintxinty(SignalInfo.Interface.EEG.chanlocs);
-    ax=axis;
-    channels=[];
-    for i=1:length(intx)
-        if intx(i)<ax(2) && intx(i) > ax(1) && inty(i)<ax(4) && inty(i) > ax(3)
-            channels=[channels,i];
-        end
-    end
-    %         figure()
-    plotting
-end
-
-
 function[]= set_para(d1,d2)
     options.Resize='on';
     options.WindowStyle='modal';
@@ -490,9 +420,8 @@ function[]= set_para(d1,d2)
     interval1=interval;
     channels1=channels;
     frequencyinterval1=frequencyinterval;
-    linepoint1=linepoint;
-    out=inputdlg([{'timescale (samples, minutes or seconds)'},{'frequency filter interval (empty is no filter)'},{'Butterworth frequency filter order'}, {'legend(1 or 0)'},{'colors (1, 7 or n)'},{'distance between signals'},{'channels to be plotted (index or "all")'},{'interval to be plotted (in sample number, or "all")'},{'plot line (L) or points and line (P)'}], ...
-        'Specify plot parameters', ones(1,9),[{num2str(timescale)},{num2str(frequencyinterval)},{num2str(filterorder)}, {num2str(addlegend)},{num2str(addcolors)},{num2str(distance)},{num2str(channels)},{[num2str(interval(1)),' ',num2str(interval(end))]},{linepoint}],options);
+    out=inputdlg([{'timescale (samples, minutes or seconds)'},{'frequency interval'},{'filterorder'}, {'legend(1 or 0)'},{'colors (1, 7 or n)'},{'distance between signals'},{'channels to be plotted (index or "all")'},{'interval to be plotted (in sample number, or "all")'}], ...
+        'Specify plot parameters', ones(1,8),[{num2str(timescale)},{num2str(frequencyinterval)},{num2str(filterorder)}, {num2str(addlegend)},{num2str(addcolors)},{num2str(distance)},{num2str(channels)},{[num2str(interval(1)),' ',num2str(interval(end))]}],options);
     if ~isempty(out)
         timescale =out{1};
         frequencyinterval=str2num(out{2});
@@ -511,7 +440,6 @@ function[]= set_para(d1,d2)
         else
             interval=temp(1):temp(2);
         end
-        linepoint=out{9};
         plotting
     end
 end

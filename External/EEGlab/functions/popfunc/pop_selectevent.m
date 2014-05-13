@@ -43,7 +43,7 @@
 %   EEGOUT - EEG dataset with the selected events only
 %   event_indices - indexes of the selected events
 %
-%   Ex:  [EEGTARGETS,target_indices] = pop_selectevent(EEG,'type',[1 6 11 16 21]);
+%   Ex:  [EEGTARGETS,target_indices] = getevent(EEG,'type',[1 6 11 16 21]);
 %
 %        % Returns ONLY THOSE epochs containing any of the 5 specified
 %          types of target events.
@@ -264,12 +264,12 @@ end;
 % ---------------------------------
 fieldlist = { 'event'         'integer'     []                                       [1:length(EEG.event)] ;
 			  'omitevent'     'integer'     []                                       [] ;
-			  'deleteepochs'  'string'      { 'yes','no','on','off' }                'on' ;
-			  'invertepochs'  'string'      { 'on','off' }                           'off' ;
-			  'deleteevents'  'string'      { 'yes','no','on','off' }                'off';
+			  'deleteepochs'  'string'      { 'yes' 'no' 'on' 'off' }                'on' ;
+			  'invertepochs'  'string'      { 'on' 'off' }                           'off' ;
+			  'deleteevents'  'string'      { 'yes' 'no' 'on' 'off' }                'off';
 			  'renametype'    'string'      []                                       '';
 			  'oldtypefield'  'string'      []                                       '';
-			  'select'        'string'      { 'normal','inverse','remove','keep' }   'normal' };
+			  'select'        'string'      { 'normal' 'inverse' 'remove' 'keep' }   'normal' };
 for index = 1:length(allfields) 
 	fieldlist{end+1, 1} = allfields{index};
 	fieldlist{end  , 2} = '';
@@ -328,9 +328,9 @@ for index = 1:length(allfields)
                 if isempty( tmpindex ),
                     fprintf('Warning: ''%s'' field value ''%s'' not found\n', allfields{index}, tmpvar{index2});
                 end;
-                Ieventtmp = unique_bc( [ Ieventtmp; tmpindex ]);
+                Ieventtmp = unique( [ Ieventtmp; tmpindex ]);
             end;
-            Ievent = intersect_bc( Ievent, Ieventtmp );
+            Ievent = intersect( Ievent, Ieventtmp );
         elseif isstr( tmpvar ) % real range
             tmpevent = EEG.event;
             eval( [ 'tmpvarvalue = [ tmpevent(:).' allfields{index} ' ];'] );
@@ -353,7 +353,7 @@ for index = 1:length(allfields)
             end;
 			Ieventlow  = find( tmpvarvalue >= min);
 			Ieventhigh = find( tmpvarvalue <= max);
-			Ievent = intersect_bc( Ievent, intersect( Ieventlow, Ieventhigh ) );
+			Ievent = intersect( Ievent, intersect( Ieventlow, Ieventhigh ) );
         else
 			if strcmp(allfields{index}, 'latency')
 				fprintf(['pop_selectevent warning: latencies are continuous values\n' ...
@@ -362,9 +362,9 @@ for index = 1:length(allfields)
             eval( [ 'tmpevent = EEG.event; tmpvarvalue = [ tmpevent(:).' allfields{index} ' ];'] );
             Ieventtmp = [];
             for index2 = 1:length( tmpvar )
-                Ieventtmp = unique_bc( [ Ieventtmp find(tmpvarvalue == tmpvar(index2)) ] );
+                Ieventtmp = unique( [ Ieventtmp find(tmpvarvalue == tmpvar(index2)) ] );
             end;
-			Ievent = intersect_bc( Ievent, Ieventtmp );
+			Ievent = intersect( Ievent, Ieventtmp );
         end;
      end;
         
@@ -389,9 +389,9 @@ for index = 1:length(allfields)
                 if isempty( tmpindex ),
                     fprintf('Warning: ''%s'' field value ''%s'' not found\n', allfields{index}, tmpvar{index2});
                 end;
-                Ieventtmp = unique_bc( [ Ieventtmp; tmpindex ]);
+                Ieventtmp = unique( [ Ieventtmp; tmpindex ]);
             end;
-            Ieventrem = union_bc( Ieventrem, Ieventtmp );
+            Ieventrem = union( Ieventrem, Ieventtmp );
          elseif isstr( tmpvar )
             tmpevent = EEG.event;
             eval( [ 'tmpvarvalue = [ tmpevent(:).' allfields{index} ' ];'] );
@@ -414,7 +414,7 @@ for index = 1:length(allfields)
             end;
             Ieventlow  = find( tmpvarvalue > min);
             Ieventhigh = find( tmpvarvalue < max);
-            Ieventrem = union_bc( Ieventrem, intersect( Ieventlow, Ieventhigh ) );
+            Ieventrem = union( Ieventrem, intersect( Ieventlow, Ieventhigh ) );
         else
 			if strcmp(allfields{index}, 'latency')
 				fprintf(['pop_selectevent warning: latencies are continuous values\n' ...
@@ -424,22 +424,22 @@ for index = 1:length(allfields)
             eval( [ 'tmpvarvalue = [ tmpevent(:).' allfields{index} ' ];'] );
             Ieventtmp = [];
             for index2 = 1:length( tmpvar )
-                Ieventtmp = unique_bc( [ Ieventtmp find( tmpvarvalue ==tmpvar(index2)) ] );
+                Ieventtmp = unique( [ Ieventtmp find( tmpvarvalue ==tmpvar(index2)) ] );
             end;
-            Ieventrem = union_bc( Ieventrem, Ieventtmp );
+            Ieventrem = union( Ieventrem, Ieventtmp );
         end;
 	end;
 end;
 
-Ievent = setdiff_bc( Ievent, Ieventrem);
+Ievent = setdiff( Ievent, Ieventrem);
 if strcmp(g.select, 'inverse')
-	Ievent = setdiff_bc( [1:length(EEG.event)], Ievent );
+	Ievent = setdiff( [1:length(EEG.event)], Ievent );
 end;
 
 % checking if trying to remove boundary events (in continuous data)
 if isfield(EEG.event, 'type')
     if isstr(EEG.event(1).type) & EEG.trials == 1 
-        Ieventrem = setdiff_bc([1:length(EEG.event)], Ievent );
+        Ieventrem = setdiff([1:length(EEG.event)], Ievent );
         tmpevent  = EEG.event;
         boundaryindex = strmatch('boundary', { tmpevent(Ieventrem).type });
         if ~isempty(boundaryindex)
@@ -457,12 +457,12 @@ end;
 if ~isempty(g.renametype)
     fprintf('Pop_selectevent: renaming %d selected events (out of %d)\n', length(Ievent), length(EEG.event));
     if ~isempty(g.oldtypefield)
-        for index = setdiff_bc(Ievent, boundaryindex)
+        for index = setdiff(Ievent, boundaryindex)
             eval([ 'EEG.event(index).' g.oldtypefield '= EEG.event(index).type;']);
             EEG.event(index).type = g.renametype;
         end;
     else
-        for index = setdiff_bc(Ievent, boundaryindex)
+        for index = setdiff(Ievent, boundaryindex)
             EEG.event(index).type = g.renametype;
         end;
     end;

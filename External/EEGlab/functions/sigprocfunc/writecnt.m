@@ -78,11 +78,7 @@ dat = cntdataset.data;
 eT  = cntdataset.Teeg;
 ev2 = cntdataset.event;
 t   = cntdataset.tag;
-if ~isfield(cntdataset,'endtag')
-    endtag=[];
-else
-    endtag=cntdataset.endtag;
-end
+endtag=cntdataset.endtag;
 
 fid = fopen(filename,'w');
 disp(['Writing file ' filename ' ...'])
@@ -282,8 +278,8 @@ fwrite(fid,h.dcthreshold,'uchar');  % = 383H
 % 64 channels: 1643h  % 128 channels: 2903h
 
 for n = 1:h.nchannels
-    lablength = fwrite(fid,e(n).lab,'char');
-    fwrite(fid,e(n).reference,'char',10-lablength);
+    fwrite(fid,e(n).lab,'char');
+    fwrite(fid,e(n).reference,'char');
     fwrite(fid,e(n).skip,'char');
     fwrite(fid,e(n).reject,'char');
     fwrite(fid,e(n).display,'char');

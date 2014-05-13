@@ -185,7 +185,7 @@ if nargin < 1
    return;
 end;
 
-if typeplot == 0 && isempty(EEG.icasphere)
+if typeplot == 0 & isempty(EEG.icasphere)
    error('no ICA data for this set, first run ICA');
 end;   
 if EEG.trials == 1
@@ -374,21 +374,7 @@ if popup
 	% ---------
 	channel   	 = eval( [ '[' res.chan ']' ]);
 	titleplot    = res.title;
-	if isfield(res, 'projchan'), 
-        if ~isempty(res.projchan)
-            if strcmpi(res.projchan(1),'''')
-                 projchan = eval( [ '{' res.projchan '}' ]);
-            else projchan = parsetxt( res.projchan);
-            end;
-            if ~isempty(projchan) && ~isempty(str2num(projchan{1}))
-                projchan = cellfun(@str2num, projchan);
-            end;
-        else
-            projchan = []; 
-        end;
-    else, 
-        projchan = []; 
-    end;
+	if isfield(res, 'projchan'), projchan = str2num(res.projchan); else, projchan = []; end;
     opt = [];
 	if ~isempty(res.others)
         try,
@@ -397,11 +383,27 @@ if popup
         catch, error('Additional options ("More options") requires ''key'', ''val'' arguments');
         end;
 	end;
-	if ~typeplot && isempty(projchan)
+	if ~typeplot & isempty(projchan)
         opt.yerplabel = '';
     else
         opt.yerplabel = '\muV' ;
 	end;
+	if isempty(titleplot)
+        if typeplot==1 % if channel plot
+            if ~isempty(EEG.chanlocs) % if channel information exist
+                  titleplot = [ EEG.chanlocs(channel).labels ];
+            else, titleplot = [ int2str(channel) ];
+            end
+        else
+            titleplot = [ 'Comp. ' int2str(channel) ];
+            if ~isempty(projchan),
+                if ~isempty(EEG.chanlocs) % if channel plot
+                      titleplot = [ titleplot ' -> ' EEG.chanlocs(projchan).labels ];
+                else, titleplot = [ titleplot ' -> Chan. ' int2str(projchan) ];
+                end
+            end;
+        end
+    end;
 	smooth       = eval(res.smooth);
     if res.plotmap
 		if isfield(EEG.chanlocs, 'theta')
@@ -560,7 +562,7 @@ try, icadefs; set(gcf, 'color', BACKCOLOR,'Name',' erpimage()'); catch, end;
 
 % testing inputs
 % --------------
-if typeplot == 0 && length(channel) > 1 && isempty(projchan)
+if typeplot == 0 & length(channel) > 1 & isempty(projchan)
 	error('A channel must be selected to plot (the sum of) several component projections');
 end;
 
@@ -599,21 +601,12 @@ else
     sortingeventfield = '';
 end;           
 
-if isstr(projchan)
-    projchan = { projchan };
-end;
-if iscell(projchan) 
-    projchannum = std_chaninds(EEG, projchan);
-else
-    projchannum = projchan;
-end;
-
 if typeplot == 1
 	tmpsig = ['mean(EEG.data([' int2str(channel) '], :),1)'];
 else
     % test if ICA was computed or if one has to compute on line
     % ---------------------------------------------------------
-    tmpsig = [ 'eeg_getdatact(EEG, ''component'', [' int2str(channel) '], ''projchan'', [' int2str(projchannum) '])' ];
+    tmpsig = [ 'eeg_getdatact(EEG, ''component'', [' int2str(channel) '])' ];
 end;
 
 % outputs
@@ -624,24 +617,6 @@ if ~popup
     if ~isempty(outstr), outstr = [ '[' outstr(1:end-1) '] =' ]; end;
 end;
 
-% plot title
-% ----------
-if isempty(titleplot)
-    if typeplot==1 % if channel plot
-        if ~isempty(EEG.chanlocs) % if channel information exist
-              titleplot = [ EEG.chanlocs(channel).labels ];
-        else, titleplot = [ int2str(channel) ];
-        end
-    else
-        titleplot = [ 'Comp. ' int2str(channel) ];
-        if ~isempty(projchan),
-            tmpstr = vararg2str({projchan});
-            tmpstr(find(tmpstr == '''')) = '"';
-            titleplot = [ titleplot ' -> Chan. ' tmpstr ];
-        end;
-    end
-end;
-    
 % plot the data and generate output command
 % --------------------------------------------
 if isempty( options )
@@ -660,7 +635,7 @@ if isempty( options )
 end;
 
 % varargout{1} = sprintf('figure; pop_erpimage(%s,%d,%d,''%s'',%d,%d,{%s},[%s],''%s'',''%s''%s);', inputname(1), typeplot, channel, titleplot, smooth, decimate, typetxt, int2str(sortingwin), sortingeventfield, renorm, options);
-popcom = sprintf('figure; pop_erpimage(%s,%d, [%s],[%s],''%s'',%d,%d,{%s},[%s],''%s'' %s);', inputname(1), typeplot, int2str(channel), vararg2str({projchan}), titleplot, smooth, decimate, typetxt, int2str(sortingwin), sortingeventfield, options);
+popcom = sprintf('figure; pop_erpimage(%s,%d, [%s],[%s],''%s'',%d,%d,{%s},[%s],''%s'' %s);', inputname(1), typeplot, int2str(channel), int2str(projchan), titleplot, smooth, decimate, typetxt, int2str(sortingwin), sortingeventfield, options);
 
 com = sprintf('%s erpimage( %s, %s, linspace(EEG.xmin*1000, EEG.xmax*1000, EEG.pnts), ''%s'', %d, %d %s);', outstr, tmpsig, events, titleplot, smooth, decimate, options);
 disp('Command executed by pop_erpimage:');

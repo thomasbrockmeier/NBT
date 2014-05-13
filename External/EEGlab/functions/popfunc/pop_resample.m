@@ -81,7 +81,7 @@ end;
 % set variable
 % ------------
 EEG.data = reshape(EEG.data, EEG.nbchan, EEG.pnts, EEG.trials);
-oldpnts  = EEG.pnts;
+oldpnts   = EEG.pnts;
 
 % resample for multiple channels
 % -------------------------
@@ -91,19 +91,14 @@ if isfield(EEG, 'event') & isfield(EEG.event, 'type') & isstr(EEG.event(1).type)
     if ~isempty(bounds),
         disp('Data break detected and taken into account for resampling');
         bounds = [ tmpevent(bounds).latency ];
-        bounds(bounds <= 0 | bounds > size(EEG.data,2)) = []; % Remove out of range boundaries
-        bounds(mod(bounds, 1) ~= 0) = round(bounds(mod(bounds, 1) ~= 0) + 0.5); % Round non-integer boundary latencies
+        if bounds(1) < 0, bounds(1) = []; end; % remove initial boundary if any
     end;
-    bounds = [1 bounds size(EEG.data, 2) + 1]; % Add initial and final boundary event
-    bounds = unique(bounds); % Sort (!) and remove doublets
+    bounds = [1 round(bounds-0.5)+1 size(EEG.data,2)+1];
+    bounds(find(bounds(2:end)-bounds(1:end-1)==0))=[]; % remove doublet boundary if any
 else 
-    bounds = [1 size(EEG.data,2) + 1]; % [1:size(EEG.data,2):size(EEG.data,2)*size(EEG.data,3)+1];
+    bounds = [1 size(EEG.data,2)+1]; % [1:size(EEG.data,2):size(EEG.data,2)*size(EEG.data,3)+1];
 end;
-
-eeglab_options;
-if option_donotusetoolboxes
-    usesigproc = 0;
-elseif exist('resample') == 2
+if exist('resample') == 2
      usesigproc = 1;
 else usesigproc = 0;
     disp('Signal Processing Toolbox absent: using custom interpolation instead of resample() function.');
@@ -111,7 +106,6 @@ else usesigproc = 0;
 end;
 
 fprintf('resampling data %3.4f Hz\n', EEG.srate*p/q);
-eeglab_options;
 for index1 = 1:size(EEG.data,1)
     fprintf('%d ', index1);	
     sigtmp = reshape(EEG.data(index1,:, :), oldpnts, EEG.trials);
@@ -126,10 +120,7 @@ for index1 = 1:size(EEG.data,1)
         if size(tmpres,1) == 1, EEG.pnts  = size(tmpres,2);
         else                    EEG.pnts  = size(tmpres,1);
         end;
-        if option_memmapdata == 1
-             tmpeeglab = mmo([], [EEG.nbchan, EEG.pnts, EEG.trials]);
-        else tmpeeglab = zeros(EEG.nbchan, EEG.pnts, EEG.trials);
-        end;
+        tmpeeglab = zeros(EEG.nbchan, EEG.pnts, EEG.trials);
     else
         for ind = 1:length(bounds)-1
             tmpres(indices(ind):indices(ind+1)-1,:) = myresample( double( sigtmp(bounds(ind):bounds(ind+1)-1,:) ), p, q, usesigproc );
@@ -145,42 +136,15 @@ EEG.data = tmpeeglab;
 % -----------------------------
 if isfield(EEG.event, 'latency')
     fprintf('resampling event latencies...\n');
-
-    for iEvt = 1:length(EEG.event)
-
-        % From >> help resample: Y is P/Q times the length of X (or the
-        % ceiling of this if P/Q is not an integer).
-        % That is, recomputing event latency by pnts / oldpnts will give
-        % inaccurate results in case of multiple segments and rounded segment
-        % length. Error is accumulated and can lead to several samples offset.
-        % Blocker for boundary events.
-        % Old version EEG.event(index1).latency = EEG.event(index1).latency * EEG.pnts /oldpnts;
-
-        % Recompute event latencies relative to segment onset
-        if strcmpi(EEG.event(iEvt).type, 'boundary') && mod(EEG.event(iEvt).latency, 1) == 0.5 % Workaround to keep EEGLAB style boundary events at -0.5 latency relative to DC event; actually incorrect
-            iBnd = sum(EEG.event(iEvt).latency + 0.5 >= bounds);
-            EEG.event(iEvt).latency = indices(iBnd) - 0.5;
-        else
-            iBnd = sum(EEG.event(iEvt).latency >= bounds);
-            EEG.event(iEvt).latency = (EEG.event(iEvt).latency - bounds(iBnd)) * p / q + indices(iBnd);
-        end
-        
-    end
-
+    for index1 = 1:length(EEG.event)
+        EEG.event(index1).latency = EEG.event(index1).latency * EEG.pnts /oldpnts;
+    end;
     if isfield(EEG, 'urevent') & isfield(EEG.urevent, 'latency')
-        try
-            for iUrevt = 1:length(EEG.urevent)
-                % Recompute urevent latencies relative to segment onset
-                if strcmpi(EEG.urevent(iUrevt).type, 'boundary') && mod(EEG.urevent(iUrevt).latency, 1) == 0.5 % Workaround to keep EEGLAB style boundary events at -0.5 latency relative to DC event; actually incorrect
-                    iBnd = sum(EEG.urevent(iUrevt).latency + 0.5 >= bounds);
-                    EEG.urevent(iUrevt).latency = indices(iBnd) - 0.5;
-                else
-                    iBnd = sum(EEG.urevent(iUrevt).latency >= bounds);
-                    EEG.urevent(iUrevt).latency = (EEG.urevent(iUrevt).latency - bounds(iBnd)) * p / q + indices(iBnd);
-                end
-
+        try,
+            for index1 = 1:length(EEG.event)
+                EEG.urevent(index1).latency = EEG.urevent(index1).latency * EEG.pnts /oldpnts;
             end;
-        catch
+        catch, 
             disp('pop_resample warning: ''urevent'' problem, reinitializing urevents');
             EEG = rmfield(EEG, 'urevent');
         end;
@@ -196,8 +160,6 @@ fprintf('resampling finished\n');
 
 EEG.setname = [EEG.setname ' resampled'];
 EEG.pnts    = size(EEG.data,2);
-EEG.xmax    = EEG.xmin + (EEG.pnts-1)/EEG.srate; % cko: recompute xmax, since we may have removed a few of the trailing samples
-EEG.times   = linspace(EEG.xmin*1000, EEG.xmax*1000, EEG.pnts);
 
 command = sprintf('EEG = pop_resample( %s, %d);', inputname(1), freq);
 return;
@@ -206,31 +168,8 @@ return;
 % -----------------------------------
 function tmpeeglab = myresample(data, pnts, new_pnts, usesigproc);
     
-    if length(data) < 2
-        tmpeeglab = data;
-        return;
-    end;
-    %if size(data,2) == 1, data = data'; end;
     if usesigproc
-        % padding to avoid artifacts at the beginning and at the end
-        % Andreas Widmann May 5, 2011
-        
-        %The pop_resample command introduces substantial artifacts at beginning and end
-        %of data when raw data show DC offset (e.g. as in DC recorded continuous files)
-        %when MATLAB Signal Processing Toolbox is present (and MATLAB resample.m command
-        %is used).
-        %Even if this artifact is short, it is a filtered DC offset and will be carried
-        %into data, e.g. by later highpass filtering to a substantial amount (easily up
-        %to several seconds).
-        %The problem can be solved by padding the data at beginning and end by a DC
-        %constant before resampling.
-
-        [p, q] = rat(pnts / new_pnts, 1e-12); % Same precision as in resample
-        N = 10; % Resample default
-        nPad = ceil((max(p, q) * N) / q) * q; % # datapoints to pad, round to integer multiple of q for unpadding
-        tmpeeglab = resample([data(ones(1, nPad), :); data; data(end * ones(1, nPad), :)], pnts, new_pnts);
-        nPad = nPad * p / q; % # datapoints to unpad
-        tmpeeglab = tmpeeglab(nPad + 1:end - nPad, :); % Remove padded data
+        tmpeeglab = resample(data, pnts, new_pnts);
         return;
     end;
     

@@ -11,7 +11,7 @@
 %                channel structure (missing channels in the current 
 %                dataset are interpolated).
 %     method   - [string] method used for interpolation (default is 'spherical').
-%                'invdist'/'v4' uses inverse distance on the scalp
+%                'invdist' uses inverse distance on the scalp
 %                'spherical' uses superfast spherical interpolation. 
 %                'spacetime' uses griddata3 to interpolate both in space 
 %                and time (very slow and cannot be interupted).
@@ -72,7 +72,7 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
                       '       if tmpanswernum > 0 & tmpanswernum < length(ALLEEG),' ...
                       '           tmpchans1 = ALLEEG(tmpanswernum).chanlocs;' ...
                       '           tmpchans2 = EEG.chanlocs;' ...
-                      '           tmpchanlist = setdiff_bc( { tmpchans1.labels }, { tmpchans2.labels } );' ...
+                      '           tmpchanlist = setdiff( { tmpchans1.labels }, { tmpchans2.labels } );' ...
                       '           if ~isempty(tmpchanlist),' ...
                       '               set(gcbf, ''userdata'', ALLEEG(tmpanswernum).chanlocs);' ...
                       '               tmpchanlist(2,:) = { '' '' };' ...
@@ -87,24 +87,23 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
                       'end;' ...
                       'clear tmpanswer tmpanswernum;' ];
                   
-        uilist = { { 'Style' 'text' 'string' 'What channel(s) do you want to interpolate' 'fontweight' 'bold' } ...
-                   { 'style' 'text' 'string' 'none selected' 'tag' 'chanlist' } ...
-                   { 'style' 'pushbutton' 'string' 'Select from removed channels' 'callback' 'pop_interp(''nondatchan'',gcbf);' 'enable' enablenondat } ...                   
-                   { 'style' 'pushbutton' 'string' 'Select from data channels'    'callback' 'pop_interp(''datchan'',gcbf);' } ...                   
-                   { 'style' 'pushbutton' 'string' 'Use all channels from other dataset' 'callback' 'pop_interp(''selectchan'',gcbf);'} ...
-                   { 'style' 'pushbutton' 'string' 'Use specific channels of other dataset' 'callback' 'pop_interp(''uselist'',gcbf);'} ...
+        uilist = { { 'Style' 'text' 'string' 'What channel(s) to interpolate' 'fontweight' 'bold' } ...
+                   { 'style' 'text' 'string' 'none' 'tag' 'chanlist' } ...
+                   { 'style' 'pushbutton' 'string' 'Select from non-data channels' 'callback' 'pop_interp(''nondatchan'',gcbf);' 'enable' enablenondat } ...                   
+                   { 'style' 'pushbutton' 'string' 'Select from other dataset' 'callback' 'pop_interp(''selectchan'',gcbf);'} ...
+                   { 'style' 'pushbutton' 'string' 'Use list of other dataset' 'callback' 'pop_interp(''uselist'',gcbf);'} ...
                    { } ...
                    { 'style' 'text'  'string' 'Interpolation method'} ...
                    { 'style' 'popupmenu'  'string' 'Spherical|Planar (slow)'  'tag' 'method' } ...
                    };
                
-        geom = { 1 1 1 1 1 1 1 [1.1 1] };
+        geom = { 1 1 1 1 1 1 [1.8 1] };
         [res userdata tmp restag ] = inputgui( 'uilist', uilist, 'title', 'Interpolate channel(s) -- pop_interp()', 'geometry', geom, 'helpcom', 'pophelp(''pop_interp'')');
         if isempty(res) | isempty(userdata), return; end;
         
         if restag.method == 1
              method = 'spherical';
-        else method = 'invdist';
+        else method = 'v4';
         end;
         bad_elec = userdata.chans;
         
@@ -124,18 +123,8 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
             tmpchaninfo = EEG.chaninfo;
             [chanlisttmp chanliststr] = pop_chansel( { tmpchaninfo.nodatchans.labels } );
             if ~isempty(chanlisttmp),
-                userdata.chans   = EEG.chaninfo.nodatchans(chanlisttmp);
+                userdata.chans   = EEG.chaninfo.nodatchans();
                 userdata.chanstr = [ 'EEG.chaninfo.nodatchans([' num2str(chanlisttmp) '])' ];
-                set(fig, 'userdata', userdata);
-                set(findobj(fig, 'tag', 'chanlist'), 'string', chanliststr);
-            end;
-        elseif strcmpi(command, 'datchan')
-            global EEG;
-            tmpchaninfo = EEG.chanlocs;
-            [chanlisttmp chanliststr] = pop_chansel( { tmpchaninfo.labels } );
-            if ~isempty(chanlisttmp),
-                userdata.chans   = chanlisttmp;
-                userdata.chanstr = [ '[' num2str(chanlisttmp) ']' ];
                 set(fig, 'userdata', userdata);
                 set(findobj(fig, 'tag', 'chanlist'), 'string', chanliststr);
             end;
@@ -157,7 +146,7 @@ function [EEG com] = pop_interp(EEG, bad_elec, method)
                         
                         % look at what new channels are selected
                         tmpchans2 = EEG.chanlocs;
-                        [tmpchanlist chaninds] = setdiff_bc( { tmpchans1(chanlist).labels }, { tmpchans2.labels } );
+                        [tmpchanlist chaninds] = setdiff( { tmpchans1(chanlist).labels }, { tmpchans2.labels } );
                         if ~isempty(tmpchanlist),
                             if length(chanlist) == length(TMPEEG.chanlocs)
                                 userdata.chans   = TMPEEG.chanlocs;

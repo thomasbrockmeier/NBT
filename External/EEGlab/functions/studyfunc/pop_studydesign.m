@@ -46,7 +46,6 @@ if nargin < 3 && ~isstr(STUDY)
     usrdat.subjects    = STUDY.subject;
     usrdat.datasetinfo = STUDY.datasetinfo;
     usrdat.design      = STUDY.design;
-    usrdat.filepath    = STUDY.filepath;
     for ind = 1:length(usrdat.design)
         usrdat.design(ind).deletepreviousfiles = 0;
     end;
@@ -57,10 +56,7 @@ if nargin < 3 && ~isstr(STUDY)
         if ~isempty(usrdat.factsubj{ind1})
             if any(cellfun(@length, usrdat.factsubj{ind1}) ~= length(usrdat.subjects))
                 for ind2 = 1:length(usrdat.factorvals{ind1})
-                    if ~iscell(usrdat.factorvals{ind1}{ind2}) % not a combined value
-                        tmpval = encodevals(usrdat.factorvals{ind1}(ind2));
-                        popupselectsubj{end+1} = [ num2str(usrdat.factors{ind1}) ' - ' tmpval{1} ];
-                    end;
+                    popupselectsubj{end+1} = [ num2str(usrdat.factors{ind1}) ' - ' num2str(usrdat.factorvals{ind1}{ind2}) ];
                 end;
             end;
         end;
@@ -77,8 +73,6 @@ if nargin < 3 && ~isstr(STUDY)
     cb_lbval        = 'pop_studydesign(''updatedesign'', gcbf);';
     cb_selectdesign = 'pop_studydesign(''selectdesign'', gcbf);';
     cb_selectdata   = 'pop_studydesign(''selectdatatrials'', gcbf);';
-    cb_selectfolder = 'pop_studydesign(''selectfolder'', gcbf);';
-    cb_setfolder    = 'pop_studydesign(''updatedesign'', gcbf);';
     uilist = { { 'style' 'text'       'string' 'Select STUDY design' 'fontweight' 'bold' } ...
                { 'style' 'listbox'    'string' { usrdat.design.name } 'tag' 'listboxdesign' 'callback' cb_selectdesign 'value' STUDY.currentdesign } ...
                { 'style' 'pushbutton' 'string' 'Add design'    'callback' cb_add } ...
@@ -101,41 +95,35 @@ if nargin < 3 && ~isstr(STUDY)
                { 'style' 'popupmenu'  'string' 'Paired statistics|Unpaired statistics' 'tag' 'lbpair1' 'callback' cb_lbval } ...
                { 'style' 'pushbutton' 'string' 'Use only specific datasets/trials' 'callback' cb_selectdata } ...
                { 'style' 'edit'       'string' '' 'tag' 'edit_selectdattrials' 'callback' cb_lbval } ...
-               { 'style' 'text'       'string' 'Store pre-computed files in folder' } ...
-               { 'style' 'edit'       'string' '' 'tag' 'edit_storedir' 'callback' cb_setfolder } ...
-               { 'style' 'pushbutton' 'string' '...' 'callback' cb_selectfolder } ...
                { 'style' 'checkbox'   'string' 'Delete all pre-computed datafiles associated with this specific STUDY design' 'tag' 'chk_del' 'callback' cb_lbval } ...
                { 'style' 'checkbox'   'string' 'Save the STUDY' 'tag' 'chk_save' 'value' 1 } };
 %               { 'style' 'checkbox'  'string' 'Paired statistics' 'tag' 'lbpair0' 'callback' cb_lbval } ...
 %               { 'style' 'checkbox'  'string' 'Paired statistics' 'tag' 'lbpair1' 'callback' cb_lbval } ...
 
-    geometry = { {3 18 [1 1] [2 1] } ...
-                 {3 18 [1 2] [2 3] } ...
-                 {3 18 [3 2] [1 1] } ...
-                 {3 18 [3 3] [1 1] } ...
-                 {3 18 [3 4] [1 1] } ...
-                 {3 18 [1 5] [1 1] } ...
-                 {3 18 [2 5] [1 1] } ...
-                 {3 18 [3 5] [1 1] } ...
-                 {3 18 [1 6] [1 8] } ...
-                 {3 18 [2 6] [0.98 3] } ...
-                 {3 18 [3 6] [0.98 3] } ...
-                 {3 18 [2 9] [1 1] } ...
-                 {3 18 [3 9] [1 1] } ...
-                 {3 18 [2 10] [0.98 3] } ...
-                 {3 18 [3 10] [0.98 3] } ...
-                 {3 18 [1 14] [1 1] } ...
-                 {3 18 [2 13] [1 1] } ...
-                 {3 18 [3 13] [1 1] } ...
-                 {3 18 [2 14] [1 1] } ...
-                 {3 18 [3 14] [1 1] } ...
-                 {3 18 [1    15.5] [1.3 1] } ...
-                 {3 18 [2.25 15.5] [1.7 1] } ...
-                 {3 18 [1    16.5] [1.3 1] } ...
-                 {3 18 [2.25 16.5] [1.2 1] } ...
-                 {3 18 [3.45 16.5] [0.55 1] } ...
-                 {3 18 [1 17.5] [3 1] } ...
-                 {3 18 [1 19] [3 1] } ...
+    geometry = { {3 17 [1 1] [2 1] } ...
+                 {3 17 [1 2] [2 3] } ...
+                 {3 17 [3 2] [1 1] } ...
+                 {3 17 [3 3] [1 1] } ...
+                 {3 17 [3 4] [1 1] } ...
+                 {3 17 [1 5] [1 1] } ...
+                 {3 17 [2 5] [1 1] } ...
+                 {3 17 [3 5] [1 1] } ...
+                 {3 17 [1 6] [1 8] } ...
+                 {3 17 [2 6] [0.98 3] } ...
+                 {3 17 [3 6] [0.98 3] } ...
+                 {3 17 [2 9] [1 1] } ...
+                 {3 17 [3 9] [1 1] } ...
+                 {3 17 [2 10] [0.98 3] } ...
+                 {3 17 [3 10] [0.98 3] } ...
+                 {3 17 [1 14] [1 1] } ...
+                 {3 17 [2 13] [1 1] } ...
+                 {3 17 [3 13] [1 1] } ...
+                 {3 17 [2 14] [1 1] } ...
+                 {3 17 [3 14] [1 1] } ...
+                 {3 17 [1 15.5] [1.3 1] } ...
+                 {3 17 [2.25 15.5] [1.7 1] } ...
+                 {3 17 [1 16.5] [3 1] } ...
+                 {3 17 [1 18] [3 1] } ...
                  };
 
     for i = 1:length(geometry), geometry{i}{3} = geometry{i}{3}-1; end;            
@@ -156,7 +144,7 @@ if nargin < 3 && ~isstr(STUDY)
     end;
     for index = 1:length(des)
         tmpdes  = rmfield(des(index), 'deletepreviousfiles');
-        rmfiles = fastif(des(index).deletepreviousfiles, 'limited', 'off');
+        rmfiles = fastif(des(index).deletepreviousfiles, 'on', 'off');
         if index > length(STUDY.design) || ~isequal(STUDY.design(index), tmpdes) || strcmpi(rmfiles, 'on')
             fprintf('Updating/creating STUDY design %d\n', index);
             
@@ -198,9 +186,8 @@ elseif isstr(STUDY)
     com = STUDY;
     fig = ALLEEG;
     usrdat = get(fig, 'userdata');
-    datinfo  = usrdat.datasetinfo;
-    des      = usrdat.design;
-    filepath = usrdat.filepath;
+    datinfo = usrdat.datasetinfo;
+    des = usrdat.design;
     
     switch com
         % summary of callbacks
@@ -265,7 +252,6 @@ elseif isstr(STUDY)
                 set(findobj(fig, 'tag', 'lbsubj') , 'value' , 1, 'string', '');
                 set(findobj(fig, 'tag', 'chk_del'), 'value', des(val).deletepreviousfiles );
                 set(findobj(fig, 'tag', 'edit_selectdattrials'), 'string', '' );
-                % do not change file path
                 return;
             end;
             val1 = strmatch(des(val).variable(1).label, usrdat.factors, 'exact'); if isempty(val1), val1 = 1; end;
@@ -284,8 +270,6 @@ elseif isstr(STUDY)
             set(findobj(fig, 'tag', 'popupselect'), 'value', 1 );
             set(findobj(fig, 'tag', 'lbpair0'), 'value', fastif(isequal(des(val).variable(1).pairing,'on'),1,2));
             set(findobj(fig, 'tag', 'lbpair1'), 'value', fastif(isequal(des(val).variable(2).pairing,'on'),1,2));
-            if ~isfield(des, 'filepath') || isempty(des(val).filepath), des(val).filepath = ''; end;
-            set(findobj(fig, 'tag', 'edit_storedir'), 'string', des(val).filepath);
             
         case 'updatedesign', % update the study information (whenever the user click on a button)
             val    = get(findobj(fig, 'tag', 'listboxdesign'), 'value');
@@ -297,7 +281,6 @@ elseif isstr(STUDY)
             valp2  = get(findobj(fig, 'tag', 'lbpair1'), 'value');
             vals   = get(findobj(fig, 'tag', 'lbsubj'),  'value');
             valchk = get(findobj(fig, 'tag', 'chk_del'), 'value');
-            filep  = get(findobj(fig, 'tag', 'edit_storedir'), 'string');
             strs   = get(findobj(fig, 'tag', 'edit_selectdattrials'),  'string');
             valpaired = { 'on' 'off' };
             
@@ -327,9 +310,6 @@ elseif isstr(STUDY)
             if ~isequal(des(val).deletepreviousfiles, valchk)
                 des(val).deletepreviousfiles = 1;
             end;
-            if ~isfield(des, 'filepath') || ~isequal(des(val).filepath, filep)
-                des(val).filepath = filep;
-            end;
             if ~isequal(des(val).include, strs)
                 try,
                     des(val).include = eval( [ '{' strs '}' ]);
@@ -345,11 +325,11 @@ elseif isstr(STUDY)
             val   = get(findobj(fig, 'tag', 'listboxdesign'), 'value');
             val1  = get(findobj(fig, 'tag', [ 'lbfact' num2str(factval) ]), 'value');
             val2  = get(findobj(fig, 'tag', [ 'lbfact' num2str(~factval) ]), 'value');
-%             if val1 == val2 && val1 ~= 1
-%                 warndlg2('Cannot select twice the same independent variable');
-%                 val1 = 1;
-%                 set(findobj(fig, 'tag', [ 'lbfact' num2str(factval) ]), 'value', val1);
-%             end;
+            if val1 == val2 && val1 ~= 1
+                warndlg2('Cannot select twice the same independent variable');
+                val1 = 1;
+                set(findobj(fig, 'tag', [ 'lbfact' num2str(factval) ]), 'value', val1);
+            end;
             valfact = [1:length(usrdat.factorvals{val1})];
             set(findobj(fig, 'tag', ['lbval' num2str(factval) ]), 'string', encodevals(usrdat.factorvals{val1}), 'value', valfact);
             pop_studydesign('updatedesign', fig);
@@ -368,19 +348,11 @@ elseif isstr(STUDY)
                 warndlg2('Cannot combine values from numerical variables');
                 return;
             end;
-            % combine values for string and integers
-            if isstr(usrdat.factorvals{val1}{1}) || iscell(usrdat.factorvals{val1}{1})
-                tmpcell = {};
-                for indCell = vals(:)'
-                    if iscell(usrdat.factorvals{val1}{indCell})
-                        tmpcell = { tmpcell{:} usrdat.factorvals{val1}{indCell}{:} };
-                    else
-                        tmpcell = { tmpcell{:} usrdat.factorvals{val1}{indCell} };
-                    end;
-                end;
-                usrdat.factorvals{val1}{end+1} = unique_bc(tmpcell);
+            usrdat.factorvals{val1}{end+1} = usrdat.factorvals{val1}{vals(1)};
+            if isstr(usrdat.factorvals{val1}{1})
+                usrdat.factorvals{val1}{end} = usrdat.factorvals{val1}(vals);
             else
-                usrdat.factorvals{val1}{end+1} = unique_bc([ usrdat.factorvals{val1}{vals} ]);
+                usrdat.factorvals{val1}{end} = [ usrdat.factorvals{val1}{vals} ];
             end;
             set(findobj(fig, 'tag', ['lbval' num2str(factval) ]), 'string', encodevals(usrdat.factorvals{val1}));
             
@@ -400,7 +372,7 @@ elseif isstr(STUDY)
             % select subjects
             eval( [ 'allsetvals = { datinfo.' factor '};' ]);
             indset = strmatch(factorval, allsetvals, 'exact');
-            subjects = unique_bc( { datinfo(indset).subject } );
+            subjects = unique( { datinfo(indset).subject } );
             
             % change the subject listbox
             val     = get(findobj(fig, 'tag', 'popupselect'), 'value');
@@ -435,22 +407,7 @@ elseif isstr(STUDY)
         case 'selectdatatrialssel', % select in the GUI above
             val1  = get(findobj(fig, 'tag', 'lbfact2'), 'value');
             valfact = [1:length(usrdat.factorvals{val1})];
-            tmpval = get(findobj(fig, 'tag', 'lbval2'), 'value');
-            if max(tmpval) > max(valfact)
-                set(findobj(fig, 'tag', 'lbval2'), 'value', valfact, 'string', encodevals(usrdat.factorvals{val1}));
-            else
-                set(findobj(fig, 'tag', 'lbval2'), 'string', encodevals(usrdat.factorvals{val1}), 'value', valfact);
-            end;
-            return;
-
-        case 'selectfolder',
-            res = uigetdir;
-            if ~isempty(findstr(filepath, res)) && findstr(filepath, res) == 1
-                res = res(length(filepath)+2:end);
-            end;
-            if res(1) == 0, return; end;
-            set(findobj(fig, 'tag', 'edit_storedir'), 'string', res);
-            pop_studydesign('updatedesign', fig);
+            set(findobj(fig, 'tag', 'lbval2'), 'string', encodevals(usrdat.factorvals{val1}), 'value', valfact);
             return;
             
         case 'selectdatatrialsadd', % Add button in the GUI above
@@ -475,7 +432,7 @@ function res = strmatchmult(a, b);
         res(index) = tmpi(1); % in case there is a duplicate
     end;
     %[tmp ind] = mysetdiff(b, a);
-    %res = setdiff_bc([1:length(b)], ind);
+    %res = setdiff([1:length(b)], ind);
 
 function cellarray = mysort(cellarray)
     return; % was crashing for combinations of selection
@@ -486,8 +443,8 @@ function cellarray = mysort(cellarray)
 
 function [cellout inds ] = mysetdiff(cell1, cell2);
     if (~isempty(cell1) && isstr(cell1{1})) || (~isempty(cell2) && isstr(cell2{1}))
-         [ cellout inds ] = setdiff_bc(cell1, cell2);
-    else [ cellout inds ] = setdiff_bc([ cell1{:} ], [ cell2{:} ]);
+         [ cellout inds ] = setdiff(cell1, cell2);
+    else [ cellout inds ] = setdiff([ cell1{:} ], [ cell2{:} ]);
          cellout = mattocell(cellout);
     end;
 
@@ -495,9 +452,7 @@ function [cellout inds ] = mysetdiff(cell1, cell2);
 function cellout = encodevals(cellin)
     if isempty(cellin) 
         cellout = {};
-    elseif ~iscell(cellin)
-        cellout = { num2str(cellin) };
-    elseif ischar(cellin{1}) || iscell(cellin{1})
+    elseif isstr(cellin{1})
         for index = 1:length(cellin)
             if isstr(cellin{index})
                 cellout{index} = cellin{index};

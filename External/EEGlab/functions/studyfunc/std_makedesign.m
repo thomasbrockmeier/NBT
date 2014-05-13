@@ -13,8 +13,6 @@
 %   >> [STUDY] = std_makedesign(STUDY, ALLEEG, designind, 'key', 'val' ...);   
 %
 % Inputs:
-%   STUDY      - EEGLAB STUDY set
-%   ALLEEG     - vector of the EEG datasets included in the STUDY structure 
 %   designind   - [integer > 0] index (number) of the new STUDY design {default: 1}
 %
 % Optional inputs:
@@ -81,15 +79,7 @@
 %  'rmfiles'  - ['on'|'off'] remove from the STUDY all data measure files 
 %               NOT included in this design. Selecting this option will 
 %               remove all the old measure files associated with the previous 
-%               definition of this design. {default: 'off'}  
-%  'filepath' - [string] file path for saving precomputed files. Default is
-%               empty meaning it is in the same folder as the data.
-%  'delfiles' - ['on'|'off'|'limited'] delete data files
-%               associated with the design specified as parameter. 'on'
-%               delete all data files related to the design. 'limited'
-%               deletes all data files contained in the design. 'limited'
-%               will not delete data files from other STUDY using the same
-%               files. Default is 'off'.
+%               definition of this design. {default: 'off'}           
 %
 % Output:
 %      STUDY - The input STUDY with a new design added and designated 
@@ -133,7 +123,8 @@ function [STUDY com] = std_makedesign(STUDY, ALLEEG, designind, varargin)
 
 if nargin < 2
     help std_makedesign;
-    return;
+    return;defdes.variable(1).pairing = 'on';
+defdes.variable(2).pairing = 'off';
 end;
 if nargin < 3 
     designind = 1;
@@ -148,28 +139,23 @@ defdes.variable(1).value = {};
 defdes.variable(2).value = {};
 defdes.variable(1).pairing = 'on';
 defdes.variable(2).pairing = 'on';
-defdes.filepath = '';
 defdes.include = {};
-orivarargin = varargin;
 if ~isempty(varargin) && isstruct(varargin{1})
     defdes = varargin{1};
     varargin(1) = [];
 end;
-if isempty(defdes.filepath), defdes.filepath = ''; end;
 opt = finputcheck(varargin,  {'variable1'     'string'    []     defdes.variable(1).label;
                               'variable2'     'string'    []     defdes.variable(2).label;
-                              'values1'       {'real','cell' } []     defdes.variable(1).value;
-                              'values2'       {'real','cell' } []     defdes.variable(2).value;
+                              'values1'       {'real' 'cell' } []     defdes.variable(1).value;
+                              'values2'       {'real' 'cell' } []     defdes.variable(2).value;
                               'pairing1'      'string'    []     defdes.variable(1).pairing;
                               'pairing2'      'string'    []     defdes.variable(2).pairing;
                               'name'          'string'    {}     defdes.name;
-                              'filepath'      'string'    {}     defdes.filepath;
                               'datselect'     'cell'      {}     defdes.include;
                               'dataselect'    'cell'      {}     {};
                               'subjselect'    'cell'      {}     defdes.cases.value;
-                              'delfiles'      'string'    { 'on','off', 'limited' } 'off';
-                              'verbose'       'string'    { 'on','off' } 'on';
-                              'defaultdesign' 'string'    { 'on','off','forceoff'} fastif(nargin < 3, 'on', 'off') }, ...
+                              'delfiles'      'string'    { 'on' 'off' } 'off';
+                              'defaultdesign' 'string'    { 'on' 'off' } fastif(nargin < 3, 'on', 'off') }, ...
                               'std_makedesign');
 if isstr(opt), error(opt); end;
 if ~isempty(opt.dataselect), opt.datselect = opt.dataselect; end;
@@ -180,13 +166,11 @@ if strcmpi(opt.variable2, 'none'), opt.variable2 = ''; end;
     
 % build command list for history
 % ------------------------------
-listcom = { 'variable1' opt.variable1 'variable2' opt.variable2 'name' opt.name 'pairing1' opt.pairing1 'pairing2' opt.pairing2 'delfiles' opt.delfiles 'defaultdesign' opt.defaultdesign };
+listcom = { 'variable1' opt.variable1 'variable2' opt.variable2 'name' opt.name };
 if ~isempty(opt.values1), listcom = { listcom{:} 'values1' opt.values1 }; end;
 if ~isempty(opt.values2), listcom = { listcom{:} 'values2' opt.values2 }; end;
 if ~isempty(opt.subjselect),  listcom = { listcom{:} 'subjselect'  opt.subjselect }; end;
-if ~isempty(opt.datselect),   listcom = { listcom{:} 'datselect'  opt.datselect }; end;
-if ~isempty(opt.filepath),    listcom = { listcom{:} 'filepath'  opt.filepath }; end;
-if ~isempty(opt.datselect),   listcom = { listcom{:} 'datselect'  opt.datselect }; end;
+if ~isempty(opt.datselect),   listcom = { listcom{:} 'dataselect'  opt.datselect }; end;
     
 % select specific subjects
 % ------------------------
@@ -194,38 +178,18 @@ datsubjects = { STUDY.datasetinfo.subject };
 if ~isempty(opt.subjselect)
     allsubjects = opt.subjselect;
 else
-    allsubjects = unique_bc( datsubjects );
+    allsubjects = unique( datsubjects );
 end;
     
 % delete design files
 % ---------------------
 if strcmpi(opt.delfiles, 'on')
-    myfprintf(opt.verbose, 'Deleting all files pertaining to design %d\n', designind);
+    fprintf('Deleting all files for STUDY design %d\n', designind);
     for index = 1:length(ALLEEG)
-        files = fullfile(ALLEEG(index).filepath, sprintf(opt.verbose, 'design%d*.*', designind));
+        files = fullfile(ALLEEG(index).filepath, sprintf('design%d*.*', designind));
         files = dir(files);
         for indf = 1:length(files)
             delete(fullfile(ALLEEG(index).filepath, files(indf).name));
-        end;
-    end;
-elseif strcmpi(opt.delfiles, 'limited')
-    myfprintf(opt.verbose, 'Deleting all files for STUDY design %d\n', designind);
-    for index = 1:length(STUDY.design(designind).cell)
-        filedir = [ STUDY.design(designind).cell(index).filebase '.dat*' ];
-        filepath = fileparts(filedir);
-        files = dir(filedir);
-        for indf = 1:length(files)
-            %disp(fullfile(filepath, files(indf).name));
-            delete(fullfile(filepath, files(indf).name));
-        end;
-    end;
-    for index = 1:length(STUDY.design(designind).cell)
-        filedir = [ STUDY.design(designind).cell(index).filebase '.ica*' ];
-        filepath = fileparts(filedir);
-        files = dir(filedir);
-        for indf = 1:length(files)
-            %disp(fullfile(filepath, files(indf).name));
-            delete(fullfile(filepath, files(indf).name));
         end;
     end;
 end;
@@ -253,48 +217,38 @@ if isempty(opt.variable2), opt.values2 = { '' }; end;
 % --------------
 datselect = [1:length(STUDY.datasetinfo)];
 if ~isempty(opt.datselect)
-    myfprintf(opt.verbose, 'Data preselection for STUDY design\n');
+    fprintf('Data preselection for STUDY design\n');
     for ind = 1:2:length(opt.datselect)
         [ dattmp dattrialstmp ] = std_selectdataset( STUDY, ALLEEG, opt.datselect{ind}, opt.datselect{ind+1});
-        datselect      = intersect_bc(datselect, dattmp);
+        datselect      = intersect(datselect, dattmp);
         dattrialselect = intersectcell(dattrialselect, dattrialstmp);
     end;
 end;
-datselect = intersect_bc(datselect, strmatchmult(allsubjects, datsubjects));
+datselect = intersect(datselect, strmatchmult(allsubjects, datsubjects));
 
 % get the dataset and trials for each of the ind. variable
 % --------------------------------------------------------
 ns  = length(allsubjects);
 nf1 = max(1,length(opt.values1));
 nf2 = max(1,length(opt.values2));
-myfprintf(opt.verbose, 'Building STUDY design\n');
-for n1 = 1:nf1, [ dats1{n1} dattrials1{n1} ] = std_selectdataset( STUDY, ALLEEG, opt.variable1, opt.values1{n1}, fastif(strcmpi(opt.verbose, 'on'), 'verbose', 'silent')); end;
-for n2 = 1:nf2, [ dats2{n2} dattrials2{n2} ] = std_selectdataset( STUDY, ALLEEG, opt.variable2, opt.values2{n2}, fastif(strcmpi(opt.verbose, 'on'), 'verbose', 'silent')); end;
+fprintf('Building STUDY design\n');
+for n1 = 1:nf1, [ dats1{n1} dattrials1{n1} ] = std_selectdataset( STUDY, ALLEEG, opt.variable1, opt.values1{n1}); end;
+for n2 = 1:nf2, [ dats2{n2} dattrials2{n2} ] = std_selectdataset( STUDY, ALLEEG, opt.variable2, opt.values2{n2}); end;
 
 % detect files from old format
 % ----------------------------
-if ~strcmpi(opt.defaultdesign, 'forceoff') && isempty(opt.filepath)
-    if strcmpi(opt.defaultdesign, 'off') && designind == 1
-        if ~isfield(STUDY.design, 'cell') || ~isfield(STUDY.design(1).cell, 'filebase')
-             opt.defaultdesign = 'on';
-        else
-             newfilename = ~isempty(findstr('design', STUDY.design(1).cell(1).filebase));
-             if newfilename && isempty(dir(fullfile(STUDY.design(1).cell(1).filebase, '*.dat*')))
-                opt.defaultdesign = 'on';
-             elseif ~newfilename
-                opt.defaultdesign = 'on';
-             end;
-        end;
+if strcmpi(opt.defaultdesign, 'off') && designind == 1
+    try, newfilename = isempty(findstr('design', STUDY.design(1).cell(1).filebase)); end;
+    if ~newfilename && (~isempty(dir(fullfile(ALLEEG(1).filepath, '*.dat*'))) || ~isempty(dir(fullfile(ALLEEG(1).filepath, '*.ica*'))))
+        opt.defaultdesign = 'on';
     end;
-    if strcmpi(opt.defaultdesign, 'on')
-        if isempty(dir(fullfile(ALLEEG(1).filepath, '*.dat*'))) && isempty(dir(fullfile(ALLEEG(1).filepath, '*.ica*')))
-            opt.defaultdesign = 'off';
-        end;
-    end;
-else
-    opt.defaultdesign = 'off';
 end;
-    
+if strcmpi(opt.defaultdesign, 'on')
+    if isempty(dir(fullfile(ALLEEG(1).filepath, '*.dat*'))) && isempty(dir(fullfile(ALLEEG(1).filepath, '*.ica*')))
+        opt.defaultdesign = 'off';
+    end;
+end;
+
 % scan subjects and conditions
 % ----------------------------
 count = 1;
@@ -302,20 +256,17 @@ for n1 = 1:nf1
     for n2 = 1:nf2
         % create design for this set of conditions and subject
         % ----------------------------------------------------
-        datasets = intersect_bc(intersect(dats1{n1}, dats2{n2}), datselect);
+        datasets = intersect(intersect(dats1{n1}, dats2{n2}), datselect);
         if ~isempty(datasets)
-            subjects = unique_bc(datsubjects(datasets));
+            subjects = unique(datsubjects(datasets));
             for s = 1:length(subjects)
                 datsubj = datasets(strmatch(subjects{s}, datsubjects(datasets), 'exact'));
                 des.cell(count).dataset   = datsubj;
                 des.cell(count).trials    = intersectcell(dattrialselect(datsubj), dattrials1{n1}(datsubj), dattrials2{n2}(datsubj));
                 des.cell(count).value     = { opt.values1{n1} opt.values2{n2} };
                 des.cell(count).case      = subjects{s};
-                defaultFile = fullfile(ALLEEG(datsubj(1)).filepath, ALLEEG(datsubj(1)).filename(1:end-4));
-                dirres1 = dir( [ defaultFile '.dat*' ] );
-                dirres2 = dir( [ defaultFile '.ica*' ] );
-                if strcmpi(opt.defaultdesign, 'on') && (~isempty(dirres1) || ~isempty(dirres2)) && isempty(opt.filepath)
-                     des.cell(count).filebase = defaultFile;
+                if strcmpi(opt.defaultdesign, 'on')
+                     des.cell(count).filebase = fullfile(ALLEEG(datsubj(1)).filepath, ALLEEG(datsubj(1)).filename(1:end-4));
                 else
                     if isempty(rmblk(opt.values1{n1})),    txtval = rmblk(opt.values2{n2});
                     elseif isempty(rmblk(opt.values2{n2})) txtval = rmblk(opt.values1{n1});
@@ -323,9 +274,8 @@ for n1 = 1:nf1
                     end;
                     if ~isempty(txtval),      txtval = [ '_' txtval ]; end;
                     if ~isempty(subjects{s}), txtval = [ '_' rmblk(subjects{s}) txtval ]; end;
-                    if isempty(opt.filepath), tmpfilepath = ALLEEG(datsubj(1)).filepath; else tmpfilepath = opt.filepath; end;
-                    des.cell(count).filebase = fullfile(tmpfilepath, [ 'design' int2str(designind) txtval ] );
-                    des.cell(count).filebase = checkfilelength(des.cell(count).filebase);
+                    des.cell(count).filebase = fullfile(ALLEEG(datsubj(1)).filepath, ...
+                      [ 'design' int2str(designind) txtval ] );
                 end;
                 count = count+1;
             end;
@@ -336,26 +286,13 @@ end;
 % create other fields for the design
 % ----------------------------------
 if exist('des') ~= 1
-    error( [ 'One of your design is empty. This could be because the datasets/subjects/trials' 10 ...
-             'you have selected do not contain any of the selected independent variables values.' 10 ...
-             'Check your data and datasets carefully for any missing information.' ]);
-else    
-    % check for duplicate entries in filebase
-    % ---------------------------------------
-    if length( { des.cell.filebase } ) > length(unique({ des.cell.filebase }))
-        if ~isempty(findstr('design_', des.cell(1).filebase))
-            error('There is a problem with your STUDY, contact EEGLAB support');
-        else
-            disp('Duplicate entry detected in new design, reinitializing design with new file names');
-            [STUDY com] = std_makedesign(STUDY, ALLEEG, designind, orivarargin{:}, 'defaultdesign', 'forceoff');
-            return;
-        end
-    end;
-
-    %allval1 = unique_bc(cellfun(@(x)x{1}, { des.cell.value }, 'uniformoutput', false));
-    %allval2 = unique_bc(cellfun(@(x)x{2}, { des.cell.value }, 'uniformoutput', false));
+    des = defdes;
+    des.name = '';
+    disp('Warning: STUDY.design is empty');
+else
+    %allval1 = unique(cellfun(@(x)x{1}, { des.cell.value }, 'uniformoutput', false));
+    %allval2 = unique(cellfun(@(x)x{2}, { des.cell.value }, 'uniformoutput', false));
     des.name              = opt.name;
-    des.filepath          = opt.filepath;
     des.variable(1).label = opt.variable1;
     des.variable(2).label = opt.variable2;
     des.variable(1).pairing = opt.pairing1;
@@ -364,10 +301,10 @@ else
     des.variable(2).value   = opt.values2;
     des.include             = opt.datselect;
     des.cases.label = 'subject';
-    des.cases.value = unique_bc( { des.cell.case });
+    des.cases.value = unique( { des.cell.case });
 end;
 
-fieldorder = { 'name' 'filepath' 'variable' 'cases' 'include' 'cell' };
+fieldorder = { 'name' 'variable' 'cases' 'include' 'cell' };
 des        = orderfields(des, fieldorder);
 try, 
     STUDY.design = orderfields(STUDY.design, fieldorder);
@@ -403,7 +340,7 @@ if nargin > 2
     res = intersectcell(a, intersectcell(b, c));
 else
     for index = 1:length(a)
-        res{index} = intersect_bc(a{index}, b{index});
+        res{index} = intersect(a{index}, b{index});
     end;
 end;
 
@@ -433,11 +370,3 @@ function strval = cell2str(vals);
     for ind = 2:length(vals)
         strval = [ strval ' - ' vals{ind} ];
     end;
-
-function tmpfile = checkfilelength(tmpfile);
-    if length(tmpfile) > 120,
-        tmpfile = tmpfile(1:120);
-    end;
-
-function myfprintf(verbose, varargin);
-    if strcmpi(verbose, 'on'), fprintf(varargin{:}); end;

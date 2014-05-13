@@ -125,11 +125,11 @@
 %               (theta): 0 is toward right ear; 90 is toward nose, -90 toward occiput. 
 %               Angles are in degrees.  If labels are absent or weights are given in 
 %               a last column, readlocs() adjusts for this. Default labels are E1, E2, ...
-%               Fields:   Type  label      phi  theta   
-%               Sample:   EEG   Fp1        -92   -72    
-%                         EEG   Fp2         92    72   
-%                         EEG   C3         -46    0  
-%                         EEG   C4          46    0 
+%               Fields:   label      phi  theta   
+%               Sample:   Fp1        -92   -72    
+%                         Fp2         92    72   
+%                         C3         -46    0  
+%                         C4          46    0 
 %                           ...
 %   '.xyz': 
 %               Matlab/EEGLAB Cartesian coordinates. Here. x is towards the nose, 
@@ -166,11 +166,8 @@
 %               The last columns of the file may contain any other defined fields (gain,
 %               calib, type, custom).
 %
-%    Fieldtrip structure: 
-%               If a Fieltrip structure is given as input, an EEGLAB
-%               chanlocs structure is returned
-%
-% Author: Arnaud Delorme, Salk Institute, 8 Dec 2002
+% Author: Arnaud Delorme, Salk Institute, 8 Dec 2002 (expanded from the previous EEG/ICA 
+%         toolbox function)
 %
 % See also: readelp(), writelocs(), topo2sph(), sph2topo(), sph2cart()
 
@@ -301,13 +298,12 @@ end;
 
 g = finputcheck( varargin, ...
    { 'filetype'	   'string'  {}                 '';
-     'importmode'  'string'  { 'eeglab','native' } 'eeglab';
-     'defaultelp'  'string'  { 'besa','polhemus' } 'polhemus';
+     'importmode'  'string'  { 'eeglab' 'native' } 'eeglab';
+     'defaultelp'  'string'  { 'besa'   'polhemus' } 'polhemus';
      'skiplines'   'integer' [0 Inf] 			[];
      'elecind'     'integer' [1 Inf]	    	[];
      'format'	   'cell'	 []					{} }, 'readlocs');
 if isstr(g), error(g); end;  
-if ~isempty(g.format), g.filetype = 'custom'; end;
 
 if isstr(filename)
    
@@ -539,21 +535,7 @@ if isstr(filename)
    end;
 else
     if isstruct(filename)
-        % detect Fieldtrip structure and convert it
-        % -----------------------------------------
-        if isfield(filename, 'pnt')
-            neweloc = [];
-            for index = 1:length(filename.label)
-                neweloc(index).labels = filename.label{index};
-                neweloc(index).X      = filename.pnt(index,1);
-                neweloc(index).Y      = filename.pnt(index,2);
-                neweloc(index).Z      = filename.pnt(index,3);
-            end;
-            eloc = neweloc;
-            eloc = convertlocs(eloc, 'cart2all');
-        else
-            eloc = filename;
-        end;
+        eloc = filename;
     else
         disp('readlocs(): input variable must be a string or a structure');
     end;        
@@ -572,10 +554,10 @@ if nargout > 2
     end;
     
     indices           = find(~cellfun('isempty', tmptheta));
-    indices           = intersect_bc(find(~cellfun('isempty', tmpx)), indices);
+    indices           = intersect(find(~cellfun('isempty', tmpx)), indices);
     indices           = sort(indices);
     
-    indbad            = setdiff_bc(1:length(eloc), indices);
+    indbad            = setdiff(1:length(eloc), indices);
     tmptheta(indbad)  = { NaN };
     theta             = [ tmptheta{:} ];
 end;
@@ -587,7 +569,6 @@ if nargout > 3
     tmprad(indbad)    = { NaN };
     radius            = [ tmprad{:} ];
 end;
-
 %tmpnum = find(~cellfun('isclass', { eloc.labels }, 'char'));
 %disp('Converting channel labels to string');
 for index = 1:length(eloc)

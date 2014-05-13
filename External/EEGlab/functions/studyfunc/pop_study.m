@@ -210,37 +210,37 @@ elseif strcmpi(mode, 'gui') % GUI mode
                       '   guiind = findobj(''parent'', gcbf, ''tag'', ''set' int2str(index) ''');' ...
                       '   set( guiind,''string'', [inputpath inputname]);' ...
                           loadset ...
-                      'end; clear inputname inputpath;'];
+                      'end;'];
         numstr = int2str(index);
-        guispec = { guispec{:}, ...
-        {'style' 'text'       'string' numstr  'tag' [ 'num'   int2str(index) ] 'userdata' index }, ...
-        {'style' 'edit'       'string' ''      'tag' [ 'set'   int2str(index) ] 'userdata' index 'callback' loadsetedit}, ...
-        {'style' 'pushbutton' 'string' '...'   'tag' [ 'brw'   int2str(index) ] 'userdata' index 'Callback' select_com}, ...
-        {'style' 'edit'       'string' ''      'tag' [ 'sub'   int2str(index) ] 'userdata' index 'Callback' subcom}, ...
-        {'style' 'edit'       'string' ''      'tag' [ 'sess'  int2str(index) ] 'userdata' index 'Callback' sescom}, ...
-        {'style' 'edit'       'string' ''      'tag' [ 'cond'  int2str(index) ] 'userdata' index 'Callback' condcom}, ...
-        {'style' 'edit'       'string' ''      'tag' [ 'group' int2str(index) ] 'userdata' index 'Callback' grpcom}, ...
-        {'style' 'pushbutton' 'string' 'All comp.'   'tag' [ 'comps' int2str(index) ] 'userdata' index 'Callback' compcom}, ...
+        guispec = { guispec{:} ...
+        {'style' 'text'       'string' numstr  'tag' [ 'num'   int2str(index) ] 'userdata' index } ...
+        {'style' 'edit'       'string' ''      'tag' [ 'set'   int2str(index) ] 'userdata' index 'callback' loadsetedit} ...
+        {'style' 'pushbutton' 'string' '...'   'tag' [ 'brw'   int2str(index) ] 'userdata' index 'Callback' select_com} ...
+        {'style' 'edit'       'string' ''      'tag' [ 'sub'   int2str(index) ] 'userdata' index 'Callback' subcom} ...
+        {'style' 'edit'       'string' ''      'tag' [ 'sess'  int2str(index) ] 'userdata' index 'Callback' sescom} ...
+        {'style' 'edit'       'string' ''      'tag' [ 'cond'  int2str(index) ] 'userdata' index 'Callback' condcom} ...
+        {'style' 'edit'       'string' ''      'tag' [ 'group' int2str(index) ] 'userdata' index 'Callback' grpcom} ...
+        {'style' 'pushbutton' 'string' 'All comp.'   'tag' [ 'comps' int2str(index) ] 'userdata' index 'Callback' compcom} ...
         {'style' 'pushbutton' 'string' 'CLear' 'tag' [ 'clear' int2str(index) ] 'userdata' index 'callback' delset} };
     end;
     
     if strcmpi(info, 'from_STUDY_different_from_ALLEEG')
-        text1    = 'Dataset info (condition, group, ...) differs from study info. [set] = Overwrite dataset info for each dataset on disk.';
+        text1    = 'Dataset info (condition, group, ...) differs from study info. [set] = Overwrite dataset info.';
         value_cb = 0;
     else
         text1    = 'Update dataset info - datasets stored on disk will be overwritten (unset = Keep study info separate).';
         value_cb = 1;
     end;
-    guispec = { guispec{:}, ...
-                {'style' 'text'       'string'  'Important note: Removed datasets will not be saved before being deleted from EEGLAB memory' }, ...
-                {}, ...
-                {'style' 'pushbutton' 'string'  '<'      'Callback' prevpage 'userdata' 'addt'}, ...
-                {'style' 'text'       'string'  'Page 1' 'tag' 'page' 'horizontalalignment' 'center' }, ... 
-                {'style' 'pushbutton' 'string'  '>'      'Callback' nextpage 'userdata' 'addt'}, {}, ...
-                {}, ...
-                {'style' 'checkbox'   'value'   value_cb 'tag' 'copy_to_dataset' }, ...
-                {'style' 'text'       'string'  text1 }, ...
-                {'style' 'checkbox'   'value'   0        'tag' 'delclust' 'callback' cb_del }, ...
+    guispec = { guispec{:} ...
+                {'style' 'text'       'string'  'Important note: Removed datasets will not be saved before being deleted from EEGLAB memory' } ...
+                {} ...
+                {'style' 'pushbutton' 'string'  '<'      'Callback' prevpage 'userdata' 'addt'} ...
+                {'style' 'text'       'string'  'Page 1' 'tag' 'page' 'horizontalalignment' 'center' } ... 
+                {'style' 'pushbutton' 'string'  '>'      'Callback' nextpage 'userdata' 'addt'} {} ...
+                {} ...
+                {'style' 'checkbox'   'value'   value_cb 'tag' 'copy_to_dataset' } ...
+                {'style' 'text'       'string'  text1 } ...
+                {'style' 'checkbox'   'value'   0        'tag' 'delclust' 'callback' cb_del } ...
                 {'style' 'text'       'string'  'Delete cluster information (to allow loading new datasets, set new components for clustering, etc.)' } };
 	guigeom = { guigeom{:} [1] [1 0.2 0.3 0.2 1] [1] [0.14 3] [0.14 3] };
 
@@ -320,7 +320,7 @@ elseif strcmpi(mode, 'gui') % GUI mode
     
     % run command and create history
     % ------------------------------
-    com = sprintf( '[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, %s );\n[STUDY ALLEEG] = std_checkset(STUDY, ALLEEG);', vararg2str(options) );
+    com = sprintf( '[STUDY ALLEEG] = std_editset( STUDY, ALLEEG, %s );', vararg2str(options) );
     if ~isfield(STUDY, 'history'), STUDY.history = ''; end;
     STUDY.history = sprintf('%s\n%s', STUDY.history, com);
     [STUDY ALLEEG] = std_editset(STUDY, ALLEEG, options{:});
@@ -349,7 +349,7 @@ else % internal command
             if get(findobj(hdl, 'tag', 'copy_to_dataset'), 'value')
                 ALLEEG(realindex).subject    = varargin{2};
             end;
-            allcom = { allcom{:}, { 'index' realindex 'subject' varargin{2} } };
+            allcom = { allcom{:} { 'index' realindex 'subject' varargin{2} } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -362,7 +362,7 @@ else % internal command
             if get(findobj(hdl, 'tag', 'copy_to_dataset'), 'value')
                 ALLEEG(realindex).session    = str2num(varargin{2});
             end;
-            allcom = { allcom{:}, { 'index' realindex 'session' str2num(varargin{2}) } };
+            allcom = { allcom{:} { 'index' realindex 'session' str2num(varargin{2}) } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -375,7 +375,7 @@ else % internal command
             if get(findobj(hdl, 'tag', 'copy_to_dataset'), 'value')
                 ALLEEG(realindex).group    = varargin{2};
             end;
-            allcom = { allcom{:}, { 'index' realindex 'group' varargin{2} } };
+            allcom = { allcom{:} { 'index' realindex 'group' varargin{2} } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -388,7 +388,7 @@ else % internal command
             if get(findobj(hdl, 'tag', 'copy_to_dataset'), 'value')
                 ALLEEG(realindex).conditon     = varargin{2};
             end;
-            allcom = { allcom{:}, { 'index' realindex 'condition' varargin{2} } };
+            allcom = { allcom{:} { 'index' realindex 'condition' varargin{2} } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -399,24 +399,22 @@ else % internal command
             
             res = inputdlg2_with_checkbox( { strvcat('Enter maximum residual (topo map - dipole proj.) var. (in %)', ...
                                        'NOTE: This will delete any existing component clusters!') }, ...
-                                       'pop_study():  Pre-select components', 1, { '15' },'pop_study' );
+                             'pop_study():  Pre-select components', 1, { '15' },'pop_study' );
            
             if isempty(res), return; end;
             if res{2} == 1
                 STUDY = std_editset(STUDY, ALLEEG, 'commands', { 'inbrain', 'on', 'dipselect' str2num(res{1})/100 'return' });
-                allcom = { allcom{:}, { 'inbrain', 'on', 'dipselect' str2num(res{1})/100 } };
+                allcom = { allcom{:} { 'inbrain', 'on', 'dipselect' str2num(res{1})/100 } };
             else
                 STUDY = std_editset(STUDY, ALLEEG, 'commands', { 'inbrain', 'off','dipselect' str2num(res{1})/100 'return' });
-                allcom = { allcom{:}, { 'inbrain', 'off', 'dipselect' str2num(res{1})/100 } };
+                allcom = { allcom{:} { 'inbrain', 'off', 'dipselect' str2num(res{1})/100 } };
             end;
                 
             datasetinfo   = STUDY.datasetinfo;
             
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
-            set(hdl, 'userdata', userdat);   
-            set(findobj(hdl, 'tag', 'delclust'), 'value', 1);
-            pop_study('delclust', hdl);
+            set(hdl, 'userdata', userdat);            
             pop_study('redraw', hdl);
 
         case 'component'
@@ -437,7 +435,7 @@ else % internal command
                                 ~isempty(datasetinfo(index).subject) & ...
                                 isequal( datasetinfo(index).session, datasetinfo(realindex).session ) )
                         datasetinfo(index).comps = tmps;
-                        allcom = { allcom{:}, { 'index' index 'comps' tmps } };
+                        allcom = { allcom{:} { 'index' index 'comps' tmps } };
                         set(findobj('tag', [ 'comps' int2str(index) ]), ...
                             'string', formatbut(tmps), 'horizontalalignment', 'left');
                     end;
@@ -461,7 +459,7 @@ else % internal command
             datasetinfo(realindex).group     = '';                    
             datasetinfo(realindex).comps     = [];                    
 
-            allcom = { allcom{:}, { 'remove' realindex } };
+            allcom = { allcom{:} { 'remove' realindex } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -498,7 +496,7 @@ else % internal command
             datasetinfo(realindex).group     = ALLEEG(realindex).group;                    
             datasetinfo(realindex).comps     = [];                    
 
-            allcom = { allcom{:}, { 'index' realindex 'load' filename } };
+            allcom = { allcom{:} { 'index' realindex 'load' filename } };
             userdat{1} = ALLEEG;
             userdat{2} = datasetinfo;
             userdat{4} = allcom;
@@ -650,7 +648,7 @@ for index = 1:length(Prompt)
 		geometry = { geometry{:} [ 1 0.6 ]};
 	end;
 	listgui = { listgui{:} { 'Style', 'text', 'string', Prompt{index}}  ...
-				{ 'Style', 'edit', 'string', DefAns{index} } { 'Style', 'checkbox', 'string','Keep only in-brain dipoles (requires Fieldtrip extension).','value',1 }  };
+				{ 'Style', 'edit', 'string', DefAns{index} } { 'Style', 'checkbox', 'string','Keep only in-brain dipoles.','value',1 }  };
 end;
 geometry = [1 1 1];geomvert = [2 1 1];
 result = inputgui(geometry, listgui, ['pophelp(''' funcname ''');'], Title, [], 'normal', geomvert);

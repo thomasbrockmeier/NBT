@@ -79,7 +79,7 @@ newevents = [];
 if exist('eventtimes') == 1 
     if ~isempty(eventtimes)
         try
-            rmevent = find( reject(min(length(reject),max(1,round(eventtimes)))) == 1); % cko: sometimes, events may have latencies < 0.5 or >= length(reject)+0.5 (e.g. after resampling)
+            rmevent = find( reject(round(eventtimes)) == 1);
 	    catch, error('Latency event out of bound'); end;
         eventtimes(rmevent) = NaN;
 	    newevents = eventtimes;
@@ -126,8 +126,8 @@ if isstr(indata)
   evalin('base', 'clear numberrow indextmp endtmp fid');  
   evalin('base', 'delete(''tmpeegrej.fdt'')');  
 else
-  timeIndices = find(reject == 1);
-  indata(:,timeIndices) = [];
+  elecIndices = find(reject == 0);
+  indata = indata(:,elecIndices);
 end;
 times = times * length(find(reject ==0)) / length(reject);
 

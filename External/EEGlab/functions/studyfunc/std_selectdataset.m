@@ -5,17 +5,14 @@
 %   >> [STUDY] = std_selectdataset(STUDY, ALLEEG, indvar, indvarvals);
 %
 % Inputs:
-%   STUDY       - EELAB STUDY structure
-%   ALLEEG      - EELAB dataset structure
-%   indvar      - [string] independent variable name
-%   indvarvals  - [cell] cell array of string for selected values for the 
-%   verboseflag - ['verbose'|'silent'] print info flag
-%
+%   STUDY      - EELAB STUDY structure
+%   ALLEEG     - EELAB dataset structure
+%   indvar     - [string] independent variable name
+%   indvarvals - [cell] cell array of string for selected values for the 
 %                choosen independent variable
 % Output:
 %   datind       - [integer array] indices of selected dataset
-%   dattrialsind - [cell] trial indices for each dataset (not only the
-%                  datasets selected above).
+%   dattrialsind - [cell] trial indices for each dataset
 %
 % Author: Arnaud Delorme, CERCO, 2010-
 
@@ -35,14 +32,11 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-function [datind, dattrialselect] = std_selectdataset(STUDY, ALLEEG, indvar, indvarvals, verboseFlag);
+function [datind, dattrialselect] = std_selectdataset(STUDY, ALLEEG, indvar, indvarvals);
 
 if nargin < 3
     help std_selectdataset;
     return;
-end;
-if nargin < 5
-    verboseFlag = 'verbose';
 end;
 
 % check for multiple condition selection
@@ -72,23 +66,23 @@ if isempty(indvar)
 elseif isfield(STUDY.datasetinfo, indvar) && ~isempty(getfield(STUDY.datasetinfo(1), indvar))
     % regular selection of dataset in datasetinfo
     % -------------------------------------------
-    if strcmpi(verboseFlag, 'verbose'), fprintf('   Selecting datasets with field ''%s'' equal to %s\n', indvar, vararg2str(indvarvals)); end;
+    fprintf('   Selecting datasets with field ''%s'' equal to %s\n', indvar, vararg2str(indvarvals));
     eval( [ 'fieldvals = { STUDY.datasetinfo.' indvar '};' ] );
     datind = [];
     for dat = 1:length(indvarvals)
-        datind = union_bc(datind, std_indvarmatch(indvarvals{dat}, fieldvals));
+        datind = union(datind, std_indvarmatch(indvarvals{dat}, fieldvals));
     end;
 else
     % selection of trials within datasets
     % -----------------------------------
-    if strcmpi(verboseFlag, 'verbose'), fprintf('   Selecting trials with field ''%s'' equal to %s\n', indvar, vararg2str(indvarvals)); end;
+    fprintf('   Selecting trials with field ''%s'' equal to %s\n', indvar, vararg2str(indvarvals));
     dattrials      = cellfun(@(x)(eval(['{ x.' indvar '}'])),  { STUDY.datasetinfo.trialinfo }, 'uniformoutput', false);
     dattrials      = cellfun(@(x)(eval(['{ x.' indvar '}'])),  { STUDY.datasetinfo.trialinfo }, 'uniformoutput', false); % do not remove duplicate line (or Matlab crashes)
     dattrialselect = cell(1,length(STUDY.datasetinfo));
     for dat = 1:length(indvarvals)
         for tmpi = 1:length(dattrials)
-            dattrialselect{tmpi} = union_bc(dattrialselect{tmpi}, std_indvarmatch(indvarvals{dat}, dattrials{tmpi}));
+            dattrialselect{tmpi} = union(dattrialselect{tmpi}, std_indvarmatch(indvarvals{dat}, dattrials{tmpi}));
         end;
     end;
-    datind = find(~cellfun(@isempty, dattrialselect));
+    datind = find(~cellfun(@isempty, dattrialselect));            
 end;

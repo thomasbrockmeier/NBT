@@ -69,7 +69,9 @@ end
 if ~isempty(filename)
     STUDYfile = fullfile(filepath,filename);
     try 
+        warning off;
         load('-mat', STUDYfile);
+        warning on;
     catch
         error(['pop_loadstudy(): STUDY set file ''STUDYfile'' not loaded -- check filename and path']);
     end
@@ -113,49 +115,6 @@ for inddes = 1:length(STUDY.design)
         else STUDY.design(inddes).cell(indcell).filebase = fullfile(pathname, filebase );
         end;
     end;
-end;
-
-% check for corrupted ERSP ICA data files
-% A corrupted file is present if
-% - components have been selected
-% - .icaersp or .icaitc files are present
-% - the .trialindices field is missing from these files
-try
-    %% check for corrupted ERSP ICA data files
-    ncomps1 = cellfun(@length, { STUDY.datasetinfo.comps });
-    ncomps2 = cellfun(@(x)(size(x,1)), { ALLEEG.icaweights });
-    if any(~isempty(ncomps1))
-        if any(ncomps1 ~= ncomps2)
-            warningshown = 0;
-
-            for des = 1:length(STUDY.design)
-                for iCell = 1:length(STUDY.design(des).cell)
-                    if ~warningshown
-                        if exist( [ STUDY.design(des).cell(iCell).filebase '.icaersp' ] )
-                            warning('off', 'MATLAB:load:variableNotFound');
-                            tmp = load('-mat', [ STUDY.design(des).cell(iCell).filebase '.icaersp' ], 'trialindices');
-                            warning('on', 'MATLAB:load:variableNotFound');
-                            if ~isfield(tmp, 'trialindices')
-                                warningshown = 1;
-                                warndlg( [ 'Warning: ICA ERSP or ITC data files computed with old version of EEGLAB for design ' int2str(des) 10 ...
-                                             '(and maybe other designs). These files may be corrupted and must be recomputed.' ], 'Important EEGLAB warning', 'nonmodal');
-                            end;
-                        end;
-                        if warningshown == 0 && exist( [ STUDY.design(des).cell(iCell).filebase '.icaitc' ] )
-                            tmp = load('-mat', [ STUDY.design(des).cell(iCell).filebase '.icaersp' ], 'trialindices');
-                            if ~isfield(tmp, 'trialindices')
-                                warningshown = 1;
-                                warndlg( [ 'Warning: ICA ERSP or ITC data files computed with old version of EEGLAB for design ' int2str(des) 10 ...
-                                             '(and maybe other designs). These files may be corrupted and must be recomputed.' ], 'Important EEGLAB warning', 'modal');
-                            end;
-                        end;
-                    end;
-                end;
-            end;
-        end;
-    end;
-catch, 
-    disp('Warning: failed to test STUDY file version');
 end;
 
 TMP = STUDY.datasetinfo;

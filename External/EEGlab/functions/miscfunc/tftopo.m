@@ -46,9 +46,7 @@
 %                'native' means that the input is already in log frequencies 
 %  'vert'      = [times vector] (in msec) plot vertical dashed lines at specified times 
 %                {default: 0}
-%  'ylabel'    = [string] label for the ordinate axis. Default is
-%                "Frequency (Hz)"
-%  'shiftimgs' = [response_times_vector] shift time/frequency images from several 
+%  'shiftimgs' = [response_times_vector] - shift time/frequency images from several 
 %                subjects by each subject's response time {default: no shift} 
 %  'title'     = [quoted_string] plot title (default: provided_string). 
 %  'cbar'      = ['on'|'off'] plot color bar {default: 'on'}
@@ -56,12 +54,11 @@
 %                topoplot {default: 'common'}
 %  'plotscalponly' = [x,y] location (e.g. msec,hz). Plot one scalp map only; no
 %                time-frequency image.
-%  'events'    = [real array] plot event latencies. The number of event
-%                must be the same as the number of "frequecies".
 %  'verbose'   = ['on'|'off'] comment on operations on command line {default: 'on'}.
 %  'axcopy'  = ['on'|'off'] creates a copy of the figure axis and its graphic objects in a new pop-up window 
 %                    using the left mouse button {default: 'on'}.. 
 %  'denseLogTicks' = ['on'|'off'] creates denser labels on log freuqncy axis {default: 'off'} 
+%
 %
 % Notes:
 %  1) Additional topoplot() optional arguments can be used.
@@ -126,27 +123,25 @@ tfdataori = mean(tfdata,4); % for topoplot
 % test inputs
 % -----------
 % 'key' 'val' sequence
-fieldlist = { 'chanlocs'      { 'string','struct' }       []       '' ;
+fieldlist = { 'chanlocs'      { 'string' 'struct' }       []       '' ;
               'limits'        'real'     []                        [nan nan nan nan nan nan];
-              'logfreq'       'string'   {'on','off','native'}     'off';
-              'cbar'          'string'   {'on','off' }             'on';
-              'mode'          'string'   { 'ave','rms' }           'rms';
+              'logfreq'       'string'   {'on' 'off' 'native'}     'off';
+              'cbar'          'string'   {'on' 'off' }             'on';
+              'mode'          'string'   { 'ave' 'rms' }           'rms';
               'title'         'string'   []                        '';
-              'verbose'       'string'   {'on','off' }             'on';
-              'axcopy'        'string'   {'on','off' }             'on';
-              'cmode'         'string'   {'common','separate' }    'common';
+              'verbose'       'string'   {'on' 'off' }             'on';
+              'axcopy'        'string'   {'on' 'off' }             'on';
+              'cmode'         'string'   {'common' 'separate' }    'common';
               'selchans'      'integer'  [1 nchans]                [1:nchans];
-              'shiftimgs'     'real'     []                        [];
-              'plotscalponly' 'real'     []                        [];
-              'events'        'real'     []                        [];
+              'shiftimgs'     'real'     []                        [] ;
+              'plotscalponly' 'real'     []                        [] ;
               'showchan'      'integer'  [0 nchans]                0 ;
               'signifs'       'real'     []                        [];
               'sigthresh'     'integer'  [1 Inf]                   [1 1];
               'smooth'        'real'     [0 Inf]                   1;
               'timefreqs'     'real'     []                        [];
-              'ylabel'        'string'   {}                        'Frequency (Hz)';
               'vert'          'real'     [times(1) times(end)]     [min(max(0, times(1)), times(end))];
-              'denseLogTicks' 'string'   {'on','off'}               'off'              
+              'denseLogTicks' 'string'   {'on' 'off'}               'off'              
               };
 
 [g varargin] = finputcheck( varargin, fieldlist, 'tftopo', 'ignore');
@@ -443,12 +438,12 @@ elseif strcmpi(g.logfreq, 'native'),
     
     ft = str2num(get(gca,'yticklabel'));
     ft = exp(1).^ft;
-    ft = unique_bc(round(ft));
+    ft = unique(round(ft));
     ftick = get(gca,'ytick');
     ftick = exp(1).^ftick;
-    ftick = unique_bc(round(ftick));
+    ftick = unique(round(ftick));
     ftick = log(ftick);
-    inds = unique_bc(round(exp(linspace(log(1), log(length(ft))))));
+    inds = unique(round(exp(linspace(log(1), log(length(ft))))));
     set(gca,'ytick',ftick(inds(1:2:end)));
     set(gca,'yticklabel', num2str(ft(inds(1:2:end))));
 else
@@ -481,7 +476,7 @@ else
   set(tl,'fontsize',12);
 end
 
-yl=ylabel(g.ylabel);
+yl=ylabel(['Frequency (Hz)']);
 set(yl,'fontsize',12);
 
 set(gca,'fontsize',12)
@@ -491,15 +486,6 @@ for indtime = g.vert
     tmpy = ylim;
     plot([indtime indtime],tmpy,[LINECOLOR ':'],'linewidth',ZEROLINEWIDTH);
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Plot topoplot maps at specified timefreqs points
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if ~isempty(g.events)
-    tmpy = ylim;
-    yvals = linspace(tmpy(1), tmpy(2), length(g.events));
-    plot(g.events, yvals, 'k', 'linewidth', 2);
-end;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Plot topoplot maps at specified timefreqs points
@@ -586,10 +572,10 @@ if strcmpi(g.axcopy, 'on')
     if strcmpi(g.logfreq, 'native'), 
         com = [ 'ft = str2num(get(gca,''''yticklabel''''));' ...
                 'ft = exp(1).^ft;' ...
-                'ft = unique_bc(round(ft));' ...
+                'ft = unique(round(ft));' ...
                 'ftick = get(gca,''''ytick'''');' ...
                 'ftick = exp(1).^ftick;' ...
-                'ftick = unique_bc(round(ftick));' ...
+                'ftick = unique(round(ftick));' ...
                 'ftick = log(ftick);' ...
                 'set(gca,''''ytick'''',ftick);' ...
                 'set(gca,''''yticklabel'''', num2str(ft));' ];

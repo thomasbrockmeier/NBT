@@ -69,38 +69,32 @@ if nargin < 2
         components = [];
         promptstr    = { ['Component(s) to remove from data:'] };
     end;
-    uilist    = { { 'style' 'text' 'string' ['Component(s) to remove from data:'] } ...
-                  { 'style' 'edit' 'string' int2str(components) } ...
-                  { 'style' 'text' 'string' 'Component(s) to retain (overwrites "Component(s) to remove")' } ...
-                  { 'style' 'edit' 'string' int2str(components) } ...
-                  };
-    geom = { [2 0.7] [2 0.7] };
-	result       = inputgui( 'uilist', uilist, 'geometry', geom, 'helpcom', 'pophelp(''pop_subcomp'')', ...
-                                     'title', 'Remove components from data -- pop_subcomp()');
+    promptstr    = { ['Component(s) to remove from data:'] 'Component(s) to retain (overwrites "Component(s) to remove")' };
+	inistr       = { int2str(components) '' };
+	result       = inputdlg2( promptstr, 'Remove components from data -- pop_subcomp()', 1,  inistr, 'pop_subcomp');
 	if length(result) == 0 return; end;
 	components   = eval( [ '[' result{1} ']' ] );
     if ~isempty(result{2}), 
         components   = eval( [ '[' result{2} ']' ] );
-        components  = setdiff_bc([1:size(EEG.icaweights,1)], components);
+        components  = setdiff([1:size(EEG.icaweights,1)], components);
     end;
 end;
  
 if isempty(components)
-    
-	%if ~isempty(EEG.reject.gcompreject)
-    %  		components = find(EEG.reject.gcompreject == 1);
-   	%else
+	if ~isempty(EEG.reject.gcompreject)
+      		components = find(EEG.reject.gcompreject == 1);
+   	else
         	fprintf('Warning: no components specified, no rejection performed\n');
          	return;
-   	%end;
+   	end;
 else
-    if (max(components) > size(EEG.icaweights,1)) || min(components) < 1
+    if (max(components) > EEG.nbchan) | min(components) < 1
         error('Component index out of range');
     end;
 end;
 
 fprintf('Computing projection ....\n');
-component_keep = setdiff_bc(1:size(EEG.icaweights,1), components);
+component_keep = setdiff(1:size(EEG.icaweights,1), components);
 compproj = EEG.icawinv(:, component_keep)*eeg_getdatact(EEG, 'component', component_keep, 'reshape', '2d');
 compproj = reshape(compproj, size(compproj,1), EEG.pnts, EEG.trials);
 
@@ -137,7 +131,7 @@ end;
 EEG.data(EEG.icachansind,:,:) = compproj;
 EEG.setname = [ EEG.setname ' pruned with ICA'];
 EEG.icaact  = [];
-goodinds    = setdiff_bc(1:size(EEG.icaweights,1), components);
+goodinds    = setdiff(1:size(EEG.icaweights,1), components);
 EEG.icawinv     = EEG.icawinv(:,goodinds);
 EEG.icaweights  = EEG.icaweights(goodinds,:);
 EEG.specicaact  = [];

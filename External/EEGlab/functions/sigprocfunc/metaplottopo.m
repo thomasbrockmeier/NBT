@@ -225,7 +225,7 @@ else % read chan_locs file
     % find position for other channels
     % --------------------------------
     totalchans = length(g.chanlocs);
-    emptychans = setdiff_bc(1:totalchans, nonemptychans);
+    emptychans = setdiff(1:totalchans, nonemptychans);
     totalchans = floor(sqrt(totalchans))+1;
     for index = 1:length(emptychans)
         xvals(emptychans(index)) = 0.7+0.2*floor((index-1)/totalchans);
@@ -255,8 +255,8 @@ Axes = [];
 fprintf('Plotting all channel...');
 for c=1:length(g.chans), %%%%%%%% for each data channel %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    xcenter = xvals(c); if isnan(xcenter), xcenter = 0.5; end; 
-    ycenter = yvals(c); if isnan(ycenter), ycenter = 0.5; end;
+    xcenter = xvals(c);
+    ycenter = yvals(c);
     Axes = [Axes axes('Units','Normal','Position', ...
         [xcenter-axwidth/2 ycenter-axheight/2 axwidth axheight])];
     hold on;

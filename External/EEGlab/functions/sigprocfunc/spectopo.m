@@ -46,7 +46,6 @@
 %   'plot'     = ['on'|'off'] 'off' -> disable plotting {default: 'on'}
 %   'rmdc'     = ['on'|'off'] 'on' -> remove DC {default: 'off'}  
 %   'plotmean' = ['on'|'off'] 'on' -> plot the mean channel spectrum {default: 'off'}  
-%   'plotchans' = [integer array] plot only specific channels {default: all}
 %
 % Optionally plot component contributions:
 %   'weights'  = ICA unmixing matrix. Here, 'freq' (above) must be a single frequency.
@@ -57,8 +56,7 @@
 %   'plotchan' = [integer] channel at which to compute independent conmponent
 %                contributions at the selected frequency ('freq'). If 0, plot RMS 
 %                power at all channels. {defatul|[] -> channel with highest power 
-%                at specified 'freq' (above)). Do not confuse with
-%                'plotchans' which select channels for plotting.
+%                at specified 'freq' (above)). 
 %   'mapchans' = [int vector] channels to plot in topoplots {default: all}
 %   'mapframes'= [int vector] frames to plot {default: all}
 %   'nicamaps' = [integer] number of ICA component maps to plot {default: 4}.
@@ -155,29 +153,28 @@ if nargin <= 3 | isstr(varargin{1})
                   'freqdata'      'real'     []                        [] ;
 				  'chanlocs'      ''         []                        [] ;
 				  'freqrange'     'real'     [0 srate/2]               [] ;
-				  'memory'        'string'   {'low','high'}           'high' ;
-				  'plot'          'string'   {'on','off'}             'on' ;
-				  'plotmean'      'string'   {'on','off'}             'off' ;
+				  'memory'        'string'   {'low' 'high'}           'high' ;
+				  'plot'          'string'   {'on' 'off'}             'on' ;
+				  'plotmean'      'string'   {'on' 'off'}             'off' ;
 				  'title'         'string'   []                       '';
 				  'limits'        'real'     []                       [nan nan nan nan nan nan];
 				  'freqfac'       'integer'  []                        FREQFAC;
 				  'percent'       'real'     [0 100]                  100 ;
-				  'reref'         'string'   { 'averef','off','no' }  'off' ;
+				  'reref'         'string'   { 'averef' 'off' 'no' }  'off' ;
 				  'boundaries'    'integer'  []                       [] ;
 				  'nfft'          'integer'  [1 Inf]                  [] ;
 				  'winsize'       'integer'  [1 Inf]                  [] ;
 				  'overlap'       'integer'  [1 Inf]                  0 ;
-				  'icamode'       'string'   { 'normal','sub' }        'normal' ;
+				  'icamode'       'string'   { 'normal' 'sub' }        'normal' ;
 				  'weights'       'real'     []                       [] ;
 				  'mapnorm'       'real'     []                       [] ;
 				  'plotchan'      'integer'  [1:size(data,1)]         [] ;
-				  'plotchans'     'integer'  [1:size(data,1)]         [] ;
 				  'nicamaps'      'integer'  []                       4 ;
 				  'icawinv'       'real'     []                       [] ;
 				  'icacomps'      'integer'  []                       [] ;
 				  'icachansind'   'integer'  []                       [1:size(data,1)] ; % deprecated
 				  'icamaps'       'integer'  []                       [] ;
-                  'rmdc'           'string'   {'on','off'}          'off';
+                  'rmdc'           'string'   {'on' 'off'}          'off';
 				  'mapchans'      'integer'  [1:size(data,1)]         [] 
                   'mapframes'     'integer'  [1:size(data,2)]         []};
 	
@@ -230,12 +227,6 @@ if g.percent > 1
 end;
 if ~isempty(g.freq) & isempty(g.chanlocs)
 	error('spectopo(): needs channel location information');
-end;
-if isempty(g.weights) && ~isempty(g.plotchans)
-    data = data(g.plotchans,:);
-    if ~isempty(g.chanlocs)
-        g.chanlocs = g.chanlocs(g.plotchans);
-    end;
 end;
 
 if strcmpi(g.rmdc, 'on')
@@ -325,12 +316,8 @@ else
             % spec = sqrt( g.mapnorm(1)^4 + g.mapnorm(1)^4 + ... )*power(compact)
         end;
 
-        tmpc = find(eegspecdB(:,1)); 			     % > 0 power chans
-        tmpindices = find(eegspecdB(:,1) == 0);
-        if ~isempty(tmpindices)
-             zchans = int2str(tmpindices); % 0-power chans
-        else zchans = [];
-        end;
+        tmpc = find(eegspecdB(:,1)); 			% > 0 power chans
+        zchans = int2str(find(eegspecdB(:,1) == 0)); 	% 0-power chans
         if length(tmpc) ~= size(eegspecdB,1)
             fprintf('\nWarning: channels [%s] have 0 values, so will be omitted from the display', ...
                        zchans);
@@ -342,6 +329,7 @@ else
         end;
         eegspecdB = 10*log10(eegspecdB);
         specstd   = 10*log10(specstd);
+        warning on backtrace
         fprintf('\n');
     else
         % compute data spectrum
@@ -566,7 +554,7 @@ if ~isempty(g.weights)
             pl2(index)=plot(freqs(1:maxfreqidx),compeegspecdB(g.icamaps(f),1:maxfreqidx)', ...
                             'color', colr, 'ButtonDownFcn', command); hold on;
         end
-        othercomps = setdiff_bc(1:size(compeegspecdB,1), g.icamaps);
+        othercomps = setdiff(1:size(compeegspecdB,1), g.icamaps);
         if ~isempty(othercomps)
             for index = 1:length(othercomps)
                 tmpcol  = allcolors{mod(index, length(allcolors))+1};
@@ -870,10 +858,15 @@ function [eegspecdB, freqs, specstd] = spectcomp( data, frames, srate, epoch_sub
 	else
         fftlength = g.nfft;
     end;
-    usepwelch = 1; 
-    if ~license('checkout','Signal_Toolbox'), 
-        fprintf('\nSignal processing toolbox (SPT) absent: spectrum computed using the pwelch()\n');
-        fprintf('function from Octave which is suposedly 100%% compatible with the Matlab pwelch function\n');
+    if exist('pwelch') == 2 % & license('test','Signal_Toolbox'), 
+       usepwelch = 1; 
+    else 
+       usepwelch=0; 
+    end;
+    if ~usepwelch
+        fprintf('\n\nSignal processing toolbox (SPT) absent: spectrum computed using spec() function\n');
+        disp('Note: spec() emulates psd() not pwelch() so results scale will differ if SPT present');
+        disp('NOTE: function spec() may return INACCURATE results in filtered regions');
     end;
     fprintf(' (window length %d; fft length: %d; overlap %d):\n', winlength, fftlength, g.overlap);	
         

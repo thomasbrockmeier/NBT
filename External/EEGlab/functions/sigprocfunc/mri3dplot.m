@@ -55,7 +55,6 @@
 % See also: plotmri()
 
 % Copyright (C) Arnaud Delorme, sccn, INC, UCSD, 2003-
-% 03/29/2013 Makoto. Line 370 added to avoid negative matrix indices.
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,8 +83,9 @@ function [smoothprob3d, mriplanes] = mri3dplot(prob3d, mri, varargin)
     translucency    = 0.5;    % default alpha value
     mri_lim         = 85;     % +/- axis limits of MNI head image
     
-    g = finputcheck( varargin, { 'mriview'   { 'string','cell' }  { { 'sagital','axial','coronal','top','side','rear' } {} }   'top';
-                        'mixmode'   'string'   { 'add','overwrite','min' }     'add';
+    g = finputcheck( varargin, { 'mriview'   { 'string' 'cell' }  { { 'sagital' 'axial' 'coronal' ...
+                                                          'top' 'side' 'rear' } {} }   'top';
+                        'mixmode'   'string'   { 'add' 'overwrite' 'min' }     'add';
                         'mrislices' 'float'    []                        [];
                         'view'      'float'    []                        [];
                         'geom'      'float'    []                        [];
@@ -93,10 +93,10 @@ function [smoothprob3d, mriplanes] = mri3dplot(prob3d, mri, varargin)
                         'cmax'      'float'    []                        [];
                         'mixfact'   'float'    []                        0.5;
                         'cmin'      'float'    []                        0;
-                        'plotintersect' 'string'   { 'on','off' }            'on';
-                        'cbar'      'string'   { 'on','off' }            'on';
-                        'subplot'   'string'   { 'on','off' }            'off';
-                        'rotate'    'integer'  { 0,90,180,270 }          90;
+                        'plotintersect' 'string'   { 'on' 'off' }            'on';
+                        'cbar'      'string'   { 'on' 'off' }            'on';
+                        'subplot'   'string'   { 'on' 'off' }            'off';
+                        'rotate'    'integer'  { 0 90 180 270 }          90;
                         'kernel'    'float'    []                        0; 
                         'addrow'    'integer'  []                        0;
                         'fighandle' 'integer'  []                        []});
@@ -183,7 +183,7 @@ function [smoothprob3d, mriplanes] = mri3dplot(prob3d, mri, varargin)
         % ----------------------------------------
         newprob3d = newprob3dori;
         if strcmpi(g.plotintersect, 'on')
-            for index2 = setdiff_bc(1:length( g.mrislices ), index)
+            for index2 = setdiff(1:length( g.mrislices ), index)
                 switch g.mriview{index2}
                     case 'side', coord = [  g.mrislices(index2) 0 0 1 ]; 
                     case 'top' , coord = [  0 0 g.mrislices(index2) 1 ]; 
@@ -367,7 +367,6 @@ function [newprob3d maxdens] = prepare_dens(prob3d, g, col);
     
     prob3d    = round((prob3d-g.cmin)/(g.cmax - g.cmin)*(ncolors-1))+1; % project desnity image into the color space: [1:ncolors]
     prob3d( find(prob3d > ncolors) ) = ncolors;
-    prob3d( find(prob3d < 1))        = 1; % added by Makoto
     newprob3d = zeros(size(prob3d,1), size(prob3d,2), size(prob3d,3), 3);
 
     outOfBrainMask = find(isnan(prob3d)); % place NaNs in a mask, NaNs are assumed for points outside the brain

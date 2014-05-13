@@ -107,16 +107,17 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
             tmpargs = varargin{ indfield+1 };
             newvararg = { newvararg{:} com };
             
-            if any(strcmpi({'add','insert','append'},com))
+            if strcmpi(com, 'add') | strcmpi(com, 'insert') | strcmpi(com, 'append')
+                
                 evtind     = tmpargs{1};
                 fields     = fieldnames(EEG.event);
                 emptycells = cell(1,length(fields)-1);
-                newvararg  = { newvararg{:}, { evtind emptycells{:} } };
+                newvararg  = { newvararg{:} { evtind emptycells{:} } };
                 if strcmpi(com, 'append'), evtind = evtind+1; end;
                 
                 for ind = 2:length( tmpargs )
                     if ~strcmpi(fields{ind-1}, 'urevent')
-                        newvararg = { newvararg{:},'changefield',{ evtind fields{ind-1} tmpargs{ind} } };
+                        newvararg = { newvararg{:} 'changefield' { evtind fields{ind-1} tmpargs{ind} } };
                     end;
                 end;
             else
@@ -189,22 +190,10 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
       if gui
           shift     = tmparg; % shift is for adding before or after the event
 
-          % add epoch number if data epoch
-          % ------------------------------
-          tmpcell    = cell(1,1+length(fieldnames(EEG.event))); 
-          tmpcell{1} = valnum;
-          if EEG.trials > 1
-              indepoch = strmatch('epoch', fieldnames(EEG.event), 'exact');
-              if valnum > 1, tmpprevval = valnum-1;
-              else           tmpprevval = valnum+1;
-              end;
-              if tmpprevval <= length(EEG.event)
-                  tmpcell{indepoch+1} = EEG.event(tmpprevval).epoch;
-              end;
-          end;
-          
           % update commands
           % ---------------
+          tmpcell    = cell(1,1+length(fieldnames(EEG.event))); 
+          tmpcell{1} = valnum;
           if shift
               oldcom     = { oldcom{:} 'append', tmpcell };
           else
@@ -295,7 +284,7 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
 
           % update history
           % --------------
-          oldcom = { oldcom{:},'changefield',{ valnum field editval }};
+          oldcom = { oldcom{:} 'changefield' { valnum field editval }};
       
       else % command line case
           
@@ -392,7 +381,7 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
           
           % update history
           % --------------
-          oldcom = { oldcom{:},'sort',{ field1 dir1 field2 dir2 } };
+          oldcom = { oldcom{:} 'sort' { field1 dir1 field2 dir2 } };
 
       else % command line
           field1 = tmparg{1};
@@ -412,9 +401,9 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
  
       if ~isempty(field2)
           tmpevent = EEG.event;
-          if ~ischar(EEG.event(1).(field2))
-              tmparray = [ tmpevent.(field2) ];              
-          else tmparray = { tmpevent.(field2) };
+          if ~isstr(getfield( EEG.event(1), field2 ))
+               eval(['tmparray = [ tmpevent.' field2 ' ];']);
+          else eval(['tmparray = { tmpevent.' field2 ' };']);
           end
           % Commented out 11/18/2005, Toby
           % These lines were incorrectly sorting the event.latency field in
@@ -432,11 +421,11 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
       else
           events = EEG.event;
       end;  
-      tmpevent = EEG.event;
-      if ~ischar(EEG.event(1).(field1))
-          tmparray = [ tmpevent.(field1) ];
-      else tmparray = { tmpevent.(field1) };
-      end
+      tmpevent = EEG.event;      
+      if ~isstr(getfield( EEG.event(1), field1 ))
+           eval(['tmparray = [ tmpevent.' field1 ' ];']);
+      else eval(['tmparray = { tmpevent.' field1 ' };']);
+      end;
       % Commented out 11/18/2005, Toby
       %if strcmp( field1, 'latency') & EEG.trials > 1
       %    tmparray = eeg_point2lat(tmparray, {events.epoch}, EEG.srate, [EEG.xmin EEG.xmax], 1);
@@ -465,7 +454,7 @@ if nargin >= 2 | isstr(EEG) % interpreting command from GUI or command line
         set(gcf, 'userdata', userdata);
         pop_editeventvals('goto', shift);              
     else
-        if ~exist('noeventcheck','var')
+        if ~exist('noeventcheck')
             EEG = eeg_checkset(EEG, 'eventconsistency');
             EEG = eeg_checkset(EEG, 'checkur');
         end;

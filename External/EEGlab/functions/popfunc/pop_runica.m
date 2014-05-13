@@ -27,17 +27,6 @@
 %                 on each dataset. Default is 'on'.
 %   'key','val' - ICA algorithm options (see ICA routine help messages).
 % 
-% Adding a new algorithm:
-% Add the algorithm to the list of algorithms line 366 to 466, for example
-%
-%    case 'myalgo', [EEG.icaweights] = myalgo( tmpdata, g.options{:} );
-%
-% where "myalgo" is the name of your algorithm (and Matlab function). 
-% tmpdata is the 2-D array containing the EEG data (channels x points) and
-% g.options{} contains custom options for your algorithm (there is no
-% predetermined format for these options). The output EEG.icaweights is the
-% mixing matrix (or inverse of the unmixing matrix).
-%
 % Note:
 % 1) Infomax (runica, binica) is the ICA algorithm we use most. It is based 
 %    on Tony Bell's infomax algorithm as implemented for automated use by 
@@ -160,10 +149,10 @@ if nargin < 2 | selectamica
     if length(ALLEEG) > 1
         cb1 = 'set(findobj(''parent'', gcbf, ''tag'', ''concat2''), ''value'', 0);';
         cb2 = 'set(findobj(''parent'', gcbf, ''tag'', ''concat1''), ''value'', 0);';
-        promptstr = { promptstr{:}, ...
-                     { 'style' 'text'       'string' 'Concatenate all datasets (check=yes; uncheck=run ICA on each dataset)?' }, ...
-                     { 'style' 'checkbox'   'string' '' 'value' 0 'tag' 'concat1' 'callback' cb1 }, ...
-                     { 'style' 'text'       'string' 'Concatenate datasets for the same subject and session (check=yes)?' }, ...
+        promptstr = { promptstr{:} ...
+                     { 'style' 'text'       'string' 'Concatenate all datasets (check=yes; uncheck=run ICA on each dataset)?' } ...
+                     { 'style' 'checkbox'   'string' '' 'value' 0 'tag' 'concat1' 'callback' cb1 } ...
+                     { 'style' 'text'       'string' 'Concatenate datasets for the same subject and session (check=yes)?' } ...
                      { 'style' 'checkbox'   'string' '' 'value' 1 'tag' 'concat2' 'callback' cb2 } };
         geometry = { geometry{:} [ 2 0.2 ] [ 2 0.2 ]};
     end;                 
@@ -175,7 +164,7 @@ if nargin < 2 | selectamica
         indempty = cellfun('isempty', alltypes);
         alltypes(indempty) = '';
         try, 
-            alltypes = unique_bc(alltypes);
+            alltypes = unique(alltypes);
         catch, 
             alltypes = '';
         end;
@@ -223,9 +212,9 @@ end;
 [ g addoptions ] = finputcheck( options, { 'icatype'        'string'  allalgs   'runica'; ...
                             'dataset'        'integer' []        [1:length(ALLEEG)];
                             'options'        'cell'    []        {};
-                            'concatenate'    'string'  { 'on','off' }   'off';
-                            'concatcond'     'string'  { 'on','off' }   'off';
-                            'chanind'        { 'cell','integer' } { [] [] }        [];}, ...
+                            'concatenate'    'string'  { 'on' 'off' }   'off';
+                            'concatcond'     'string'  { 'on' 'off' }   'off';
+                            'chanind'        { 'cell' 'integer' } { [] [] }        [];}, ...
                             'pop_runica', 'ignore');
 if isstr(g), error(g); end;
 if ~isempty(addoptions), g.options = { g.options{:} addoptions{:}}; end;
@@ -234,7 +223,6 @@ if ~isempty(addoptions), g.options = { g.options{:} addoptions{:}}; end;
 % ----------------------------------------------------
 if length(g.dataset) == 1
     EEG = ALLEEG(g.dataset);
-    EEG = eeg_checkset(EEG, 'loaddata');
 elseif length(ALLEEG) > 1 & ~strcmpi(g.concatenate, 'on') & ~strcmpi(g.concatcond, 'on')
     [ ALLEEG com ] = eeg_eval( 'pop_runica', ALLEEG, 'warning', 'off', 'params', ...
            { 'icatype' g.icatype 'options' g.options 'chanind' g.chanind } );
@@ -253,13 +241,12 @@ elseif length(ALLEEG) > 1 & strcmpi(g.concatcond, 'on')
         if ~alltags(index)
             allinds = strmatch(allsubjects{index}, allsubjects, 'exact');
             rmind = [];
-            % if we have different sessions they will not be concatenated
-            for tmpi = setdiff_bc(allinds,index)'
-                if ~isequal(allsessions(index), allsessions(tmpi)), rmind = [rmind tmpi];
-                %elseif ~isequal(allgroups(index), allgroups(tmpi)), rmind = [rmind tmpi]; 
+            for tmpi = 2:length(allinds)
+                if ~isequal(allsessions(allinds(1)), allsessions(allinds(tmpi))), rmind = [rmind tmpi];
+                elseif ~isequal(allgroups(allinds(1)), allgroups(allinds(tmpi))), rmind = [rmind tmpi]; 
                 end;
             end;
-            allinds = setdiff_bc(allinds, rmind);
+            allinds(rmind) = [];
             fprintf('Found %d datasets for subject ''%s''\n', length(allinds), allsubjects{index});
             dats = { dats{:} allinds };
             alltags(allinds) = 1;
@@ -270,9 +257,9 @@ elseif length(ALLEEG) > 1 & strcmpi(g.concatcond, 'on')
         ALLEEG(dats{index}) = pop_runica(ALLEEG(dats{index}), 'icatype', g.icatype, ...
             'options', g.options, 'chanind', g.chanind, 'concatenate', 'on');
         for idat = 1:length(dats{index})
-            ALLEEG(dats{index}(idat)).saved = 'no';
+            ALLEEG(dats{index}(idat)).saved = 'off';
             pop_saveset(ALLEEG(dats{index}(idat)), 'savemode', 'resave');
-            ALLEEG(dats{index}(idat)).saved = 'yes';
+            ALLEEG(dats{index}(idat)).saved = 'on';
         end;
     end;
     com = sprintf('%s = pop_runica(%s, %s);', inputname(1),inputname(1), ...
@@ -302,7 +289,6 @@ else
     EEG.icaweights = [];
     EEG.trials = 1;
     EEG.pnts   = size(EEG.data,2);
-    EEG.saved  = 'no';
 end;    
 
 % Store and then remove current EEG ICA weights and sphere
@@ -354,7 +340,6 @@ end;
 % compute ICA on a definite set
 % -----------------------------
 tmpdata = reshape( EEG.data(g.chanind,:,:), length(g.chanind), EEG.pnts*EEG.trials);
-tmprank = getrank(double(tmpdata(:,1:min(3000, size(tmpdata,2)))));
 tmpdata = tmpdata - repmat(mean(tmpdata,2), [1 size(tmpdata,2)]); % zero mean 
 if ~strcmpi(lower(g.icatype), 'binica')
     try
@@ -372,29 +357,12 @@ if ~strcmpi(lower(g.icatype), 'binica')
 end;
 switch lower(g.icatype)
     case 'runica' 
-        try, if ismatlab, g.options = {  g.options{:}, 'interupt', 'on' }; end; catch, end; 
+        tmprank = getrank(tmpdata(:,1:min(3000, size(tmpdata,2))));
         if tmprank == size(tmpdata,1) | pca_opt
-            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001,  g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'on', g.options{:} );
         else 
-            if nargin < 2
-                uilist = { { 'style' 'text' 'string' [ 'EEGLAB has detected that the rank of your data matrix' 10 ...
-                                                       'is lower the number of input data channels. This might' 10 ...
-                                                       'be because you are including a reference channel or' 10 ...
-                                                       'because you are running a second ICA decomposition.' 10 ...
-                                                       sprintf('The proposed dimension for ICA is %d (out of %d channels).', tmprank, size(tmpdata,1)) 10 ...
-                                                       'Rank computation may be innacurate so you may edit this' 10 ...
-                                                       'number below. If you do not understand, simply press OK.' ] } { } ...
-                           { 'style' 'text' 'string' 'Proposed rank:' } ...
-                           { 'style' 'edit' 'string' num2str(tmprank) } };
-                res = inputgui('uilist', uilist, 'geometry', { [1] [1] [1 1] }, 'geomvert', [6 1 1]);
-                if isempty(res), return; end;
-                tmprank = str2num(res{1});
-                g.options = [g.options  { 'pca' tmprank }];
-            else
-                g.options = [g.options  {'pca' tmprank }]; % automatic for STUDY (batch processing)
-            end;
             disp(['Data rank (' int2str(tmprank) ') is smaller than the number of channels (' int2str(size(tmpdata,1)) ').']);
-            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, g.options{:} );
+            [EEG.icaweights,EEG.icasphere] = runica( tmpdata, 'lrate', 0.001, 'interupt', 'on', 'pca', tmprank, g.options{:} );
         end;
      case 'binica'
         icadefs;
@@ -464,9 +432,9 @@ switch lower(g.icatype)
          case 'jadeop',   EEG.icaweights = jadeop( tmpdata, g.options{:} );
          case 'jade_td_p',EEG.icaweights = jade_td_p( tmpdata, g.options{:} );
          case 'evd24',    EEG.icaweights = evd24( tmpdata, g.options{:} );
-         case 'sobi',     EEG.icawinv    = sobi( tmpdata, g.options{:} );
+         case 'sobi',     EEG.icawinv = sobi( EEG.data, g.options{:} );
          case 'ng_ol',    [tmp EEG.icaweights] = ng_ol( tmpdata, g.options{:} );
-         case 'acsobiro', EEG.icawinv   = acsobiro( tmpdata, g.options{:} );
+         case 'acsobiro', EEG.icawinv = acsobiro( EEG.data, g.options{:} );
          case 'acrsobibpf', EEG.icawinv = acrsobibpf( tmpdata, g.options{:} );
         end;
         clear tmp;
@@ -503,7 +471,7 @@ else
 end;
 
 if nargin < 2 || selectamica
-    com = sprintf('%s = pop_runica(%s, %s);', inputname(1), inputname(1),  vararg2str(g.options) ); %vararg2str({ 'icatype' g.icatype 'dataset' g.dataset 'options' g.options }) );
+    com = sprintf('%s = pop_runica(%s, %s);', inputname(1), inputname(1),  vararg2str(options) ); %vararg2str({ 'icatype' g.icatype 'dataset' g.dataset 'options' g.options }) );
 end;
 
 return;
@@ -519,7 +487,7 @@ function tmprank2 = getrank(tmpdata);
     rankTolerance = 1e-7;
     tmprank2=sum (diag (D) > rankTolerance);
     if tmprank ~= tmprank2
-        fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab\n', tmprank, tmprank2);
+        fprintf('Warning: fixing rank computation inconsistency (%d vs %d) most likely because running under Linux 64-bit Matlab', tmprank, tmprank2);
         tmprank2 = max(tmprank, tmprank2);
     end;
             

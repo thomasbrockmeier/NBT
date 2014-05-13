@@ -86,7 +86,7 @@ classdef nbt_Biomarker
             %set Badchannels to NaN
             if(~isempty(SignalInfo.BadChannels))
                 for i=1:length(biomarkerObject.Biomarkers)
-                    eval(['biomarker=biomarkerObject.' biomarkerObject.Biomarkers{1,i} ';']);
+                    biomarker=biomarkerObject.(biomarkerObject.Biomarkers{1,i});
                     if(iscell(biomarker))
                         for m=1:length(biomarker)
                             if(~iscell(biomarker{m,1}))
@@ -100,7 +100,7 @@ classdef nbt_Biomarker
                     else
                         biomarker(find(SignalInfo.BadChannels)) = NaN;
                     end
-                   eval(['biomarkerObject.' biomarkerObject.Biomarkers{1,i} '=biomarker;']);
+                   biomarkerObject.(biomarkerObject.Biomarkers{1,i})= biomarker;
                end
             end
         end

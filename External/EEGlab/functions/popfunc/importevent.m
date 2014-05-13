@@ -7,8 +7,8 @@
 % Input:
 %   event     - [ 'filename'|array ] Filename of a text file, or name of
 %               Matlab array in the global workspace containing an
-%               array of events in the folowing format: The first column of
-%               the cell array is the type of the event, the second the latency. 
+%               array of events in the folowing format: The first column
+%               is the type of the event, the second the latency. 
 %               The others are user-defined. The function can read 
 %               either numeric or text entries in ascii files.
 %   oldevent  - Old event structure. Used for aligning new events with old
@@ -94,12 +94,12 @@ else                   allfields = {}; end;
 g = finputcheck( varargin, { 'fields'    'cell'     []         {};
                          'skipline'  'integer'  [0 Inf]    0;
                          'indices'   'integer'  [1 Inf]    [];
-                         'append'    'string'   {'yes';'no';'''yes''';'''no''' }         'yes';
+                         'append'    'string'   {'yes' 'no' '''yes''' '''no''' }         'yes';
                          'timeunit'  'real'     []         1;
-                         'event'     { 'cell';'real';'string' }     []    [];
+                         'event'     { 'cell' 'real' 'string' }     []    [];
                          'align'     'integer'  []         NaN;
-                         'optimalign' 'string'  { 'on';'off' }         'on';
-                         'delim'     {'integer';'string'}   []         char([9 32 44])}, 'importevent');
+                         'optimalign' 'string'  { 'on' 'off' }         'on';
+                         'delim'     {'integer' 'string'}   []         char([9 32 44])}, 'importevent');
 if isstr(g), error(g); end;
 if ~isempty(g.indices), g.append = 'yes'; end;
 g.delim = char(g.delim);    
@@ -157,7 +157,6 @@ for curfield = tmpfields'
         case 'event', % load an ascii file
             switch g.append 
                 case { '''no''' 'no' } % ''no'' for backward compatibility
-                      if isstr(g.event) && ~exist(g.event), g.event = evalin('caller', g.event); end;
                       event = load_file_or_array( g.event, g.skipline, g.delim );
                       allfields = g.fields(1:min(length(g.fields), size(event,2)));
                       event = eeg_eventformat(event, 'struct', allfields);
@@ -174,7 +173,6 @@ for curfield = tmpfields'
                 case { '''yes''' 'yes' }
                       % match existing fields
                       % ---------------------
-                      if isstr(g.event) && ~exist(g.event), g.event = evalin('caller', g.event); end;
                       tmparray = load_file_or_array( g.event, g.skipline, g.delim );
                       if isempty(g.indices) g.indices = [1:size(tmparray,1)] + length(event); end;
                       if length(g.indices) ~= size(tmparray,1)
@@ -228,9 +226,13 @@ function array = load_file_or_array( varname, skipline, delim );
                                              % --------------------------
         array = loadtxt( varname, 'skipline', skipline, 'delim', delim, 'blankcell', 'off' );
         
-    else 
-         if ~iscell(varname)
-             array = mattocell(varname);
+    else % variable in the global workspace
+         % --------------------------
+         if isstr(varname)
+             array = evalin('base', varname);
+             if ~iscell(array)
+                 array = mattocell(array, ones(1, size(array,1)), ones(1, size(array,2)));
+             end;    
          else
              array = varname;
          end;
@@ -288,11 +290,7 @@ function event = recomputelatency( event, indices, srate, timeunit, align, oldev
             oldlat = oldlat-oldlat(1);
         end;
         
-        try
-            newfactor = fminsearch('eventalign',1,[],newlat, oldlat);
-        catch 
-            newfactor = fminsearch('eventalign',1,[],[],newlat, oldlat); % Octave
-        end;
+        newfactor = fminsearch('eventalign',1,[],newlat, oldlat);
         fprintf('Best sampling rate ratio found is %1.7f. Below latencies after adjustment\n', newfactor);
         if newfactor > 1.01 | newfactor < 0.99
             disp('Difference is more than 1%, something is wrong; ignoring ratio');
@@ -316,7 +314,7 @@ function event = recomputelatency( event, indices, srate, timeunit, align, oldev
         else
             latfirstevent = event(-align.val+1).latency;
         end;
-        for index = setdiff_bc(indices, 1)
+        for index = setdiff(indices, 1)
             event(index).latency = round(event(index).latency-latfirstevent)*newfactor+latfirstevent;
         end;
         if ~isempty(oldevents)
@@ -326,10 +324,8 @@ function event = recomputelatency( event, indices, srate, timeunit, align, oldev
     else
         % must add one (because first sample point has latency 0
         % ------------------------------------------------------
-        if ~isnan(timeunit)
-            for index = indices
-                event(index).latency = round((event(index).latency+1)*1000*newfactor)/1000;
-            end;
+        for index = indices
+            event(index).latency = round((event(index).latency+1)*1000*newfactor)/1000;
         end;
     end;        
 

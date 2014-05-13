@@ -171,15 +171,13 @@
 %       'titlefont' = Title font size                              {8}
 %
 % Outputs: 
-%       coh         = Matrix (nfreqs,timesout) of coherence magnitudes. Not
-%                     that for continuous data, the function is returning the
-%                     cross-spectrum.
+%       coh         = Matrix (nfreqs,timesout) of coherence magnitudes 
 %       mcoh        = Vector of mean baseline coherence at each frequency
 %                     see 'baseline' parameter.
 %       timesout    = Vector of output latencies (window centers) (ms).
 %       freqsout    = Vector of frequency bin centers (Hz).
-%       cohboot     = Matrix (nfreqs) of upper coher signif. limits
-%                     if 'boottype' is 'trials',  (nfreqs,timesout)
+%       cohboot     = Matrix (nfreqs,2) of [lower;upper] coher signif. limits
+%                     if 'boottype' is 'trials',  (nfreqs,timesout, 2)
 %       cohangle    = (nfreqs,timesout) matrix of coherence angles in radian
 %       allcoher    = single trial coherence
 %       alltfX      = single trial spectral decomposition of X
@@ -353,7 +351,7 @@ for index=1:length(varargin)
 	if iscell(varargin{index}), varargin{index} = { varargin{index} }; end;
 end;
 if ~isempty(varargin)
-    [tmp indices] = unique_bc(varargin(1:2:end)); % keep the first one
+    [tmp indices] = unique(varargin(1:2:end)); % keep the first one
     varargin = varargin(sort(union(indices*2-1, indices*2))); % these 2 line remove duplicate arguments    
     try, g = struct(varargin{:}); 
     catch, error('Argument error in the {''param'', value} sequence'); end; 
@@ -772,53 +770,126 @@ end;
 %%%%%%%%%%%%%%%%%%%%%%%
 % main computation loop
 %%%%%%%%%%%%%%%%%%%%%%%
+if ~strcmp(lower(g.compute), 'c') % MATLAB PART   
+	% -------------------------------------
+	% compute time frequency decompositions
+	% -------------------------------------
+    if length(g.timesout) > 1, tmioutopt = { 'timesout' , g.timesout };
+    else                       tmioutopt = { 'ntimesout', g.timesout };
+    end;
+    spectraloptions = { tmioutopt{:}, 'winsize', g.winsize, 'tlimits', g.tlimits, 'detrend', ...
+                g.detrend, 'subitc', g.subitc, 'wavelet', g.cycles, 'padratio', g.padratio, ...
+                'freqs' g.freqs 'freqscale' g.freqscale 'nfreqs' g.nfreqs };
+    if ~strcmpi(g.type, 'amp') & ~strcmpi(g.type, 'crossspec')
+        spectraloptions = { spectraloptions{:} 'itctype' g.type };
+    end;
 
-% -------------------------------------
-% compute time frequency decompositions
-% -------------------------------------
-if length(g.timesout) > 1, tmioutopt = { 'timesout' , g.timesout };
-else                       tmioutopt = { 'ntimesout', g.timesout };
-end;
-spectraloptions = { tmioutopt{:}, 'winsize', g.winsize, 'tlimits', g.tlimits, 'detrend', ...
-            g.detrend, 'subitc', g.subitc, 'wavelet', g.cycles, 'padratio', g.padratio, ...
-            'freqs' g.freqs 'freqscale' g.freqscale 'nfreqs' g.nfreqs };
-if ~strcmpi(g.type, 'amp') & ~strcmpi(g.type, 'crossspec')
-    spectraloptions = { spectraloptions{:} 'itctype' g.type };
-end;
+    fprintf('\nProcessing first input\n');
+	X = reshape(X, g.frame, g.trials);
+	[alltfX freqs timesout] = timefreq(X, g.srate, spectraloptions{:});
+    fprintf('\nProcessing second input\n');
+	Y = reshape(Y, g.frame, g.trials);
+	[alltfY] = timefreq(Y, g.srate, spectraloptions{:});
+    
+	% ------------------
+	% compute coherences
+	% ------------------
+	tmpprod = alltfX .* conj(alltfY);
+    if nargout > 6 | strcmpi(g.type, 'phasecoher2') |  strcmpi(g.type, 'phasecoher')
+        coherresout = alltfX .* conj(alltfY);
+    end;
+	switch g.type
+	 case 'crossspec',
+	  coherres = alltfX .* conj(alltfY); % no normalization
+      
+	 case 'coher',
+	  coherres = sum(alltfX .* conj(alltfY), 3) ./ sqrt( sum(abs(alltfX).^2,3) .* sum(abs(alltfY).^2,3) );
+     
+     case 'amp'
+      alltfX = abs(alltfX);
+      alltfY = abs(alltfY);
+      coherres = ampcorr(alltfX, alltfY, freqs, timesout, g);
+      g.alpha = NaN;
+      coherresout = [];
+      
+	 case 'phasecoher2',
+	  coherres = sum(coherresout, 3) ./ sum(abs(coherresout),3);
+	 
+     case 'phasecoher',
+	  coherres = sum( coherresout ./ abs(coherresout), 3) / g.trials;
+	end;
+	
+	% -----------------
+	% compute bootstrap
+	% -----------------
+	if ~isempty(g.rboot)
+		Rbootout = g.rboot;
+	else
+		if ~isnan(g.alpha)
+            % getting formula for coherence
+            % -----------------------------
+            switch g.type
+               case 'coher', 
+                inputdata = { alltfX alltfY }; % default
+                formula = 'sum(arg1 .* conj(arg2), 3) ./ sqrt( sum(abs(arg1).^2,3) .* sum(abs(arg2).^2,3) );';
+               case 'amp', % not implemented 
+                inputdata = { abs(alltfX) abs(alltfY) }; % default
+			   case 'phasecoher2',
+                inputdata = { alltfX alltfY }; % default
+			    formula = [ 'tmp = arg1 .* conj(arg2);' ...
+			                'res = sum(tmp, 3) ./ sum(abs(tmp),3);' ];
+               case 'phasecoher',
+                inputdata = { alltfX./abs(alltfX) alltfY./abs(alltfY) };
+			    formula = [ 'mean(arg1 .* conj(arg2),3);' ];
+               case 'crossspec',
+                inputdata = { alltfX./abs(alltfX) alltfY./abs(alltfY) };
+				formulainit = [ 'arg1 .* conj(arg2);' ];
+           	end;
+            
+            % finding baseline for bootstrap
+            % ------------------------------
+            if size(g.baseboot,2) == 1
+                if g.baseboot == 0, baselntmp = [];
+                elseif ~isnan(g.baseline(1))
+                    baselntmp = baseln; 
+                else baselntmp = find(timesout <= 0); % if it is empty use whole epoch
+                end;
+            else
+                baselntmp = [];
+                for index = 1:size(g.baseboot,1)
+                    tmptime   = find(timesout >= g.baseboot(index,1) & timesout <= g.baseboot(index,2));
+                    baselntmp = union(baselntmp, tmptime);
+                end;
+            end;
+            if prod(size(g.baseboot)) > 2
+                fprintf('Bootstrap analysis will use data in multiple selected windows.\n');
+            elseif size(g.baseboot,2) == 2
+                fprintf('Bootstrap analysis will use data in range %3.2g-%3.2g ms.\n', g.baseboot(1),  g.baseboot(2));
+            elseif g.baseboot
+                fprintf('   %d bootstrap windows in baseline (times<%g).\n', length(baselntmp), g.baseboot)
+            end;        
 
-fprintf('\nProcessing first input\n');
-X = reshape(X, g.frame, g.trials);
-[alltfX freqs timesout] = timefreq(X, g.srate, spectraloptions{:});
-fprintf('\nProcessing second input\n');
-Y = reshape(Y, g.frame, g.trials);
-[alltfY] = timefreq(Y, g.srate, spectraloptions{:});
-
-% ------------------
-% compute coherences
-% ------------------
-tmpprod = alltfX .* conj(alltfY);
-if nargout > 6 | strcmpi(g.type, 'phasecoher2') |  strcmpi(g.type, 'phasecoher')
-    coherresout = alltfX .* conj(alltfY);
-end;
-switch g.type
- case 'crossspec',
-  coherres = alltfX .* conj(alltfY); % no normalization
-
- case 'coher',
-  coherres = sum(alltfX .* conj(alltfY), 3) ./ sqrt( sum(abs(alltfX).^2,3) .* sum(abs(alltfY).^2,3) );
-
- case 'amp'
-  alltfX = abs(alltfX);
-  alltfY = abs(alltfY);
-  coherres = ampcorr(alltfX, alltfY, freqs, timesout, g);
-  g.alpha = NaN;
-  coherresout = [];
-
- case 'phasecoher2',
-  coherres = sum(coherresout, 3) ./ sum(abs(coherresout),3);
-
- case 'phasecoher',
-  coherres = sum( coherresout ./ abs(coherresout), 3) / g.trials;
+            if strcmpi(g.boottype, 'shuffle') | strcmpi(g.boottype, 'rand')
+                Rbootout = bootstat(inputdata, formula, 'boottype', g.boottype, 'label', 'coherence', ...
+                        'bootside', 'upper', 'shuffledim', [2 3], 'dimaccu', 2, ...
+                        'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
+            elseif strcmpi(g.boottype, 'randall') 
+                 % randomize phase but do not accumulate over time
+                 % dimension (NOT TESTED)
+                 % note the absence of dimaccu and the shuffledim 3
+                Rbootout = bootstat(inputdata, formula, 'boottype', 'rand', ...
+                        'bootside', 'upper', 'shuffledim', 3, ...
+                        'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
+            else % shuffle only trials (NOT TESTED)
+                 % note the absence of dimaccu and the shuffledim 3
+                Rbootout = bootstat(inputdata, formula, 'boottype', 'shuffle', ...
+                        'bootside', 'upper', 'shuffledim', 3, ...
+                        'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
+            end;                    
+        else Rbootout = [];
+        end;
+        % note that the bootstrap thresholding is actually performed in the display subfunction plotall()
+	end;	
 end;
 
 %%%%%%%%%%
@@ -828,7 +899,7 @@ if size(g.baseline,2) == 2
     baseln = [];
     for index = 1:size(g.baseline,1)
         tmptime   = find(timesout >= g.baseline(index,1) & timesout <= g.baseline(index,2));
-        baseln = union_bc(baseln, tmptime);
+        baseln = union(baseln, tmptime);
     end;
     if length(baseln)==0
         error('No point found in baseline');
@@ -845,78 +916,6 @@ if ~isnan(g.alpha) & length(baseln)==0
     return
 end
 mbase = mean(abs(coherres(:,baseln)'));     % mean baseline coherence magnitude
-
-% -----------------
-% compute bootstrap
-% -----------------
-if ~isempty(g.rboot)
-    Rbootout = g.rboot;
-else
-    if ~isnan(g.alpha)
-        % getting formula for coherence
-        % -----------------------------
-        switch g.type
-           case 'coher', 
-            inputdata = { alltfX alltfY }; % default
-            formula = 'sum(arg1 .* conj(arg2), 3) ./ sqrt( sum(abs(arg1).^2,3) .* sum(abs(arg2).^2,3) );';
-           case 'amp', % not implemented 
-            inputdata = { abs(alltfX) abs(alltfY) }; % default
-           case 'phasecoher2',
-            inputdata = { alltfX alltfY }; % default
-            formula = [ 'tmp = arg1 .* conj(arg2);' ...
-                        'res = sum(tmp, 3) ./ sum(abs(tmp),3);' ];
-           case 'phasecoher',
-            inputdata = { alltfX./abs(alltfX) alltfY./abs(alltfY) };
-            formula = [ 'mean(arg1 .* conj(arg2),3);' ];
-           case 'crossspec',
-            inputdata = { alltfX./abs(alltfX) alltfY./abs(alltfY) };
-            formulainit = [ 'arg1 .* conj(arg2);' ];
-        end;
-
-        % finding baseline for bootstrap
-        % ------------------------------
-        if size(g.baseboot,2) == 1
-            if g.baseboot == 0, baselntmp = [];
-            elseif ~isnan(g.baseline(1))
-                 baselntmp = baseln;
-            else baselntmp = find(timesout <= 0); % if it is empty use whole epoch
-            end;
-        else
-            baselntmp = [];
-            for index = 1:size(g.baseboot,1)
-                tmptime   = find(timesout >= g.baseboot(index,1) & timesout <= g.baseboot(index,2));
-                baselntmp = union_bc(baselntmp, tmptime);
-            end;
-        end;
-        if prod(size(g.baseboot)) > 2
-            fprintf('Bootstrap analysis will use data in multiple selected windows.\n');
-        elseif size(g.baseboot,2) == 2
-            fprintf('Bootstrap analysis will use data in range %3.2g-%3.2g ms.\n', g.baseboot(1),  g.baseboot(2));
-        elseif g.baseboot
-            fprintf('   %d bootstrap windows in baseline (times<%g).\n', length(baselntmp), g.baseboot)
-        end;        
-
-        if strcmpi(g.boottype, 'shuffle') | strcmpi(g.boottype, 'rand')
-            Rbootout = bootstat(inputdata, formula, 'boottype', g.boottype, 'label', 'coherence', ...
-                    'bootside', 'upper', 'shuffledim', [2 3], 'dimaccu', 2, ...
-                    'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
-        elseif strcmpi(g.boottype, 'randall') 
-             % randomize phase but do not accumulate over time
-             % dimension (NOT TESTED)
-             % note the absence of dimaccu and the shuffledim 3
-            Rbootout = bootstat(inputdata, formula, 'boottype', 'rand', ...
-                    'bootside', 'upper', 'shuffledim', 3, ...
-                    'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
-        else % shuffle only trials (NOT TESTED)
-             % note the absence of dimaccu and the shuffledim 3
-            Rbootout = bootstat(inputdata, formula, 'boottype', 'shuffle', ...
-                    'bootside', 'upper', 'shuffledim', 3, ...
-                    'naccu', g.naccu, 'alpha', g.alpha, 'basevect', baselntmp);
-        end;                    
-    else Rbootout = [];
-    end;
-    % note that the bootstrap thresholding is actually performed in the display subfunction plotall()
-end;	
 
 % plot everything
 % ---------------
@@ -1135,7 +1134,7 @@ case 'on'
        set(h(11),'View',[90 90])
        divs = linspace(log(freqs(1)), log(freqs(end)), 10);
        set(gca, 'xtickmode', 'manual');
-       divs = ceil(exp(divs)); divs = unique_bc(divs); % ceil is critical here, round might misalign
+       divs = ceil(exp(divs)); divs = unique(divs); % ceil is critical here, round might misalign
                                                     % out-of border label with within border ticks
        set(gca, 'xtick', divs);       
    end;       

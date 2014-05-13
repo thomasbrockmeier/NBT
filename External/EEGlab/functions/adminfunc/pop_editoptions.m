@@ -88,32 +88,58 @@ if iseeglabdeployed
     filename = fullfile(eeglabexefolder,'eeg_options.txt');
     eegoptionbackup = fullfile(eeglabexefolder,'eeg_optionsbackup.txt');
 else
-    % folder for eeg_options file (also update the eeglab_options)
-    if ~isempty(EEGOPTION_PATH)
-         homefolder = EEGOPTION_PATH;
-    elseif ispc
-         if ~exist('evalc'), eval('evalc = @(x)(eval(x));'); end;
-         homefolder = deblank(evalc('!echo %USERPROFILE%'));
-    else homefolder = '~';
+    W_MAIN = findobj('tag', 'EEGLAB');
+    if ~isempty(W_MAIN)
+        filename = get(W_MAIN, 'userdata');
+        filename = fullfile(filename{3}, 'eeg_options.m'); % this contain the default path to the option file
+    else
+        filename = which('eeg_options.m');
     end;
-    filename = fullfile(homefolder, 'eeg_options.m');
     eegoptionbackup = which('eeg_optionsbackup.m');
 end;
-fid = fopen( filename, 'r+'); % existing file
+fid = fopen( filename, 'r+');
 storelocal = 0;
 if	fid == -1
-    filepath = homefolder;
-    filename = 'eeg_options.m';
-    fid = fopen( fullfile(filepath, filename), 'w'); % new file possible?
-    if fid == -1
-        error([ 'Cannot write into HOME folder: ' homefolder 10 'You may specify another folder for the eeg_option.m' 10 'file by editing the icadefs.m file' ]);
-    end;
-    fclose(fid);
-    delete(fullfile(filepath, filename));
-
-    % read variables values and description
-    % --------------------------------------
-    [ header opt ] = eeg_readoptions( eegoptionbackup ); 
+	if exist(filename) == 2 
+        if length(filename) > 20
+             tmpdispname =  [ '...' filename(end-20:end) ];
+        else tmpdispname = filename;
+        end;
+		if ~popask(['Cannot modify read-only file ''' tmpdispname '''' 10 ...
+                'Do you want to store the option file somewhere else ?' 10 ...
+                'Store the path in a path accessible at startup so EEGLAB' 10 ...
+                'can reuse it' ]);
+			return;
+		else 
+%             warndlg2(strvcat('Warning: you must store the file in a FOLDER always accessible', ...
+%                              'from Matlab (i.e. a folder in the Matlab path) and not necessarily in', ...
+%                              'the local folder. Otherwise, every time you restart EEGLAB, the default', ...
+%                              'EEGLAB options will apply (the path you choose will be added temporarily', ...
+%                              'for this session). Select a folder in the next pop-up file window.'), 'Warning');
+            try
+                filepath = uigetdir('', 'Pick a Directory');
+            catch,
+                [tmp filepath] = uigetdir('*.m', 'Pick a folder', 'eeg_options');
+            end;
+		end;
+        if filepath(1) == 0, return; end;
+        
+        % see if the folder can be written into
+        % -------------------------------------
+        filename = 'eeg_options.m';
+        fid = fopen( fullfile(filepath, filename), 'w');
+        if fid == -1
+            error('Cannot write into this folder');
+        end;
+        fclose(fid);
+        delete(fullfile(filepath, filename));
+        
+        % read variables values and description
+        % --------------------------------------
+        [ header opt ] = eeg_readoptions( eegoptionbackup ); 
+	else
+		error('File not found');
+	end;
 else 
     [filepath filename ext] = fileparts(filename);
     filename  = [ filename ext ];
@@ -159,7 +185,7 @@ if nargin < 2
                            'warndlg2(strvcat(''This option may only be modified when at most one dataset is stored in memory.''));' ];
             
         elseif strcmpi(opt(index).varname, 'option_memmapdata')
-            cb_nomodif = [ 'if get(gcbo, ''value''), warndlg2(strvcat(''Matlab memory is beta, use at your own risk'')); end;' ];
+            cb_nomodif = [ 'if get(gcbo, ''value''), warndlg2(strvcat(''Matlab memory is unstable, use at your own risk'')); end;' ];
             
         else
             cb_nomodif = '';
@@ -247,8 +273,6 @@ for index = 1:length(opt)
     end;
 end;
 fclose(fid);    
-% clear it from the MATLAB function cache
-clear(fullfile(filepath,filename));
 
 % generate the output text command
 % --------------------------------

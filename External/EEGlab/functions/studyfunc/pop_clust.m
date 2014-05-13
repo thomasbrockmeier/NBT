@@ -76,14 +76,6 @@ if isempty(STUDY.etc.preclust)
     error('No pre-clustering information, pre-cluster first!');
 end;
 
-% check that the path to the stat toolbox comes first (conflict
-% with Fieldtrip)
-kmeansPath = fileparts(which('kmeans'));
-if ~isempty(kmeansPath)
-    rmpath(kmeansPath);
-    addpath(kmeansPath);
-end;
-        
 if isempty(varargin) %GUI call
     
     % remove clusters below clustering level (done also after GUI)
@@ -125,17 +117,12 @@ if isempty(varargin) %GUI call
         strclust = [ 'Performing sub-clustering on cluster ''' STUDY.cluster(STUDY.etc.preclust.clustlevel).name '''' ];
     end;
     
-    numClust = ceil(mean(cellfun(@length, { STUDY.datasetinfo.comps })));
-    if numClust > 2, numClustStr = num2str(numClust);
-    else             numClustStr = '10';
-    end;
-    
 	clust_param = inputgui( { [1] [1] [1 1] [1 0.5 0.5 ] [ 1 0.5 0.5 ] }, ...
 	{ {'style' 'text'       'string' strclust 'fontweight' 'bold'  } {} ...
       {'style' 'text'       'string' 'Clustering algorithm:' } ...
       {'style' 'popupmenu'  'string' alg_options  'value' valalg 'tag' 'clust_algorithm'  'Callback' algoptions } ...
       {'style' 'text'       'string' 'Number of clusters to compute:' } ...
-      {'style' 'edit'       'string' numClustStr 'tag' 'clust_num' } {} ...
+      {'style' 'edit'       'string' '2' 'tag' 'clust_num' } {} ...
       {'style' 'checkbox'   'string' 'Separate outliers (enter std.)' 'tag' 'outliers_on' 'value' 0 'Callback' set_outliers 'userdata' 'kmeans' 'enable' 'on' } ...
       {'style' 'edit'       'string' '3' 'tag' 'outliers_std' 'enable' 'off' } {} },...
                             'pophelp(''pop_clust'')', 'Set clustering algorithm -- pop_clust()' , [] , 'normal', [ 1 .5 1 1 1]);
@@ -171,7 +158,6 @@ if isempty(varargin) %GUI call
         if ~isempty(findstr(clus_alg, 'Neural ')), clus_alg = 'neural network'; end;
         
         disp('Clustering ...');
-        
         switch clus_alg
             case { 'kmeans' 'kmeanscluster' }
                 command = sprintf('%s %s%s%s %d %s', command, '''algorithm'',''', clus_alg, ''',''clus_num'', ', clus_num, ',');

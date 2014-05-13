@@ -4,30 +4,23 @@
 %          >> std_chantopo( data, 'key', 'val', ...)
 % Inputs:
 %  data  -  [cell array] mean data for each subject group and/or data
-%           condition. These arrays are usually returned by function
-%           std_erspplot and std_erpplot. For example
+%           condition. For example, to plot mean ERPs from a STUDY 
+%           for epochs of 800 frames in two conditions from three groups 
+%           of 12 subjects:
 %
-%           >> data = { [1x64x12] [1x64x12 }; % 2 groups of 12 subjects, 64 channels
-%           >> std_chantopo(data, 'chanlocs', 'chanlocfile.txt');
+%           >> data = { [800x12] [800x12] [800x12];... % 3 groups, cond 1
+%                       [800x12] [800x12] [800x12] };  % 3 groups, cond 2
+%           >> std_chantopo(erp_ms,data);
 %
-% Scalp map plotting option (mandatory):
-%  'chanlocs'    - [struct] channel location structure
-%
-% Other scalp map plotting options:
-%  'chanlocs'    - [struct] channel location structure
-%  'topoplotopt' - [cell] topoplot options. Default is { 'style', 'both', 
-%                  'shading', 'interp' }. See topoplot help for details.
-%  'ylim'        - [min max] ordinate limits for ERP and spectrum plots
-%                  {default: all available data}
-%  'caxis'       - [min max] same as above
+%           By default, parametric statistics are computed across subjects 
+%           in the three groups. (group,condition) ERP averages are plotted. 
+%           See below and >> help statcond 
+%           for more information about the statistical computations.
 %
 % Optional display parameters:
 %  'datatype'    - ['erp'|'spec'] data type {default: 'erp'}
 %  'titles'      - [cell array of string] titles for each of the subplots. 
 %                  { default: none}
-%  'subplotpos'  - [addr addc posr posc] perform ploting in existing figure.
-%                  Add "addr" rows, "addc" columns and plot the scalp
-%                  topographies starting at position (posr,posc).
 %
 % Statistics options:
 %  'groupstats'  - [cell] One p-value array per group {default: {}}
@@ -39,6 +32,14 @@
 %                  {default: NaN}
 %  'binarypval'  - ['on'|'off'] if a threshold is set, show only significant
 %                  channels as red dots. Default is 'off'.
+%
+% Curve plotting options:
+% 'ylim'         - [min max] ordinate limits for ERP and spectrum plots
+%                  {default: all available data}
+% 'caxis'        - [min max] same as above
+%
+% Scalp map plotting options:
+%  'chanlocs'    - [struct] channel location structure
 %
 % Author: Arnaud Delorme, CERCO, CNRS, 2006-
 %
@@ -54,18 +55,17 @@ if nargin < 2
     return;
 end;
 
-opt = finputcheck( varargin, { 'ylim'        'real'    []              [];
-                               'titles'      'cell'    []              cell(20,20);
-                               'threshold'   'real'    []              NaN;
-                               'chanlocs'    'struct'  []              struct('labels', {});
-                               'groupstats'  'cell'    []              {};
-                               'condstats'   'cell'    []              {};
-                               'interstats'  'cell'    []              {};
-                               'subplotpos'  'integer' []              [];
-                               'topoplotopt' 'cell'    []              { 'style', 'both' };
-                               'binarypval'  'string'  { 'on','off' }  'on';
-                               'datatype'    'string'  { 'ersp','itc','erp','spec' }    'erp';
-                               'caxis'       'real'    []              [] }, 'std_chantopo', 'ignore'); %, 'ignore');
+opt = finputcheck( varargin, { 'ylim'        'real'   []              [];
+                               'titles'      'cell'   []              cell(20,20);
+                               'threshold'   'real'   []              NaN;
+                               'chanlocs'    'struct' []              struct('labels', {});
+                               'groupstats'  'cell'   []              {};
+                               'condstats'   'cell'   []              {};
+                               'interstats'  'cell'   []              {};
+                               'topoplotopt' 'cell'   []              { 'style', 'both', 'shading', 'interp' };
+                               'binarypval'  'string' { 'on' 'off' }  'on';
+                               'datatype'    'string' { 'ersp' 'itc' 'erp' 'spec' }    'erp';
+                               'caxis'       'real'   []              [] }, 'std_chantopo', 'ignore'); %, 'ignore');
 if isstr(opt), error(opt); end;
 if ~isempty(opt.ylim), opt.caxis = opt.ylim; end;
 if isnan(opt.threshold), opt.binarypval = 'off'; end;
@@ -86,15 +86,6 @@ end;
 % ------------------
 if ng > 1 & ~isempty(opt.groupstats), addc = 1; else addc = 0; end;
 if nc > 1 & ~isempty(opt.condstats ), addr = 1; else addr = 0; end;
-if ~isempty(opt.subplotpos), 
-     if strcmpi(opt.transpose, 'on'), opt.subplotpos = opt.subplotpos([2 1 4 3]); end;
-     addr = opt.subplotpos(1);
-     addc = opt.subplotpos(2);
-     posr = opt.subplotpos(4);
-     posc = opt.subplotpos(3);
-else posr = 0;
-     posc = 0;
-end;
 
 % compute significance mask
 % -------------------------
@@ -106,30 +97,30 @@ if ~isnan(opt.threshold(1)) && ( ~isempty(opt.groupstats) || ~isempty(opt.condst
     pinterplot = pinter;
     maxplot = 1;
 else
+    warning off;
     for ind = 1:length(opt.condstats),  pcondplot{ind}  = -log10(opt.condstats{ind}); end;
     for ind = 1:length(opt.groupstats), pgroupplot{ind} = -log10(opt.groupstats{ind}); end;
     if ~isempty(pinter), pinterplot = -log10(pinter); end;
     maxplot = 3;
+    warning on;
 end;
 
 % adjust figure size
 % ------------------
-if isempty(opt.subplotpos)
-    fig = figure('color', 'w');
-    pos = get(fig, 'position');
-    set(fig, 'position', [ pos(1)+15 pos(2)+15 pos(3)/2.5*(nc+addr), pos(4)/2*(ng+addc) ]);
-    pos = get(fig, 'position');
-    if strcmpi(opt.transpose, 'off'), set(gcf, 'position', [ pos(1) pos(2) pos(4) pos(3)]);
-    else                              set(gcf, 'position', pos);
-    end;
-end
+fig = figure('color', 'w');
+pos = get(fig, 'position');
+set(fig, 'position', [ pos(1)+15 pos(2)+15 pos(3)/2.5*(nc+addr), pos(4)/2*(ng+addc) ]);
+pos = get(fig, 'position');
+if strcmpi(opt.transpose, 'off'), set(gcf, 'position', [ pos(1) pos(2) pos(4) pos(3)]);
+else                              set(gcf, 'position', pos);
+end;
 
 % topoplot
 % --------
 tmpc = [inf -inf];
 for c = 1:nc
     for g = 1:ng
-        hdl(c,g) = mysubplot(nc+addr, ng+addc, g + posr + (c-1+posc)*(ng+addc), opt.transpose);
+        hdl(c,g) = mysubplot(nc+addr, ng+addc, g + (c-1)*(ng+addc), opt.transpose);
         if ~isempty(data{c,g})
             tmpplot = double(mean(data{c,g},3));
             if ~all(isnan(tmpplot))
@@ -139,7 +130,7 @@ for c = 1:nc
                 else 
                     caxis(opt.caxis);
                 end;
-                title(opt.titles{c,g}, 'interpreter', 'none'); 
+                title(opt.titles{c,g}); 
             else
                 axis off;
             end;
@@ -150,7 +141,7 @@ for c = 1:nc
         % statistics accross groups
         % -------------------------
         if g == ng & ng > 1 & ~isempty(opt.groupstats)
-            hdl(c,g+1) = mysubplot(nc+addr, ng+addc, g + posr + 1 + (c-1+posc)*(ng+addc), opt.transpose);
+            hdl(c,g+1) = mysubplot(nc+addr, ng+addc, g + 1 + (c-1)*(ng+addc), opt.transpose);
             topoplot( pgroupplot{c}, opt.chanlocs, opt.ptopoopt{:});
             title(opt.titles{c,g+1}); 
             caxis([-maxplot maxplot]);
@@ -173,7 +164,7 @@ for g = 1:ng
     % statistics accross conditions
     % -----------------------------
     if ~isempty(opt.condstats) && nc > 1
-        hdl(nc+1,g) = mysubplot(nc+addr, ng+addc, g + posr + (c+posc)*(ng+addc), opt.transpose);
+        hdl(nc+1,g) = mysubplot(nc+addr, ng+addc, g + c*(ng+addc), opt.transpose);
         topoplot( pcondplot{g}, opt.chanlocs, opt.ptopoopt{:});
         title(opt.titles{nc+1,g}); 
         caxis([-maxplot maxplot]);
@@ -183,7 +174,7 @@ end;
 % statistics accross group and conditions
 % ---------------------------------------
 if ~isempty(opt.condstats) && ~isempty(opt.groupstats) && ng > 1 && nc > 1
-    hdl(nc+1,ng+1) = mysubplot(nc+addr, ng+addc, g + posr + 1 + (c+posc)*(ng+addc), opt.transpose);
+    hdl(nc+1,ng+1) = mysubplot(nc+addr, ng+addc, g + 1 + c*(ng+addr), opt.transpose);
     topoplot( pinterplot, opt.chanlocs, opt.ptopoopt{:});
     title(opt.titles{nc+1,ng+1}); 
     caxis([-maxplot maxplot]);

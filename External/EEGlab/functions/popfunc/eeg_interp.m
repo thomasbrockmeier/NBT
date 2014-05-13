@@ -1,4 +1,4 @@
-    % eeg_interp() - interpolate data channels
+% eeg_interp() - interpolate data channels
 %
 % Usage: EEGOUT = eeg_interp(EEG, badchans, method);
 %
@@ -11,7 +11,7 @@
 %                channel structure (missing channels in the current 
 %                dataset are interpolated).
 %     method   - [string] method used for interpolation (default is 'spherical').
-%                'invdist'/'v4' uses inverse distance on the scalp
+%                'invdist' uses inverse distance on the scalp
 %                'spherical' uses superfast spherical interpolation. 
 %                'spacetime' uses griddata3 to interpolate both in space 
 %                and time (very slow and cannot be interupted).
@@ -46,16 +46,9 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
     EEG = ORIEEG;
     
     if nargin < 3
-        disp('Using spherical interpolation');
         method = 'spherical';
     end;
 
-    % check channel structure
-    tmplocs = ORIEEG.chanlocs;
-    if isempty(tmplocs) || isempty([tmplocs.X])
-        error('Interpolation require channel location');
-    end;
-    
     if isstruct(bad_elec)
         
         % add missing channels in interpolation structure
@@ -63,7 +56,7 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
         lab1 = { bad_elec.labels };
         tmpchanlocs = EEG.chanlocs;
         lab2 = { tmpchanlocs.labels };
-        [tmp tmpchan] = setdiff_bc( lab2, lab1);
+        [tmp tmpchan] = setdiff( lab2, lab1);
         tmpchan = sort(tmpchan);
         if ~isempty(tmpchan)
             newchanlocs = [];
@@ -84,14 +77,14 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
         lab1 = { bad_elec.labels };
         tmpchanlocs = EEG.chanlocs;
         lab2 = { tmpchanlocs.labels };
-        [tmp badchans] = setdiff_bc( lab1, lab2);
+        [tmp badchans] = setdiff( lab1, lab2);
         fprintf('Interpolating %d channels...\n', length(badchans));
         if length(badchans) == 0, return; end;
         goodchans      = sort(setdiff(1:length(bad_elec), badchans));
        
         % re-order good channels
         % ----------------------
-        [tmp1 tmp2 neworder] = intersect_bc( lab1, lab2 );
+        [tmp1 tmp2 neworder] = intersect( lab1, lab2 );
         [tmp1 ordertmp2] = sort(tmp2);
         neworder = neworder(ordertmp2);
         EEG.data = EEG.data(neworder, :, :);
@@ -134,11 +127,10 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
 
     else
         badchans  = bad_elec;
-        goodchans = setdiff_bc(1:EEG.nbchan, badchans);
+        goodchans = setdiff(1:EEG.nbchan, badchans);
         oldelocs  = EEG.chanlocs;
         EEG       = pop_select(EEG, 'nochannel', badchans);
         EEG.chanlocs = oldelocs;
-        disp('Interpolating missing channels...');
     end;
 
     % find non-empty good channels
@@ -146,10 +138,10 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
     origoodchans = goodchans;
     chanlocs     = EEG.chanlocs;
     nonemptychans = find(~cellfun('isempty', { chanlocs.theta }));
-    [tmp indgood ] = intersect_bc(goodchans, nonemptychans);
+    [tmp indgood ] = intersect(goodchans, nonemptychans);
     goodchans = goodchans( sort(indgood) );
     datachans = getdatachans(goodchans,badchans);
-    badchans  = intersect_bc(badchans, nonemptychans);
+    badchans  = intersect(badchans, nonemptychans);
     if isempty(badchans), return; end;
     
     % scan data points
@@ -222,8 +214,7 @@ function EEG = eeg_interp(ORIEEG, bad_elec, method)
             %        [EEG.chanlocs( badchans(c)).radius EEG.chanlocs( badchans(c)).theta]);
             %end;
             tmpdata = reshape(EEG.data, size(EEG.data,1), size(EEG.data,2)*size(EEG.data,3) );
-            if strcmpi(method, 'invdist'), method = 'v4'; end;
-            [Xi,Yi,badchansdata(:,t)] = griddata(ygood, xgood , double(tmpdata(datachans,t)'),...
+            [Xi,Yi,badchansdata(:,t)] = griddata(ygood, xgood , tmpdata(datachans,t)',...
                                                     ybad, xbad, method); % interpolate data                                            
         end
         fprintf('\n');
@@ -332,15 +323,7 @@ g = zeros(length(x(:)),length(xelec));
 %dsafds
 m = 4; % 3 is linear, 4 is best according to Perrin's curve
 for n = 1:7
-    if ismatlab
-        L = legendre(n,EI);
-    else % Octave legendre function cannot process 2-D matrices
-        for icol = 1:size(EI,2)
-            tmpL = legendre(n,EI(:,icol));
-            if icol == 1, L = zeros([ size(tmpL) size(EI,2)]); end;
-            L(:,:,icol) = tmpL;
-        end;
-    end;
+    L = legendre(n,EI);
     g = g + ((2*n+1)/(n^m*(n+1)^m))*squeeze(L(1,:,:));
 end
 g = g/(4*pi);    

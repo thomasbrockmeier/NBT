@@ -93,10 +93,6 @@
 %   'gridscale'       - [int > 32] size (nrows) of interpolated scalp map data matrix {default: 67}
 %   'colormap'        -  (n,3) any size colormap {default: existing colormap}
 %   'circgrid'        - [int > 100] number of elements (angles) in head and border circles {201}
-%   'emarkercolor'    - cell array of colors for 'blank' option.
-%   'plotdisk'        - ['on'|'off'] plot disk instead of dots for electrodefor 'blank' option. Size of disk
-%                       is controled by input values at each electrode. If an imaginary value is provided, 
-%                       plot partial circle with red for the real value and blue for the imaginary one.
 %
 % Dipole plotting options:
 %   'dipole'          - [xi yi xe ye ze] plot dipole on the top of the scalp map
@@ -205,8 +201,6 @@ if ~exist('BACKCOLOR')  % if icadefs.m does not define BACKCOLOR
 end
 whitebk = 'off';  % by default, make gridplot background color = EEGLAB screen background color
 
-persistent warningInterp;
-
 plotgrid = 'off';
 plotchans = [];
 noplot  = 'off';
@@ -254,14 +248,9 @@ VERBOSE = 'off';
 MASKSURF = 'off';
 CONVHULL = 'off';       % dont mask outside the electrodes convex hull
 DRAWAXIS = 'off';
-PLOTDISK = 'off';
 CHOOSECHANTYPE = 0;
 ContourVals = Values;
 PMASKFLAG   = 0;
-COLORARRAY  = { [1 0 0] [0.5 0 0] [0 0 0] };
-%COLORARRAY2 = { [1 0 0] [0.5 0 0] [0 0 0] };
-gb = [0 0];
-COLORARRAY2 = { [gb 0] [gb 1/4] [gb 2/4] [gb 3/4] [gb 1] };
 
 %%%%%% Dipole defaults %%%%%%%%%%%%
 DIPOLE  = [];           
@@ -327,7 +316,7 @@ if nargs == 1
                'angles point to the right hemisphere, and negative to the left.\n',...
                'The model head sphere has a circumference of 2; the vertex\n',...
                '(Cz) has arc_length 0. Locations with arc_length > 0.5 are below\n',...
-               'head center and are plotted outside the head cartoon.\n',...
+               'head center and are plotted outside the head cartoon.\n'....
                'Option plotrad controls how much of this lower-head "skirt" is shown.\n',...
                'Option headrad controls if and where the cartoon head will be drawn.\n',...
                'Option intrad controls how many channels will be included in the interpolation.\n',...
@@ -351,240 +340,229 @@ if isnumeric(loc_file) & loc_file == 0
 end
 
 if nargs > 2
-    if ~(round(nargs/2) == nargs/2)
-        error('Odd number of input arguments??')
+  if ~(round(nargs/2) == nargs/2)
+    error('Odd number of input arguments??')
+  end
+  for i = 1:2:length(varargin)
+    Param = varargin{i};
+    Value = varargin{i+1};
+    if ~isstr(Param)
+      error('Flag arguments must be strings')
     end
-    for i = 1:2:length(varargin)
-        Param = varargin{i};
-        Value = varargin{i+1};
-        if ~isstr(Param)
-            error('Flag arguments must be strings')
-        end
-        Param = lower(Param);
-        switch Param
-            case 'conv'
-                CONVHULL = lower(Value);
-                if ~strcmp(CONVHULL,'on') & ~strcmp(CONVHULL,'off')
-                    error('Value of ''conv'' must be ''on'' or ''off''.');
-                end
-            case 'colormap'
-                if size(Value,2)~=3
-                    error('Colormap must be a n x 3 matrix')
-                end
-                colormap(Value)
-            case 'plotdisk'
-                PLOTDISK = lower(Value);
-                if ~strcmp(PLOTDISK,'on') & ~strcmp(PLOTDISK,'off')
-                    error('Value of ''plotdisk'' must be ''on'' or ''off''.');
-                end
-            case 'intsquare'
-                INTSQUARE = lower(Value);
-                if ~strcmp(INTSQUARE,'on') & ~strcmp(INTSQUARE,'off')
-                    error('Value of ''intsquare'' must be ''on'' or ''off''.');
-                end
-            case 'emarkercolors'
-                COLORARRAY = Value;
-            case {'interplimits','headlimits'}
-                if ~isstr(Value)
-                    error('''interplimits'' value must be a string')
-                end
-                Value = lower(Value);
-                if ~strcmp(Value,'electrodes') & ~strcmp(Value,'head')
-                    error('Incorrect value for interplimits')
-                end
-                INTERPLIMITS = Value;
-            case 'verbose'
-                VERBOSE = Value;
-            case 'nosedir'
-                NOSEDIR = Value;
-                if isempty(strmatch(lower(NOSEDIR), { '+x', '-x', '+y', '-y' }))
-                    error('Invalid nose direction');
-                end;
-            case 'chaninfo'
-                CHANINFO = Value;
-                if isfield(CHANINFO, 'nosedir'), NOSEDIR      = CHANINFO.nosedir; end;
-                if isfield(CHANINFO, 'shrink' ), shrinkfactor = CHANINFO.shrink;  end;
-                if isfield(CHANINFO, 'plotrad') & isempty(plotrad), plotrad = CHANINFO.plotrad; end;
-                if isfield(CHANINFO, 'chantype')
-                    chantype = CHANINFO.chantype;
-                    if ischar(chantype), chantype = cellstr(chantype); end
-                    CHOOSECHANTYPE = 1;
-                end
-            case 'chantype'
-                chantype = Value;
-                CHOOSECHANTYPE = 1;
-                if ischar(chantype), chantype = cellstr(chantype); end
-                if ~iscell(chantype), error('chantype must be cell array. e.g. {''EEG'', ''EOG''}'); end
-            case 'drawaxis'
-                DRAWAXIS = Value;
-            case 'maplimits'
-                MAPLIMITS = Value;
-            case 'masksurf'
-                MASKSURF = Value;
-            case 'circgrid'
-                CIRCGRID = Value;
-                if isstr(CIRCGRID) | CIRCGRID<100
-                    error('''circgrid'' value must be an int > 100');
-                end
-            case 'style'
-                STYLE = lower(Value);
-            case 'numcontour'
-                CONTOURNUM = Value;
-            case 'electrodes'
-                ELECTRODES = lower(Value);
-                if strcmpi(ELECTRODES,'pointlabels') | strcmpi(ELECTRODES,'ptslabels') ...
-                        | strcmpi(ELECTRODES,'labelspts') | strcmpi(ELECTRODES,'ptlabels') ...
-                        | strcmpi(ELECTRODES,'labelpts')
-                    ELECTRODES = 'labelpoint'; % backwards compatability
-                elseif strcmpi(ELECTRODES,'pointnumbers') | strcmpi(ELECTRODES,'ptsnumbers') ...
-                        | strcmpi(ELECTRODES,'numberspts') | strcmpi(ELECTRODES,'ptnumbers') ...
-                        | strcmpi(ELECTRODES,'numberpts')  | strcmpi(ELECTRODES,'ptsnums')  ...
-                        | strcmpi(ELECTRODES,'numspts')
-                    ELECTRODES = 'numpoint'; % backwards compatability
-                elseif strcmpi(ELECTRODES,'nums')
-                    ELECTRODES = 'numbers'; % backwards compatability
-                elseif strcmpi(ELECTRODES,'pts')
-                    ELECTRODES = 'on'; % backwards compatability
-                elseif ~strcmp(ELECTRODES,'off') ...
-                        & ~strcmpi(ELECTRODES,'on') ...
-                        & ~strcmp(ELECTRODES,'labels') ...
-                        & ~strcmpi(ELECTRODES,'numbers') ...
-                        & ~strcmpi(ELECTRODES,'labelpoint') ...
-                        & ~strcmpi(ELECTRODES,'numpoint')
-                    error('Unknown value for keyword ''electrodes''');
-                end
-            case 'dipole'
-                DIPOLE = Value;
-            case 'dipsphere'
-                DIPSPHERE = Value;
-            case 'dipnorm'
-                DIPNORM = Value;
-            case 'diplen'
-                DIPLEN = Value;
-            case 'dipscale'
-                DIPSCALE = Value;
-            case 'contourvals'
-                ContourVals = Value;
-            case 'pmask'
-                ContourVals = Value;
-                PMASKFLAG   = 1;
-            case 'diporient'
-                DIPORIENT = Value;
-            case 'dipcolor'
-                DIPCOLOR = Value;
-            case 'emarker'
-                if ischar(Value)
-                    EMARKER = Value;
-                elseif ~iscell(Value) | length(Value) > 4
-                    error('''emarker'' argument must be a cell array {marker color size linewidth}')
-                else
-                    EMARKER = Value{1};
-                end
-                if length(Value) > 1
-                    ECOLOR = Value{2};
-                end
-                if length(Value) > 2
-                    EMARKERSIZE = Value{3};
-                end
-                if length(Value) > 3
-                    EMARKERLINEWIDTH = Value{4};
-                end
-            case 'emarker2'
-                if ~iscell(Value) | length(Value) > 5
-                    error('''emarker2'' argument must be a cell array {chans marker color size linewidth}')
-                end
-                EMARKER2CHANS = abs(Value{1}); % ignore channels < 0
-                if length(Value) > 1
-                    EMARKER2 = Value{2};
-                end
-                if length(Value) > 2
-                    EMARKER2COLOR = Value{3};
-                end
-                if length(Value) > 3
-                    EMARKERSIZE2 = Value{4};
-                end
-                if length(Value) > 4
-                    EMARKER2LINEWIDTH = Value{5};
-                end
-            case 'shrink'
-                shrinkfactor = Value;
-            case 'intrad'
-                intrad = Value;
-                if isstr(intrad) | (intrad < MINPLOTRAD | intrad > 1)
-                    error('intrad argument should be a number between 0.15 and 1.0');
-                end
-            case 'plotrad'
-                plotrad = Value;
-                if isstr(plotrad) | (plotrad < MINPLOTRAD | plotrad > 1)
-                    error('plotrad argument should be a number between 0.15 and 1.0');
-                end
-            case 'headrad'
-                headrad = Value;
-                if isstr(headrad) & ( strcmpi(headrad,'off') | strcmpi(headrad,'none') )
-                    headrad = 0;       % undocumented 'no head' alternatives
-                end
-                if isempty(headrad) % [] -> none also
-                    headrad = 0;
-                end
-                if ~isstr(headrad)
-                    if ~(headrad==0) & (headrad < MINPLOTRAD | headrad>1)
-                        error('bad value for headrad');
-                    end
-                elseif  ~strcmpi(headrad,'rim')
-                    error('bad value for headrad');
-                end
-            case {'headcolor','hcolor'}
-                HEADCOLOR = Value;
-            case {'contourcolor','ccolor'}
-                CCOLOR = Value;
-            case {'electcolor','ecolor'}
-                ECOLOR = Value;
-            case {'emarkersize','emsize'}
-                EMARKERSIZE = Value;
-            case {'emarkersize1chan','emarkersizemark'}
-                EMARKERSIZE1CHAN= Value;
-            case {'efontsize','efsize'}
-                EFSIZE = Value;
-            case 'shading'
-                SHADING = lower(Value);
-                if ~any(strcmp(SHADING,{'flat','interp'}))
-                    error('Invalid shading parameter')
-                end
-                if strcmpi(SHADING,'interp') && isempty(warningInterp)
-                    warning('Using interpolated shading in scalp topographies prevent to export them as vectorized figures');
-                    warningInterp = 1;
-                end;
-            case 'noplot'
-                noplot = Value;
-                if ~isstr(noplot)
-                    if length(noplot) ~= 2
-                        error('''noplot'' location should be [radius, angle]')
-                    else
-                        chanrad = noplot(1);
-                        chantheta = noplot(2);
-                        noplot = 'on';
-                    end
-                end
-            case 'gridscale'
-                GRID_SCALE = Value;
-                if isstr(GRID_SCALE) | GRID_SCALE ~= round(GRID_SCALE) | GRID_SCALE < 32
-                    error('''gridscale'' value must be integer > 32.');
-                end
-            case {'plotgrid','gridplot'}
-                plotgrid = 'on';
-                gridchans = Value;
-            case 'plotchans'
-                plotchans = Value(:);
-                if find(plotchans<=0)
-                    error('''plotchans'' values must be > 0');
-                end
-                % if max(abs(plotchans))>max(Values) | max(abs(plotchans))>length(Values) -sm ???
-            case {'whitebk','whiteback','forprint'}
-                whitebk = Value;
-            otherwise
-                error(['Unknown input parameter ''' Param ''' ???'])
-        end
+    Param = lower(Param);
+    switch Param
+     case 'conv'
+      CONVHULL = lower(Value);
+      if ~strcmp(CONVHULL,'on') & ~strcmp(CONVHULL,'off')
+       error('Value of ''conv'' must be ''on'' or ''off''.');
+      end
+	 case 'colormap'
+	  if size(Value,2)~=3
+          error('Colormap must be a n x 3 matrix')
+	  end
+	  colormap(Value)
+	 case 'intsquare'
+          INTSQUARE = lower(Value);
+          if ~strcmp(INTSQUARE,'on') & ~strcmp(INTSQUARE,'off')
+             error('Value of ''intsquare'' must be ''on'' or ''off''.');
+          end
+	 case {'interplimits','headlimits'}
+	  if ~isstr(Value)
+          error('''interplimits'' value must be a string')
+	  end
+	  Value = lower(Value);
+	  if ~strcmp(Value,'electrodes') & ~strcmp(Value,'head')
+          error('Incorrect value for interplimits')
+	  end
+	  INTERPLIMITS = Value;
+	 case 'verbose'
+	  VERBOSE = Value;
+	 case 'nosedir'
+	  NOSEDIR = Value;
+      if isempty(strmatch(lower(NOSEDIR), { '+x', '-x', '+y', '-y' }))
+          error('Invalid nose direction');
+      end;
+	 case 'chaninfo'
+	  CHANINFO = Value;
+      if isfield(CHANINFO, 'nosedir'), NOSEDIR      = CHANINFO.nosedir; end;
+      if isfield(CHANINFO, 'shrink' ), shrinkfactor = CHANINFO.shrink;  end;          
+      if isfield(CHANINFO, 'plotrad') & isempty(plotrad), plotrad = CHANINFO.plotrad; end;
+      if isfield(CHANINFO, 'chantype')
+          chantype = CHANINFO.chantype;
+          if ischar(chantype), chantype = cellstr(chantype); end
+          CHOOSECHANTYPE = 1;
+      end
+     case 'chantype'
+      chantype = Value;
+      CHOOSECHANTYPE = 1;
+      if ischar(chantype), chantype = cellstr(chantype); end
+      if ~iscell(chantype), error('chantype must be cell array. e.g. {''EEG'', ''EOG''}'); end
+	 case 'drawaxis'
+	  DRAWAXIS = Value;
+	 case 'maplimits'
+	  MAPLIMITS = Value;
+	 case 'masksurf'
+	  MASKSURF = Value;
+	 case 'circgrid'
+	  CIRCGRID = Value;
+          if isstr(CIRCGRID) | CIRCGRID<100
+            error('''circgrid'' value must be an int > 100');
+          end
+	 case 'style'
+	  STYLE = lower(Value);
+	 case 'numcontour'
+	  CONTOURNUM = Value;
+	 case 'electrodes'
+	  ELECTRODES = lower(Value);
+         if strcmpi(ELECTRODES,'pointlabels') | strcmpi(ELECTRODES,'ptslabels') ...
+              | strcmpi(ELECTRODES,'labelspts') | strcmpi(ELECTRODES,'ptlabels') ...
+              | strcmpi(ELECTRODES,'labelpts') 
+             ELECTRODES = 'labelpoint'; % backwards compatability
+         elseif strcmpi(ELECTRODES,'pointnumbers') | strcmpi(ELECTRODES,'ptsnumbers') ...
+              | strcmpi(ELECTRODES,'numberspts') | strcmpi(ELECTRODES,'ptnumbers') ...
+              | strcmpi(ELECTRODES,'numberpts')  | strcmpi(ELECTRODES,'ptsnums')  ...
+              | strcmpi(ELECTRODES,'numspts') 
+             ELECTRODES = 'numpoint'; % backwards compatability
+         elseif strcmpi(ELECTRODES,'nums') 
+             ELECTRODES = 'numbers'; % backwards compatability
+         elseif strcmpi(ELECTRODES,'pts') 
+             ELECTRODES = 'on'; % backwards compatability
+         elseif ~strcmp(ELECTRODES,'off') ...
+              & ~strcmpi(ELECTRODES,'on') ...
+              & ~strcmp(ELECTRODES,'labels') ...
+              & ~strcmpi(ELECTRODES,'numbers') ...
+              & ~strcmpi(ELECTRODES,'labelpoint') ...
+              & ~strcmpi(ELECTRODES,'numpoint') 
+                error('Unknown value for keyword ''electrodes''');
+         end
+	 case 'dipole'
+	  DIPOLE = Value;
+	 case 'dipsphere'
+	  DIPSPHERE = Value;
+	 case 'dipnorm'
+	  DIPNORM = Value;
+	 case 'diplen'
+	  DIPLEN = Value;
+	 case 'dipscale'
+	  DIPSCALE = Value;
+	 case 'contourvals'
+	  ContourVals = Value;
+	 case 'pmask'
+	  ContourVals = Value;
+      PMASKFLAG   = 1;
+	 case 'diporient'
+	  DIPORIENT = Value;
+	 case 'dipcolor'
+	  DIPCOLOR = Value;
+	 case 'emarker'
+          if ischar(Value)
+	      EMARKER = Value;
+          elseif ~iscell(Value) | length(Value) > 4
+              error('''emarker'' argument must be a cell array {marker color size linewidth}')
+          else
+	      EMARKER = Value{1};
+          end
+          if length(Value) > 1
+	      ECOLOR = Value{2};
+          end
+          if length(Value) > 2
+	      EMARKERSIZE2 = Value{3};
+          end
+          if length(Value) > 3
+	      EMARKERLINEWIDTH = Value{4};
+          end
+	 case 'emarker2' 
+          if ~iscell(Value) | length(Value) > 5
+              error('''emarker2'' argument must be a cell array {chans marker color size linewidth}')
+          end
+	  EMARKER2CHANS = abs(Value{1}); % ignore channels < 0
+          if length(Value) > 1
+	      EMARKER2 = Value{2};
+          end
+          if length(Value) > 2
+	      EMARKER2COLOR = Value{3};
+          end
+          if length(Value) > 3
+	      EMARKERSIZE2 = Value{4};
+          end
+          if length(Value) > 4
+	      EMARKER2LINEWIDTH = Value{5};
+          end
+	 case 'shrink'
+	  shrinkfactor = Value;
+	 case 'intrad'
+	  intrad = Value;
+          if isstr(intrad) | (intrad < MINPLOTRAD | intrad > 1)
+	     error('intrad argument should be a number between 0.15 and 1.0');
+	  end
+	 case 'plotrad'
+	  plotrad = Value;
+          if isstr(plotrad) | (plotrad < MINPLOTRAD | plotrad > 1)
+	     error('plotrad argument should be a number between 0.15 and 1.0');
+	  end
+	case 'headrad'
+	  headrad = Value;
+	  if isstr(headrad) & ( strcmpi(headrad,'off') | strcmpi(headrad,'none') )
+	    headrad = 0;       % undocumented 'no head' alternatives
+	  end
+	  if isempty(headrad) % [] -> none also
+	    headrad = 0;
+	  end
+	  if ~isstr(headrad) 
+	    if ~(headrad==0) & (headrad < MINPLOTRAD | headrad>1)
+	      error('bad value for headrad');
+	    end
+	  elseif  ~strcmpi(headrad,'rim')
+	    error('bad value for headrad');
+	  end
+	 case {'headcolor','hcolor'}
+	  HEADCOLOR = Value;
+	 case {'contourcolor','ccolor'}
+	  CCOLOR = Value;
+	 case {'electcolor','ecolor'}
+	  ECOLOR = Value;
+	 case {'emarkersize','emsize'}
+	  EMARKERSIZE = Value;
+	 case {'emarkersize1chan','emarkersizemark'}
+	  EMARKERSIZE1CHAN= Value;
+	 case {'efontsize','efsize'}
+	  EFSIZE = Value;
+	 case 'shading'
+	  SHADING = lower(Value);
+	  if ~any(strcmp(SHADING,{'flat','interp'}))
+	     error('Invalid shading parameter')
+	  end
+         case 'noplot'
+          noplot = Value;
+          if ~isstr(noplot)
+            if length(noplot) ~= 2
+              error('''noplot'' location should be [radius, angle]')
+            else
+              chanrad = noplot(1);
+              chantheta = noplot(2);
+              noplot = 'on';
+            end
+          end
+         case 'gridscale'
+          GRID_SCALE = Value;
+          if isstr(GRID_SCALE) | GRID_SCALE ~= round(GRID_SCALE) | GRID_SCALE < 32
+               error('''gridscale'' value must be integer > 32.');
+          end
+         case {'plotgrid','gridplot'}
+           plotgrid = 'on';
+           gridchans = Value;
+         case 'plotchans'
+           plotchans = Value(:);
+           if find(plotchans<=0) 
+               error('''plotchans'' values must be > 0');
+           end
+           % if max(abs(plotchans))>max(Values) | max(abs(plotchans))>length(Values) -sm ???
+         case {'whitebk','whiteback','forprint'}
+            whitebk = Value;
+	 otherwise
+	  error(['Unknown input parameter ''' Param ''' ???'])
     end
+  end
 end
 if strcmpi(whitebk, 'on')
     BACKCOLOR = [ 1 1 1 ];
@@ -671,7 +649,7 @@ if ~strcmpi(STYLE,'grid')                     % if not plot grid only
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% channels to plot %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 if ~isempty(plotchans)
-    plotchans = intersect_bc(plotchans, indices);
+    plotchans = intersect(plotchans, indices);
 end;
 if ~isempty(Values) & ~strcmpi( STYLE, 'blank') & isempty(plotchans)
     plotchans = indices;
@@ -686,7 +664,7 @@ end
 
 if CHOOSECHANTYPE, 
     newplotchans = eeg_chantype(loc_file,chantype); 
-    plotchans = intersect_bc(newplotchans, plotchans);
+    plotchans = intersect(newplotchans, plotchans);
 end
 
 %
@@ -702,7 +680,7 @@ if isfield(CHANINFO, 'icachansind') & ~isempty(Values) & length(Values) ~= lengt
         % and ICA components also use a subject of channel
         % we must find the new indices for these channels
         
-        plotchans = intersect_bc(CHANINFO.icachansind, plotchans);
+        plotchans = intersect(CHANINFO.icachansind, plotchans);
         tmpvals   = zeros(1, length(tmpeloc));
         tmpvals(CHANINFO.icachansind) = Values;
         Values    = tmpvals;
@@ -728,8 +706,8 @@ end;
 %%%%%%%%%%%%%%%%%%% remove infinite and NaN values %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 if length(Values) > 1
-    inds          = union_bc(find(isnan(Values)), find(isinf(Values))); % NaN and Inf values
-    plotchans     = setdiff_bc(plotchans, inds);
+    inds          = union(find(isnan(Values)), find(isinf(Values))); % NaN and Inf values
+    plotchans     = setdiff(plotchans, inds);
 end;
 if strcmp(plotgrid,'on')
     plotchans = setxor(plotchans,gchans);   % remove grid chans from head plotchans   
@@ -881,7 +859,7 @@ if ~isempty(EMARKER2CHANS)
        error('emarker2 not defined for style ''blank'' - use marking channel numbers in place of data');
     else % mark1chans and mark2chans are subsets of pltchans for markers 1 and 2
        [tmp1 mark1chans tmp2] = setxor(pltchans,EMARKER2CHANS);
-       [tmp3 tmp4 mark2chans] = intersect_bc(EMARKER2CHANS,pltchans);
+       [tmp3 tmp4 mark2chans] = intersect(EMARKER2CHANS,pltchans);
     end
 end
 
@@ -975,13 +953,9 @@ if ~strcmpi(STYLE,'blank') % if draw interpolated scalp map
   xi = linspace(xmin,xmax,GRID_SCALE);   % x-axis description (row vector)
   yi = linspace(ymin,ymax,GRID_SCALE);   % y-axis description (row vector)
 
-  try
-      [Xi,Yi,Zi] = griddata(inty,intx,double(intValues),yi',xi,'v4'); % interpolate data
-      [Xi,Yi,ZiC] = griddata(inty,intx,double(intContourVals),yi',xi,'v4'); % interpolate data
-  catch,
-      [Xi,Yi,Zi] = griddata(inty,intx,intValues',yi,xi'); % interpolate data (Octave)
-      [Xi,Yi,ZiC] = griddata(inty,intx,intContourVals',yi,xi'); % interpolate data
-  end;
+  [Xi,Yi,Zi] = griddata(inty,intx,intValues,yi',xi,'v4'); % interpolate data
+  [Xi,Yi,ZiC] = griddata(inty,intx,intContourVals,yi',xi,'v4'); % interpolate data
+  
   %
   %%%%%%%%%%%%%%%%%%%%%%% Mask out data outside the head %%%%%%%%%%%%%%%%%%%%%
   %
@@ -1334,11 +1308,7 @@ headx = [[rx(:)' rx(1) ]*(hin+hwidth)  [rx(:)' rx(1)]*hin];
 heady = [[ry(:)' ry(1) ]*(hin+hwidth)  [ry(:)' ry(1)]*hin];
 
 if ~isstr(HEADCOLOR) | ~strcmpi(HEADCOLOR,'none')
-   ringh= patch(headx,heady,ones(size(headx)),HEADCOLOR,'edgecolor',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
-   headx = [rx(:)' rx(1)]*hin;
-   heady = [ry(:)' ry(1)]*hin;
-   ringh= plot(headx,heady);
-   set(ringh, 'color',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
+   ringh= patch(headx,heady,ones(size(headx)),HEADCOLOR,'edgecolor',HEADCOLOR); hold on
 end
 
 % rx = sin(circ); rX = rx(end:-1:1);
@@ -1401,8 +1371,8 @@ end
  set(plotax,'ylim',ylm);                               % copy position and axis limits again
 
 axis equal;
-set(gca, 'xlim', [-0.6 0.6]); set(plotax, 'xlim', [-0.6 0.6]);
-set(gca, 'ylim', [-0.6 0.6]); set(plotax, 'ylim', [-0.6 0.6]);
+set(gca, 'xlim', [-0.525 0.525]); set(plotax, 'xlim', [-0.525 0.525]);
+set(gca, 'ylim', [-0.525 0.525]); set(plotax, 'ylim', [-0.525 0.525]);
  
 %get(textax,'pos')    % test if equal!
 %get(plotax,'pos')
@@ -1521,22 +1491,15 @@ end
 try,
     if strcmpi(STYLE,'blank') % if mark-selected-channel-locations mode
         for kk = 1:length(1:length(x))
-            if abs(Values(kk))
-                if PLOTDISK
-                    angleRatio = real(Values(kk))/(real(Values(kk))+imag(Values(kk)))*360;
-                    radius     = real(Values(kk))+imag(Values(kk));
-                    allradius  = [0.02 0.03 0.037 0.044 0.05];
-                    radius     = allradius(radius);
-                    hp2 = disk(y(kk),x(kk),radius, [1 0 0], 0 , angleRatio, 16);
-                    if angleRatio ~= 360
-                        hp2 = disk(y(kk),x(kk),radius, [0 0 1], angleRatio, 360, 16);
-                    end;
-                else
-                    tmpcolor = COLORARRAY{max(1,min(Values(kk), length(COLORARRAY)))};
-                    hp2 = plot3(y(kk),x(kk),ELECTRODE_HEIGHT,EMARKER,'Color', tmpcolor, 'markersize', EMARKERSIZE1CHAN);
-                    hp2 = disk(y(kk),x(kk),0.04, tmpcolor, 0, 360, 10);
-                end;
-            end;
+            if Values(kk) == 3
+                hp2 = plot3(y(kk),x(kk),ELECTRODE_HEIGHT,EMARKER,'Color', [0 0 0], 'markersize', EMARKERSIZE1CHAN);
+            elseif Values(kk) == 2
+                hp2 = plot3(y(kk),x(kk),ELECTRODE_HEIGHT,EMARKER,'Color', [0.5 0 0], 'markersize', EMARKERSIZE1CHAN);
+            elseif Values(kk) == 1
+                hp2 = plot3(y(kk),x(kk),ELECTRODE_HEIGHT,EMARKER,'Color', [1 0 0], 'markersize', EMARKERSIZE1CHAN);
+            elseif strcmpi(ELECTRODES,'on')
+                hp2 = plot3(y(kk),x(kk),ELECTRODE_HEIGHT,EMARKER,'Color', ECOLOR, 'markersize', EMARKERSIZE);
+            end
         end
     end
 catch, end;
@@ -1637,17 +1600,3 @@ end;
 hold off
 axis off
 return
-
-%
-%%%%%%%%%%%%% Draw circle %%%%%%%%%%%%%%%%%%%%%%%%
-%
-function h2 = disk(X, Y, radius, colorfill, oriangle, endangle, segments)
-	A = linspace(oriangle/180*pi, endangle/180*pi, segments-1);
-    if endangle-oriangle == 360
-     	 A  = linspace(oriangle/180*pi, endangle/180*pi, segments);
-         h2 = patch( [X   + cos(A)*radius(1)], [Y   + sin(A)*radius(end)], zeros(1,segments)+3, colorfill);
-    else A  = linspace(oriangle/180*pi, endangle/180*pi, segments-1);
-         h2 = patch( [X X + cos(A)*radius(1)], [Y Y + sin(A)*radius(end)], zeros(1,segments)+3, colorfill);
-    end;
-    set(h2, 'FaceColor', colorfill);
-	set(h2, 'EdgeColor', 'none'); 

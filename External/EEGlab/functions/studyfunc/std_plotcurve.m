@@ -16,11 +16,7 @@
 %           By default, parametric statistics are computed across subjects 
 %           in the three groups. (group,condition) ERP averages are plotted. 
 %           See below and >> help statcond 
-%           for more information about the statistical computations. For 
-%           plotting multiple channels, use the second dimension. For
-%           example data = { [800x64x12] [800x64x12] } for 12 subjects, 
-%           64 channels and 800 data points. The 'chanlocs' option must be
-%           used as well to specify channel positions.
+%           for more information about the statistical computations.
 %
 % Optional display parameters:
 %  'datatype'    - ['erp'|'spec'] data type {default: 'erp'}
@@ -86,27 +82,26 @@ opt = finputcheck( varargin, { 'ylim'          'real'   []              [];
                                'threshold'     'real'   []              NaN;
                                'unitx'         'string' []              'ms';
                                'chanlocs'      'struct' []              struct('labels', {});
-                               'plotsubjects'  'string' { 'on','off' }  'off';
+                               'plotsubjects'  'string' { 'on' 'off' }  'off';
                                'condnames'     'cell'   []              {}; % just for legends
                                'groupnames'    'cell'   []              {}; % just for legends
                                'groupstats'    'cell'   []              {};
                                'condstats'     'cell'   []              {};
                                'interstats'    'cell'   []              {};
                                'titles'        'cell'   []              {};
-                               'figure'        'string' { 'on','off' }   'on';
-                               'plottopo'      'string' { 'on','off' }   'off';
-                               'plotstderr'    'string' { 'on','off','diff','nocurve' }   'off';
-                               'plotdiff'      'string' { 'on','off' }   'off';
-                               'legend'        { 'string','cell' } { { 'on','off' } {} }  'off';
-                               'datatype'      'string' { 'ersp','itc','erp','spec' }    'erp';
-                               'plotgroups'    'string' { 'together','apart' }  'apart';
-                               'plotmode'      'string' { 'test','condensed' }  'test'; % deprecated
-                               'plotconditions'    'string' { 'together','apart' }  'apart' }, 'std_plotcurve');
+                               'figure'        'string' { 'on' 'off' }   'on';
+                               'plottopo'      'string' { 'on' 'off' }   'off';
+                               'plotstderr'    'string' { 'on' 'off' 'diff' 'nocurve' }   'off';
+                               'plotdiff'      'string' { 'on' 'off' }   'off';
+                               'legend'        { 'string' 'cell' } { { 'on' 'off' } {} }  'off';
+                               'datatype'      'string' { 'ersp' 'itc' 'erp' 'spec' }    'erp';
+                               'plotgroups'    'string' { 'together' 'apart' }  'apart';
+                               'plotmode'      'string' { 'test' 'condensed' }  'test'; % deprecated
+                               'plotconditions'    'string' { 'together' 'apart' }  'apart' }, 'std_plotcurve');
 
 % opt.figure =  'off'; % test by nima
 if isstr(opt), error(opt); end;
 opt.singlesubject = 'off';
-if length(opt.chanlocs) > 1, opt.plottopo = 'on'; end;
 if strcmpi(opt.plottopo, 'on') && size(data{1},3) == 1, opt.singlesubject = 'on'; end;
 %if size(data{1},2) == 1,                              opt.singlesubject = 'on'; end;
 if all(all(cellfun('size', data, 2)==1))               opt.singlesubject = 'on'; end;
@@ -126,12 +121,25 @@ if length(data(:)) == length(opt.legend(:)),
     opt.legend = (opt.legend)';
 end;
 
+% plot
+% ----
+% if strcmpi(opt.figure, 'on'), 
+% else
+%     % all groups and conditions in the same figureopt.chanlocs
+%     ncol = size(tmpdata,3);
+%     if ncol == 1, ncol = size(tmpdata,1); end;
+%     tmpcol = col(colcount:colcount+ncol-1);
+%     colcount = mod(colcount+ncol-1, length(col))+1;
+%     %if strcmpi(opt.plotgroups, 'together') && isempty(tmpdata{1})
+% 
+% end;
+%  
+
 % color matrix
 % -----------------------
 onecol  = { 'b' 'b' 'b' 'b' 'b' 'b' 'b' 'b' 'b' 'b' };
-manycol = { 'b' 'g' 'm' 'c' 'r' 'k' 'y' 'b' 'g' 'c' 'm' 'r' 'b' 'g' 'c' 'm' 'r' 'b' ...
+manycol = { 'b' 'g' 'm' 'c' 'r' 'b' 'g' 'c' 'm' 'r' 'b' 'g' 'c' 'm' 'r' 'b' ...
                    'g' 'c' 'm' 'r' 'b' 'g' 'c' 'm' 'r' 'b' 'g' 'c' 'm' 'r' 'b' 'g' 'c' 'm' };
-modifier = { '-' '--' '-.' ':' '-' '--' '-.' ':' '-' '--' '-.' ':'  };
 if strcmpi(opt.plotgroups, 'together') || strcmpi(opt.plotconditions, 'together') || strcmpi(opt.figure, 'off')
      col = manycol;
 else col = onecol;
@@ -140,26 +148,8 @@ nonemptycell = find(~cellfun(@isempty, data));
 maxdim = max(length(data(:)), size(data{nonemptycell(1)}, ndims(data{nonemptycell(1)})));
 tmpcol = col;
 if strcmpi(opt.plotsubjects, 'off')
-    
-    % both group and conditions together
-    if strcmpi(opt.plotconditions, 'together') && strcmpi(opt.plotgroups, 'together')
-        dim1 = max(size(data));
-        dim2 = min(size(data));
-        coldata = col([1:dim1]);
-        for iRow = 2:dim2
-            coldata(iRow,:) = coldata(1,:);
-            for iCol = 1:dim1
-                coldata{iRow,iCol} = [ coldata{iRow,iCol} modifier{iRow} ];
-            end;
-        end;
-        if size(coldata,1) ~= size(data,1), coldata = coldata'; end;
-    else
-        coldata = manycol;
-    end;
-       
-    %coldata = col(mod([0:maxdim-1], length(col))+1);
-    %coldata = col(mod([0:maxdim-1], length(col))+1);
-    %coldata = reshape(coldata(1:length(data(:))), size(data));
+    coldata = col(mod([0:maxdim-1], length(col))+1);
+    coldata = reshape(coldata(1:length(data(:))), size(data));
 else
     coldata = cell(size(data));
 end;
@@ -193,7 +183,6 @@ end;
 % ------------------
 if ng > 1 && ~isempty(opt.groupstats), addc = 1; else addc = 0; end;
 if nc > 1 && ~isempty(opt.condstats ), addr = 1; else addr = 0; end;
-if length(opt.threshold) > 1, opt.threshold = opt.threshold(1); end;
 if strcmpi(opt.singlesubject, 'off') ...
         && ( ~isempty(opt.condstats) || ~isempty(opt.groupstats) ) % only for curves
     plottag = 0;
@@ -207,15 +196,6 @@ if strcmpi(opt.singlesubject, 'off') ...
     end;
 end;
 
-% resize data to match points x channels x subjects
-% or                   points x    1   x components
-% -------------------------------------------------
-for index = 1:length(data(:))
-    if length(opt.chanlocs) ~= size(data{index},2) && (length(opt.chanlocs) == 1 || isempty(opt.chanlocs))
-        data{index} = reshape(data{index}, [ size(data{index},1) 1 size(data{index},2) ]);
-    end;
-end;
-
 % compute significance mask
 % --------------------------
 if ~isempty(opt.interstats), pinter = opt.interstats{3}; end;
@@ -226,16 +206,18 @@ if ~isnan(opt.threshold) && ( ~isempty(opt.groupstats) || ~isempty(opt.condstats
     pinterplot = pinter;
     maxplot = 1;
 else
+    warning off;
     for ind = 1:length(opt.condstats),  pcondplot{ind}  = -log10(opt.condstats{ind}); end;
     for ind = 1:length(opt.groupstats), pgroupplot{ind} = -log10(opt.groupstats{ind}); end;
     if ~isempty(pinter), pinterplot = -log10(pinter); end;
     maxplot = 3;
+    warning on;
 end;
 
 % labels
 % ------
 if strcmpi(opt.unitx, 'ms'), xlab = 'Time (ms)';      ylab = 'Potential (\muV)';
-else                         xlab = 'Frequency (Hz)'; ylab = 'Power (10*log_{10}(\muV^{2}))'; 
+else                         xlab = 'Frequency (Hz)'; ylab = 'Power (10*log_{10}(\muV^{2}/Hz))'; 
 end;
 if ~isnan(opt.threshold), statopt = {  'xlabel' xlab };
 else                      statopt = { 'logpval' 'on' 'xlabel' xlab 'ylabel' '-log10(p)' 'ylim' [0 maxplot] };
@@ -279,8 +261,13 @@ for c = 1:ncplot
                 for cc = 1:size(data,1)
                     for gg = 1:size(data,2)
                         tmptmpdata = real(data{cc,gg});
-                        if cc == 1 && gg == 1, tmpdata = NaN*zeros([size(tmptmpdata,1) size(tmptmpdata,2) maxdim length(data(:))]); end;
-                        tmpdata(:,:,1:size(tmptmpdata,3),gg+((cc-1)*ng)) = tmptmpdata;
+                        if ndims(tmptmpdata) == 3, 
+                            if cc == 1 && gg == 1, tmpdata = NaN*zeros([size(tmptmpdata,1) size(tmptmpdata,2) maxdim length(data(:))]); end;
+                            tmpdata(:,:,1:size(tmptmpdata,3),gg+((cc-1)*ng)) = tmptmpdata;
+                        else
+                            if cc == 1 && gg == 1, tmpdata = NaN*zeros([size(tmptmpdata,1) maxdim length(data(:))]); end;
+                            tmpdata(:,1:size(tmptmpdata,2),gg+((cc-1)*ng))   = tmptmpdata;
+                        end;
                     end;
                 end;
             elseif ncplot ~= nc % plot conditions together
@@ -288,11 +275,12 @@ for c = 1:ncplot
                 for cc = 1:nc
                     tmptmpdata = real(data{cc,g});
                     if dimreduced_sizediffers
-                        tmptmpdata = nan_mean(tmptmpdata,ndims(tmptmpdata)); % average across last dim
+                        tmptmpdata = nan_mean(tmptmpdata,ndims(tmptmpdata));
                     end;
-                    if cc == 1 && ndims(tmptmpdata) == 3, tmpdata = zeros([size(tmptmpdata)   nc]); end;
-                    if cc == 1 && ndims(tmptmpdata) == 2, tmpdata = zeros([size(tmptmpdata) 1 nc]); end;
-                    tmpdata(:,:,:,cc) = tmptmpdata;
+                    if cc == 1, tmpdata = zeros([size(tmptmpdata) nc]); end;
+                    if ndims(tmptmpdata) == 3, tmpdata(:,:,:,cc) = tmptmpdata; 
+                    else                       tmpdata(:,:,cc)   = tmptmpdata; 
+                    end;
                 end;
             elseif ngplot ~= ng % plot groups together
                 for ind = 2:size(data,2), if any(size(data{1,ind}) ~= size(data{1})), dimreduced_sizediffers = 1; end; end;
@@ -301,12 +289,13 @@ for c = 1:ncplot
                     if dimreduced_sizediffers
                         tmptmpdata = nan_mean(tmptmpdata,ndims(tmptmpdata));
                     end;
-                    if gg == 1 && ndims(tmptmpdata) == 3, tmpdata = zeros([size(tmptmpdata)   ng]); end;
-                    if gg == 1 && ndims(tmptmpdata) == 2, tmpdata = zeros([size(tmptmpdata) 1 ng]); end;
-                    tmpdata(:,:,:,gg) = tmptmpdata;
+                    if gg == 1, tmpdata = zeros([size(tmptmpdata) nc]); end;
+                    if ndims(tmptmpdata) == 3, tmpdata(:,:,:,gg) = tmptmpdata; 
+                    else                       tmpdata(:,:,gg)   = tmptmpdata; 
+                    end;
                 end;
-            else
-                tmpdata = real(data{c,g});
+            else tmpdata = real(data{c,g}); 
+                % nothing
             end;
             
             % plot difference
@@ -332,17 +321,13 @@ for c = 1:ncplot
             % plotting options
             % ----------------
             plotopt = { allx };
-            % -------------------------------------------------------------
-            % tmpdata is of size "points x channels x subject x conditions"
-            % or                 "points x   1   x components x conditions"
-            % -------------------------------------------------------------
-            if ~dimreduced_sizediffers && strcmpi(opt.plotsubjects, 'off') % average accross subjects
-                tmpstd = squeeze(real(std(tmpdata,[],3)))/sqrt(size(tmpdata,3)); tmpstd = squeeze(permute(tmpstd, [2 1 3])); tmpdata = squeeze(real(nan_mean(tmpdata,3)));
+            if ~dimreduced_sizediffers
+                if strcmpi(opt.plottopo, 'on'),
+                    if strcmpi(opt.plotsubjects, 'off') tmpstd = squeeze(real(std(tmpdata,[],3)))/sqrt(size(tmpdata,3)); tmpstd = squeeze(permute(tmpstd, [2 1 3])); tmpdata = squeeze(real(nan_mean(tmpdata,3))); end;
+                elseif strcmpi(opt.plotsubjects, 'off') tmpstd = squeeze(real(std(tmpdata,[],2)))/sqrt(size(tmpdata,2)); tmpstd = squeeze(permute(tmpstd, [2 1 3])); tmpdata = squeeze(real(nan_mean(tmpdata,2))); 
+                end;
             end;
-            tmpdata = squeeze(permute(tmpdata, [2 1 3 4]));
-            % -----------------------------------------------------------------
-            % tmpdata is now of size "channels x points x subject x conditions"
-            % -----------------------------------------------------------------
+            tmpdata = squeeze(permute(tmpdata, [2 1 3]));
             if strcmpi(opt.plottopo, 'on'), highlight = 'background'; else highlight = 'bottom'; end;
             if strcmpi(opt.plotgroups, 'together') &&  isempty(opt.condstats) && ...
                              ~isnan(opt.threshold) && ~isempty(opt.groupstats)
@@ -364,6 +349,20 @@ for c = 1:ncplot
                 plotopt = { plotopt{:} 'legend' opt.legend };
             end;
             
+%             % plot
+%             % ----
+%             if strcmpi(opt.figure, 'on'), 
+%                 tmpcol = col; 
+%             else
+%                 % all groups and conditions in the same figureopt.chanlocs
+%                 ncol = size(tmpdata,3);
+%                 if ncol == 1, ncol = size(tmpdata,1); end;
+%                 tmpcol = col(colcount:colcount+ncol-1);
+%                 colcount = mod(colcount+ncol-1, length(col))+1;
+%                 %if strcmpi(opt.plotgroups, 'together') && isempty(tmpdata{1})
+%                     
+%             end;
+%             
             if strcmpi(opt.plottopo, 'on') && length(opt.chanlocs) > 1
                 metaplottopo(tmpdata, 'chanlocs', opt.chanlocs, 'plotfunc', 'plotcurve', ...
                     'plotargs', { plotopt{:} }, 'datapos', [2 3], 'title', opt.titles{c,g});
@@ -371,7 +370,7 @@ for c = 1:ncplot
                 plotcurve( allx, tmpdata{1}, 'colors', tmpcol, 'maskarray', tmpdata{2}, plotopt{3:end}, 'title', opt.titles{c,g});
             else
                 if isempty(findstr(opt.plotstderr, 'nocurve'))
-                    plotcurve( allx, tmpdata, 'colors', tmpcol, plotopt{2:end}, 'traceinfo', 'on', 'title', opt.titles{c,g});
+                    plotcurve( allx, tmpdata, 'colors', tmpcol, plotopt{2:end}, 'title', opt.titles{c,g});
                 end;
                 if ~strcmpi(opt.plotstderr, 'off') 
                     if ~dimreduced_sizediffers

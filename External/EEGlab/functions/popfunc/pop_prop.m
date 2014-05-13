@@ -18,8 +18,7 @@
 %                If non-zero, this parameter is used to back-propagate
 %                the color of the rejection button.
 %   spectopo_options - [cell array] optional cell arry of options for 
-%                the spectopo() function. 
-%                For example { 'freqrange' [2 50] }
+%                the spectopo() function.
 % 
 % Author: Arnaud Delorme, CNL / Salk Institute, 2001
 %
@@ -149,14 +148,14 @@ if EEG.trials > 1
          offset = nan_mean(EEG.data(chanorcomp,:));
          erp=nan_mean(squeeze(EEG.data(chanorcomp,:,:))')-offset;
          erp_limits=get_era_limits(erp);
-         erpimage( EEG.data(chanorcomp,:)-offset, ones(1,EEG.trials)*10000, EEG.times*1000, ...
+         erpimage( EEG.data(chanorcomp,:)-offset, ones(1,EEG.trials)*10000, EEG.times , ...
                        '', ei_smooth, 1, 'caxis', 2/3, 'cbar','erp','erp_vltg_ticks',erp_limits);   
     else % plot component
          icaacttmp = eeg_getdatact(EEG, 'component', chanorcomp);
          offset = nan_mean(icaacttmp(:));
          era    = nan_mean(squeeze(icaacttmp)')-offset;
          era_limits=get_era_limits(era);
-         erpimage( icaacttmp-offset, ones(1,EEG.trials)*10000, EEG.times*1000, ...
+         erpimage( icaacttmp-offset, ones(1,EEG.trials)*10000, EEG.times , ...
                        '', ei_smooth, 1, 'caxis', 2/3, 'cbar','erp', 'yerplabel', '','erp_vltg_ticks',era_limits);   
     end;
     axes(hhh);
@@ -168,9 +167,8 @@ else
     hh = axes('Units','Normalized', 'Position',[45 62 48 38].*s+q);
     ERPIMAGELINES = 200; % show 200-line erpimage
     while size(EEG.data,2) < ERPIMAGELINES*EEG.srate
-       ERPIMAGELINES = 0.9 * ERPIMAGELINES;
+       ERPIMAGELINES = round(0.9 * ERPIMAGELINES);
     end
-    ERPIMAGELINES = round(ERPIMAGELINES);
     if ERPIMAGELINES > 2   % give up if data too small
         if ERPIMAGELINES < 10
             ei_smooth = 1;

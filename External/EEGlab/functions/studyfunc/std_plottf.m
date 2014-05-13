@@ -45,10 +45,8 @@
 %                  'condensed' -> plot statistics under the curves 
 %                  (when possible); 'normal' -> plot them in separate 
 %                  axes {default: 'normal'}
-%  'freqscale'   - ['log'|'linear'|'auto'] frequency plotting scale. This
-%                  will only change the ordinate not interpolate the data.
-%                  If you change this option blindly, your frequency scale
-%                  might be innacurate {default: 'auto'}
+%  'freqscale'   - ['log'|'linear'|'auto'] frequency plotting scale.
+%                  {default: 'auto'}
 %  'ylim'        - [min max] ordinate limits for ERP and spectrum plots
 %                  {default: all available data}
 %
@@ -89,7 +87,7 @@ if nargin < 2
     return;
 end;
 
-opt = finputcheck( varargin, { 'titles'         'cell'   []              cellfun(@num2str, cell(20,20), 'uniformoutput', false);
+opt = finputcheck( varargin, { 'titles'         'cell'   []              cell(20,20);
                                'caxis'          'real'   []              [];
                                'ersplim'        'real'   []              []; % same as above
                                'itclim'         'real'   []              []; % same as above
@@ -97,16 +95,14 @@ opt = finputcheck( varargin, { 'titles'         'cell'   []              cellfun
                                'tftopoopt'      'cell'   []              {};
                                'threshold'      'real'   []              NaN;
                                'unitx'          'string' []              'ms'; % just for titles
-                               'unitcolor'      'string' {}              'dB';
                                'chanlocs'       'struct' []              struct('labels', {});
-                               'freqscale'      'string' { 'log','linear','auto' }  'auto';
-                               'events'         'cell'   []              {};
+                               'freqscale'      'string' { 'log' 'linear' 'auto' }  'auto';
                                'groupstats'     'cell'   []              {};
                                'condstats'      'cell'   []              {};
                                'interstats'     'cell'   []              {};                               
-                               'maskdata'       'string' { 'on','off' }   'off';
-                               'datatype'       'string' { 'ersp','itc' 'erpim' }    'ersp';
-                               'plotmode'       'string' { 'normal','condensed' }  'normal' }, 'std_plottf');
+                               'maskdata'       'string' { 'on' 'off' }   'off';
+                               'datatype'       'string' { 'ersp' 'itc' }    'ersp';
+                               'plotmode'       'string' { 'normal' 'condensed' }  'normal' }, 'std_plottf');
 if isstr(opt), error(opt); end;
 if all(all(cellfun('size', data, 3)==1))               opt.singlesubject = 'on'; end;
 
@@ -164,7 +160,7 @@ if strcmpi(opt.plotmode, 'condensed')
         caxis( currentHangle, opt.caxis )
     end
     colorbarHandle = cbar;
-    title(colorbarHandle,opt.unitcolor);
+    title(colorbarHandle,'dB');
     axes(currentHangle); 
     return; 
 end;
@@ -184,10 +180,12 @@ if ~isnan(opt.threshold) && ( ~isempty(opt.groupstats) || ~isempty(opt.condstats
     pinterplot = pinter;
     maxplot = 1;
 else
+    warning off;
     for ind = 1:length(opt.condstats),  pcondplot{ind}  = -log10(opt.condstats{ind}); end;
     for ind = 1:length(opt.groupstats), pgroupplot{ind} = -log10(opt.groupstats{ind}); end;
     if ~isempty(pinter), pinterplot = -log10(pinter); end;
     maxplot = 3;
+    warning on;
 end;
 
 % -------------------------------
@@ -205,8 +203,7 @@ end;
 options = { 'chanlocs', opt.chanlocs, 'electrodes', 'off', 'cbar', 'off', ...
             'cmode', 'separate', opt.tftopoopt{:} };
 if strcmpi(opt.freqscale, 'log'), options = { options{:} 'logfreq', 'native' }; end;
-if strcmpi(opt.datatype, 'erpim'), options = { options{:} 'ylabel' 'Trials' }; end;
-        
+
 % adjust figure size
 % ------------------
 fig = figure('color', 'w');
@@ -229,11 +226,8 @@ for c = 1:nc
                 else                        tmpplot(find(pgroupplot{c}(:) == 0)) = 0;
                 end;
             end;
-            if ~isempty(opt.events)
-                 tmpevents = mean(opt.events{c,g},2);
-            else tmpevents = [];
-            end;
-            tftopo( tmpplot, timevals, freqs, 'events', tmpevents, 'title', opt.titles{c,g}, options{:}); 
+
+            tftopo( tmpplot', timevals, freqs, 'title', opt.titles{c,g}, options{:}); 
                 
             if isempty(opt.caxis) && ~isempty(tmpc)
                 warning off;
@@ -254,7 +248,7 @@ for c = 1:nc
         % -------------------------
         if g == ng && ng > 1 && ~isempty(opt.groupstats) && ~isinf(pgroupplot{c}(1)) && ~statmask
             hdl(c,g+1) = mysubplot(nc+addr, ng+addc, g + 1 + (c-1)*(ng+addc), opt.transpose);
-            tftopo( pgroupplot{c}, timevals, freqs, 'title', opt.titles{c,g+1}, options{:});
+            tftopo( pgroupplot{c}', timevals, freqs, 'title', opt.titles{c,g+1}, options{:});
             caxis([-maxplot maxplot]);
         end;
     end;
@@ -265,7 +259,7 @@ for g = 1:ng
     % -----------------------------
     if ~isempty(opt.condstats) && ~isinf(pcondplot{g}(1)) && ~statmask && nc > 1
         hdl(nc+1,g) = mysubplot(nc+addr, ng+addc, g + c*(ng+addc), opt.transpose);
-        tftopo( pcondplot{g}, timevals, freqs, 'title', opt.titles{nc+1,g}, options{:});
+        tftopo( pcondplot{g}', timevals, freqs, 'title', opt.titles{nc+1,g}, options{:});
         caxis([-maxplot maxplot]);
     end;
 end;
@@ -288,7 +282,7 @@ end;
 % ---------------------------------------
 if ~isempty(opt.groupstats) && ~isempty(opt.condstats) && ng > 1 && nc > 1
     hdl(nc+1,ng+1) = mysubplot(nc+addr, ng+addc, g + 1 + c*(ng+addr), opt.transpose);
-    tftopo( pinterplot,  timevals, freqs, 'title', opt.titles{nc+1,ng+1}, options{:});
+    tftopo( pinterplot',  timevals, freqs, 'title', opt.titles{nc+1,ng+1}, options{:});
     caxis([-maxplot maxplot]);
     ylabel('');
 end;    
@@ -296,7 +290,7 @@ end;
 % color bars
 % ----------
 axes(hdl(nc,ng)); 
-cbar_standard(opt.datatype, ng, opt.unitcolor); 
+cbar_standard(opt.datatype, ng); 
 if isnan(opt.threshold) && (nc ~= size(hdl,1) || ng ~= size(hdl,2))
     ind = find(hdl(end:-1:1));
     axes(hdl(end-ind(1)+1));
@@ -315,7 +309,7 @@ function hdl = mysubplot(nr,nc,ind,transp);
 
 % colorbar for ERSP and scalp plot
 % --------------------------------
-function cbar_standard(datatype, ng, unitcolor);
+function cbar_standard(datatype, ng);
     pos = get(gca, 'position');
     tmpc = caxis;
     fact = fastif(ng == 1, 40, 20);
@@ -324,11 +318,7 @@ function cbar_standard(datatype, ng, unitcolor);
     if strcmpi(datatype, 'itc')
          cbar(tmp, 0, tmpc, 10); ylim([0.5 1]);
          title('ITC');
-    elseif strcmpi(datatype, 'erpim')
-        cbar(tmp, 0, tmpc, 5);
-    else
-        cbar(tmp, 0, tmpc, 5);
-        title(unitcolor);
+    else cbar(tmp, 0, tmpc, 5);title('dB');
     end;
     
 
