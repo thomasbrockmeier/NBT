@@ -76,12 +76,10 @@ if(cznotfound)
     CzID = input('Please specify Cz channel number')
 end
 
-%Read chanlocs
-[SignalInfo] = nbt_readlocs(SignalInfo, 'LarsChanlocs.sfp');
 
 %Downsample to 250 Hz
-[Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, 250);
-SignalInfo.converted_sample_frequency = 250;
+%[Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, 250);
+%SignalInfo.converted_sample_frequency = 250;
 %Re-reference to Cz
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_ReRef, Signal,SignalInfo,[],0,CzID);
 % 1. Filter Data
@@ -92,8 +90,7 @@ SignalInfo.BadChannels(NonEEGCh) = 1;
 % 3. Reject Transient artifacts
 [Signal, SignalInfo] = nbt_AutoRejectTransient(Signal,SignalInfo,NonEEGCh);
 % 4. Run ICA
-[Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_filterbeforeICA, Signal, SignalInfo, [], 0, '',4,0);
-disp('break')
+[Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_filterbeforeICA, Signal, SignalInfo, [], 0, '',4,-1);
 % 5. Reject ICA compoents
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_AutoRejectICA,Signal, SignalInfo, [],0, EyeCh,0);
 % 6. Average Ref

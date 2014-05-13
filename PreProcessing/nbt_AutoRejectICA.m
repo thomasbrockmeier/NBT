@@ -25,10 +25,10 @@ if ~exist('eyechannels','var') || isempty(eyechannels)
 end
 if isempty(varargin)
     lag=2;
-    thr = 2.5;
+    thr = 3.5;
 elseif ~isempty(varargin) && length(varargin) == 1
     lag = varargin{1}; % get epoch length
-    thr = 2.5;
+    thr = 3.5;
 elseif ~isempty(varargin) && length(varargin) == 2
     lag = varargin{1}; % get epoch length
     thr = varargin{2}; % get faster z-score threshold
@@ -172,7 +172,7 @@ soglia_SED=nbt_EM(SED);
 end
 soglia_SAD=nbt_EM(SAD);
 soglia_K=nbt_EM(meanK);
-soglia_V=nbt_EM(nuovaV);
+soglia_V=nbt_EM(nbt_removeMaxMin(nuovaV));
 soglia_DV = nbt_EM(diff_var);
 soglia_K = nbt_EM(meanK);
 

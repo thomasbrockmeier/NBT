@@ -197,7 +197,7 @@ end
 %--- interface
 if nargs <= 1
     scrsz = get(0,'ScreenSize');
-    GroupSelection = figure('Units','pixels', 'name','Define Group' ,'numbertitle','off','Position',[390.0000  456.7500  1000  320], ...
+    GroupSelection = figure('Units','pixels', 'name','NBT: Define Group' ,'numbertitle','off','Position',[390.0000  456.7500  1000  320], ...
         'MenuBar','none','NextPlot','new','Resize','off');
     nbt_movegui(GroupSelection);
 
@@ -245,7 +245,7 @@ if nargs <= 1
         'Max',10,'Min',1, 'String', readage,'Value',[]);
 %     text_ui6= uicontrol(GroupSelection,'Style','text','Position',[560 270 100 20],'string','   Age   ','fontsize',12);
     
-    text_ui7= uicontrol(GroupSelection,'Style','text','Position',[700 70 200 20],'string','Insert a name for the Group','fontsize',10);
+    text_ui7= uicontrol(GroupSelection,'Style','text','Position',[700 70 200 20],'string','Write a name for the Group','fontsize',10);
     text_ui8= uicontrol(GroupSelection,'Style','edit','Position',[700 60 200 20],'string','','fontsize',10);
     
     plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 40 40 40], 'String','OK','callback', @groupdefinition);
@@ -395,6 +395,11 @@ end
             end
         end
         group_name = get(text_ui8,'String');
+        if(isempty(group_name))
+            set(plotButton,'String', 'OK');
+            disp('Please write a group name to continue');
+            return
+        end
         selection.group_name = group_name;
         %         selection.con = con;
         %         selection.sub = sub;

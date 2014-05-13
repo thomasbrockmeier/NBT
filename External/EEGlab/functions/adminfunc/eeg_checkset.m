@@ -340,14 +340,21 @@ for inddataset = 1:length(ALLEEG)
                     % check events (slow)
                     % ------------
                     if isfield(EEG.event, 'type')
-                        tmpevent = EEG.event;
-                        if ~all(cellfun(@ischar, { tmpevent.type })) && ~all(cellfun(@isnumeric, { tmpevent.type }))
+                        eventInds = arrayfun(@(x)isempty(x.type), EEG.event);
+                        if any(eventInds)
+                            if all(arrayfun(@(x)isnumeric(x.type), EEG.event))
+                                 for ind = find(eventInds), EEG.event(ind).type = NaN; end;
+                            else for ind = find(eventInds), EEG.event(ind).type = 'empty'; end;
+                            end;
+                        end;
+                        if ~all(arrayfun(@(x)ischar(x.type), EEG.event)) && ~all(arrayfun(@(x)isnumeric(x.type), EEG.event))
                             disp('Warning: converting all event types to strings');
                             for ind = 1:length(EEG.event)
                                 EEG.event(ind).type = num2str(EEG.event(ind).type);
                             end;
                             EEG = eeg_checkset(EEG, 'eventconsistency');
                         end;
+                            
                     end;
                     
                     % remove the events which latency are out of boundary

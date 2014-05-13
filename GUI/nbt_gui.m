@@ -81,24 +81,22 @@ if(isempty(varargin))
     
     try
         filepath = fileparts(which('NBT.m'));
-        filename = dir(fullfile(filepath, 'Contents.m'));
+        filename = fullfile(filepath, 'Contents.m');
         
         if isempty(filename), throwerro; end;
         
-        fid = fopen(filename.name, 'r');
+        fid = fopen(filename, 'r');
         fgetl(fid);
         versionline = fgetl(fid);
-	NBT_version = [versionline(11:end)];
+        NBT_version = [versionline(11:end)];
         fclose(fid);
     catch
-        NBT_version= 'NBT';
+        NBT_version= 'NBT www.nbtwiki.net';
     end
     
     %% Make menu
-    %'Position',[200 400 500 0.5]
-    %'position',[390.0000  456.7500  500   88.5000]
     if(standalone)
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 800  88.5000], ...
+    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  88.5000], ...
         'MenuBar','none','NextPlot','new','Resize','off');
    
    %make sure the GUI is onscreen
@@ -110,7 +108,7 @@ if(isempty(varargin))
             nbt_set_name([])
         end
     else
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500  800  0.5], ...
+    NBTMenu = figure('Units','pixels', 'name',['Undocked NBT (EEGLAB) ' NBT_version],'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500  810  0.5], ...
         'MenuBar','none','NextPlot','new','Resize','off');
         
     end
@@ -240,8 +238,8 @@ else
     ICAsub = uimenu(PreProc, 'label', '&ICA');
     uimenu(ICAsub,'label', 'Run ICA on good channels only','callback',['[ALLEEG EEG CURRENTSET]= eeg_store(ALLEEG, EEG,CURRENTSET);EEG = nbt_filterbeforeICA(EEG, ''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4);[ALLEEG EEG CURRENTSET]= eeg_store(ALLEEG, EEG,CURRENTSET); eeglab redraw']);
     uimenu(ICAsub,'label', 'Filter ICA components', 'callback',['EEG = nbt_rejectICAcomp(EEG,''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4,1);'],'Tag','NBTICAfilter');
-    uimenu(ICAsub,'label', 'Reject filtered ICA components','callback',['EEG = nbt_rejectICAcomp(EEG,[],[],2);'],'Enable','off','Tag','NBTICAreject');
-    uimenu(ICAsub,'label', 'Auto reject ICA components', 'callback',['EEG  = nbt_AutoRejectICA(EEG,[],1);'],'Enable','on');
+    uimenu(ICAsub,'label', 'Reject filtered ICA components','callback',['EEG = nbt_rejectICAcomp(EEG,[],[],2);[ALLEEG, EEG] = eeg_store(ALLEEG, EEG, CURRENTSET);'],'Enable','off','Tag','NBTICAreject');
+    uimenu(ICAsub,'label', 'Auto reject ICA components', 'callback',['EEG  = nbt_AutoRejectICA(EEG,[],1);[ALLEEG, EEG] = eeg_store(ALLEEG, EEG,CURRENTSET);'],'Enable','on');
     uimenu(ICAsub,'label', 'Mark ICA components as bad', 'callback','EEG=nbt_MarkICBadChannel(EEG);');
     
     VisSub=uimenu( NBTMenu, 'label', '&Visualization tools');
@@ -249,9 +247,7 @@ else
     uimenu(VisSub,'label', 'Plot bad channels', 'callback', 'nbt_plotBadChannels(EEG)');
     
     Stat = uimenu(NBTMenu, 'label', '&Biomarker statistics');
-    uimenu(Stat, 'label', ' &Within a group','callback', 'nbt_stat_group;');
-    uimenu(Stat, 'label', ' &Between two conditions','callback', 'nbt_stat_conditions;');
-    uimenu(Stat, 'label', ' &Between two groups','callback', 'nbt_stat_groups;');
+    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectrunstatistics;');
     
     
     nbt_commonMenu
@@ -278,7 +274,7 @@ end
         uimenu(HelpMenu, 'label','NBT wiki', 'callback','web http://www.nbtwiki.net -browser');
         uimenu(HelpMenu, 'label','Tutorials', 'callback','web http://www.nbtwiki.net/doku.php?id=tutorial:start -browser');
         uimenu(HelpMenu, 'label','Documentation', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdocumentation:start -browser');
-        uimenu(HelpMenu, 'label','How to contribute', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdev:start -browser');
+        uimenu(HelpMenu, 'label','Get involved', 'callback','web http://www.nbtwiki.net/doku.php?id=nbtdev:start -browser');
         uimenu(HelpMenu, 'label','Copyrights','Separator', 'on',  'callback','web http://www.nbtwiki.net/doku.php?id=copyrights -browser');
         uimenu(HelpMenu, 'label', 'About NBT','Separator', 'on', 'callback',['help NBT']);
     end

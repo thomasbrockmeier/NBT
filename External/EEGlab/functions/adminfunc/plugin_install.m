@@ -1,22 +1,42 @@
-function result = plugin_install(zipfilelink, name, version);
+function result = plugin_install(zipfilelink, name, version, forceInstall);
 
+    if nargin < 4, forceInstall = false; end;
     result = 1;
 
     % get plugin path
     % ---------------
-    version(find(version == '.'))  = '_';
+    %version(find(version == '.'))  = '_';
     generalPluginPath = fullfile(fileparts(which('eeglab.m')), 'plugins');
     newPluginPath     = fullfile(generalPluginPath, [ name version ]);
 
     % download plugin
     % ---------------
-    disp([ 'Downloading ' zipfilelink ]);
-    [tmp zipfile ext] = fileparts(zipfilelink);
-    zipfile = [ zipfile ext ];
+    zipfile = 'tmp.zip';
+%     [tmp zipfile ext] = fileparts(zipfilelink);
+%     zipfile = [ zipfile ext ];
+%     equalPos = find(zipfile == '=');
+%     if ~isempty(equalPos) zipfile  = zipfile(equalPos(end)+1:end); end;
+    depth = length(dbstack);
     try
-        urlwrite( zipfilelink, fullfile(generalPluginPath, zipfile));
+        pluginSize = plugin_urlsize(zipfilelink);
+        pluginSizeStr = num2str(round(pluginSize/100000)/10);
+        if pluginSize > 500000 && depth > 1 && ~forceInstall
+             res = questdlg2( [ 'Extension ' name ' size is ' pluginSizeStr 'MB. Are you sure' 10 ...
+                                'you want to download this extension?' ], 'Warning', 'No', 'Yes', 'Yes');
+             if strcmpi(res, 'no'), fprintf([ 'Skipping ' name ' extension instalation\n' ]); result = -1; return; end;               
+        end;
     catch,
-        warndlg2( [ 'Could download ' zipfile ' in plugin folder.' 10 'Host site might be unavailable or you do not have' 10 'permission to write in the EEGLAB plugin folder' ]);
+        warndlg2( [ 'Could not download extension. Host site might be' 10 'unavailable or you do not have permission' 10 'to write in the EEGLAB plugin folder' ]);
+        result = -1;
+        return;
+    end;
+    disp([ 'Downloading extension ' name '(' pluginSizeStr 'Mb)...' ]);
+    
+    try
+        plugin_urlread(['http://sccn.ucsd.edu/eeglab/plugin_uploader/plugin_increment.php?plugin=' name '&version=' version ]);
+        plugin_urlwrite( zipfilelink, fullfile(generalPluginPath, zipfile));
+    catch,
+        warndlg2( [ 'Could not download extension. Host site might be' 10 'unavailable or you do not have permission' 10 'to write in the EEGLAB plugin folder' ]);
         result = -1;
         return;
     end;
@@ -26,11 +46,16 @@ function result = plugin_install(zipfilelink, name, version);
     if ~exist(newPluginPath)
         mkdir(newPluginPath);
     else
-        warndlg2( [ 'Plugin folder already exist ' newPluginPath 10 'Remove it manually before installing plugin' ]);
+        msg = [ 'Extension folder already exist ' newPluginPath 10 'Remove it manually before installing extension' ];
+        if ~forceInstall
+            warndlg2(msg);
+        else
+            disp(msg);
+        end;
         result = -1;
         return;
     end;
-    disp([ 'Unzipping plugin file ' zipfile ]);
+    disp([ 'Unzipping extension file... ']);
     unzip(fullfile(generalPluginPath, zipfile), newPluginPath);
     
     disp('Cleaning up zip file...');
@@ -52,5 +77,5 @@ function result = plugin_install(zipfilelink, name, version);
             end;
         end;
     end;
-    fprintf('Plugin %s version %s now installed\n', name, version); 
+    fprintf('Extension %s version %s now installed\n', name, version); 
     

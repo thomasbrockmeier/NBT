@@ -74,6 +74,12 @@ if strcmp(char(statfunc),'nanmedian')
     s.c1 = [];
     s.meanc1 = statistic(B,2);
     nbt_plot_group(Group,s,biom,regions,unit);
+elseif strcmp(char(statfunc),'nanmean')
+    s.C = [];
+    s.p = [];
+    s.c1 = [];
+    s.meanc1 = statistic(B,2);
+    nbt_plot_group(Group,s,biom,regions,unit);
 elseif strcmp(char(statfunc),'lillietest')
     for i = 1:nchans_o_nregs
         [h,p(i),statvalues(i)] = lillietest(B(i,:));

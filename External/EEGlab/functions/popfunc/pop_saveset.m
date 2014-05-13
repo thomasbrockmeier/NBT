@@ -19,8 +19,8 @@
 %                and the transposed data in a binary float '.dat' file.
 %                By default the option from the eeg_options.m file is 
 %                used.
-%   'version' - ['6'|'7.3'] save Matlab file as version 6 (default) or
-%               '7.3' (large files).
+%   'version' - ['6'|'7.3'] save Matlab file as version 6 or
+%               '7.3' (default; as defined in eeg_option file).
 %
 % Outputs:
 %   EEG        - saved dataset (after extensive syntax checks)
@@ -96,9 +96,11 @@ end;
 
 % decode input parameters
 % -----------------------
+eeglab_options;
+defaultSave = fastif(option_saveversion6, '6', '7.3');
 g = finputcheck(options,  { 'filename'   'string'   []     '';
                             'filepath'   'string'   []     '';
-                            'version'    'string'   { '6','7.3' } '6';
+                            'version'    'string'   { '6','7.3' } defaultSave;
                             'check'      'string'   { 'on','off' }     'off';
                             'savemode'   'string'   { 'resave','onefile','twofiles','' } '' });
 if isstr(g), error(g); end;
@@ -121,9 +123,8 @@ end
 
 % check for change in saving mode
 % -------------------------------
-eeglab_options;
 if length(EEG) == 1
-    if strcmpi(g.savemode, 'resave') & isfield(EEG, 'datfile') & option_savematlab
+    if strcmpi(g.savemode, 'resave') && isfield(EEG, 'datfile') && ~option_savetwofiles
         disp('Note that your memory options for saving datasets does not correspond')
         disp('to the format of the datasets on disk (ignoring memory options)')
 % $$$         but = questdlg2(strvcat('This dataset has an associated ''.dat'' file, but since you have', ...
@@ -138,7 +139,7 @@ if length(EEG) == 1
 % $$$         end;
 % $$$         g.filename = EEG.filename;
 % $$$         g.filepath = EEG.filepath;
-    elseif strcmpi(g.savemode, 'resave') & ~isfield(EEG, 'datsave(file') & ~option_savematlab
+    elseif strcmpi(g.savemode, 'resave') && ~isfield(EEG, 'datfile') && option_savetwofiles
         disp('Note that your memory options for saving datasets does not correspond')
         disp('to the format of the datasets on disk (ignoring memory options)')
 % $$$         but = questdlg2(strvcat('This dataset does not have yet an associated ''.dat'' file, but since you have', ...
@@ -239,12 +240,13 @@ try,
             EEG.datfile = [];
         end;
     end;
-    
-    if str2num(v(1)) > 6, 
+
+    try
         if strcmpi(g.version, '6') save(fullfile(EEG.filepath, EEG.filename), '-v6',   '-mat', 'EEG');
         else                       save(fullfile(EEG.filepath, EEG.filename), '-v7.3', '-mat', 'EEG');
         end;
-    else                  save(fullfile(EEG.filepath, EEG.filename), '-mat', 'EEG');
+    catch
+        save(fullfile(EEG.filepath, EEG.filename), '-mat', 'EEG');
     end;
     if save_as_dat_file & strcmpi( no_resave_dat, 'no' )
         EEG.data = tmpdata;
@@ -252,28 +254,28 @@ try,
     
     % save ICA activities
     % -------------------
-    icafile = fullfile(EEG.filepath, [EEG.filename(1:end-4) '.icafdt' ]);
-    if isempty(EEG.icaweights) & exist(icafile)
-        disp('ICA activation file found on disk, but no more ICA activities. Deleting file.');
-        delete(icafile);
-    end;
-    if ~option_saveica & exist(icafile)
-        disp('Options indicate not to save ICA activations. Deleting ICA activation file.');
-        delete(icafile);
-    end;
-    if option_saveica & ~isempty(EEG.icaweights)
-        if ~exist('tmpdata')
-            TMP = eeg_checkset(EEG, 'loaddata');
-            tmpdata = TMP.data;
-        end;
-        if isempty(tmpica)
-             tmpica2 = (EEG.icaweights*EEG.icasphere)*tmpdata(EEG.icachansind,:);
-        else tmpica2 = tmpica;
-        end;
-        tmpica2 = reshape(tmpica2, size(tmpica2,1), size(tmpica2,2)*size(tmpica2,3));
-        floatwrite( tmpica2, icafile, 'ieee-le');
-        clear tmpica2;
-    end;
+%     icafile = fullfile(EEG.filepath, [EEG.filename(1:end-4) '.icafdt' ]);
+%     if isempty(EEG.icaweights) & exist(icafile)
+%         disp('ICA activation file found on disk, but no more ICA activities. Deleting file.');
+%         delete(icafile);
+%     end;
+%     if ~option_saveica & exist(icafile)
+%         disp('Options indicate not to save ICA activations. Deleting ICA activation file.');
+%         delete(icafile);
+%     end;
+%     if option_saveica & ~isempty(EEG.icaweights)
+%         if ~exist('tmpdata')
+%             TMP = eeg_checkset(EEG, 'loaddata');
+%             tmpdata = TMP.data;
+%         end;
+%         if isempty(tmpica)
+%              tmpica2 = (EEG.icaweights*EEG.icasphere)*tmpdata(EEG.icachansind,:);
+%         else tmpica2 = tmpica;
+%         end;
+%         tmpica2 = reshape(tmpica2, size(tmpica2,1), size(tmpica2,2)*size(tmpica2,3));
+%         floatwrite( tmpica2, icafile, 'ieee-le');
+%         clear tmpica2;
+%     end;
     
 catch,
     rethrow(lasterror);
@@ -308,7 +310,7 @@ EEG.icaact = tmpica;
 if data_on_disk
     EEG.data = 'in set file';
 end;
-if isnumeric(EEG.data) & v(1) < 7
+if isnumeric(EEG.data) && v(1) < 7
     EEG.data   = double(reshape(tmpdata, EEG.nbchan,  EEG.pnts, EEG.trials));
 end;
 EEG.saved = 'justloaded';

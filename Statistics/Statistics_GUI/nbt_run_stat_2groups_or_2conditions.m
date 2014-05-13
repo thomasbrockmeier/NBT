@@ -68,8 +68,14 @@ s.group_name=evalin('caller','group_name');
 nchans_o_nregs = size(B1,1);
 s.biom_name = biom;
 
-if strcmp(char(statfunc),'nanmedian')
+if strcmp(char(statname),'nanmedian') %this should better be a switch>.
     warning('This test is not design for multiple groups');
+elseif strcmp(char(statname),'nanmean')
+    warning('This test is not design for multiple groups');
+elseif strcmp(char(statname),'dotplotmedian')
+    nbt_DotPlot(figure, 0.1, 0.025, 0, @median, {Group1.selection.group_name; Group2.selection.group_name; 'Biomarker value'},'',B1,1:size(B1,2), 1:size(B1,1), B2, 1:size(B2,2),1:size(B2,1));
+elseif strcmp(char(statname),'dotplotmean')
+     nbt_DotPlot(figure, 0.1, 0.025, 0, @mean, {Group1.selection.group_name; Group2.selection.group_name; 'Biomarker value'},'',B1,1:size(B1,2), 1:size(B1,1), B2, 1:size(B2,2),1:size(B2,1))
 elseif strcmp(char(statfunc),'lillietest')
     warning('This test is not design for multiple groups');
 elseif strcmp(char(statfunc),'swtest')

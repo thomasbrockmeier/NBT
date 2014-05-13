@@ -96,11 +96,12 @@ index1nm = (Smax-S)/Smax;
 %% 2. Index2: based on the conditional probability
 Nint = 10;
 int_m = linspace(0,2*pi*m,Nint);
+mod_phase1 = mod(phase1,2*pi*m);
 for j = 1:Nint-1
         int1 = int_m(j);
         int2 = int_m(j+1);
 
-        [theta index] = find(mod(phase1,2*pi*m)<=int2 & mod(phase1,2*pi*m)>=int1);
+        [theta index] = find(mod_phase1 <= int2 & mod_phase1 >= int1);
         M = length(theta);
         ni = mod(phase2(index),2*pi*n);
         sum(exp(i*ni/n))/M;

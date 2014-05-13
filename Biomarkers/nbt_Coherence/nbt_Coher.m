@@ -49,7 +49,8 @@
 
 classdef nbt_Coher < nbt_Biomarker  
     properties  
-        Coherence  
+        Coherence
+        ICoherence
         interval
     end
     methods
@@ -57,14 +58,14 @@ classdef nbt_Coher < nbt_Biomarker
             if nargin == 0
                 NumChannels = 1;
             end
-            Coherence = nan(NumChannels,NumChannels);     
             % Define coherence matrix values
-            BiomarkerObject.Coherence = Coherence;  
+            BiomarkerObject.Coherence = nan(NumChannels, NumChannels);
+            BiomarkerObject.ICoherence = nan(NumChannels, NumChannels);
             BiomarkerObject.interval =  nan(1,2); 
             % Define fields for additional information           
             BiomarkerObject.DateLastUpdate = datestr(now);
             BiomarkerObject.PrimaryBiomarker = 'Coherence';
-            BiomarkerObject.Biomarkers = {'Coherence'};
+            BiomarkerObject.Biomarkers = {'Coherence', 'ICoherence'};
         end
         function plotCoherence(obj)
             figure
