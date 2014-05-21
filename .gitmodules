@@ -1,3 +1,0 @@
-[submodule "External/meegpipe"]
-	path = External/meegpipe
-	url = https://github.com/NeurophysiologicalBiomarkerToolbox/meegpipe.git
