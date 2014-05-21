@@ -1,7 +1,7 @@
 % NBT Toolbox Version 0 pre-alpha
 % Use the NBT wiki at http://www.falw.vu/~nbt/
 % Copyright (C) 2008-2010 Neuronal Oscillations and Cognition group, Department of Integrative
-%  Neurophysiology, Center for Neurogenomics and Cognitive Research, Neuroscience Campus Amsterdam, VU University Amsterdam.
+% Neurophysiology, Center for Neurogenomics and Cognitive Research, Neuroscience Campus Amsterdam, VU University Amsterdam.
 % Main development team: Simon-Shlomo Poil, Rick Jansen, Klaus Linkenkaer-Hansen.
 % 
 
