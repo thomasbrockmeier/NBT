@@ -61,8 +61,13 @@ else
     path_filename=varargin{1};
     
     stringindex = findstr(path_filename,'/');
-    path = path_filename(1:stringindex(end)); % path
-    file = path_filename(stringindex(end)+1:end);  % file name
+    if(~isempty(stringindex))
+        path = path_filename(1:stringindex(end)); % path
+        file = path_filename(stringindex(end)+1:end);  % file name
+    else
+        path = [pwd '/'];
+        file = path_filename;
+    end
 end
 
 if file ==0  % if cancel is selected in uipopup
