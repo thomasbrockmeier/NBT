@@ -65,7 +65,7 @@ classdef nbt_Biomarker
         NBTversion
     end
     methods
-        function BiomarkObject = nbt_Biomarker()
+        function BiomarkerObject = nbt_Biomarker()
             BiomarkerObject.Condition = NaN;
             BiomarkerObject.DateLastUpdate =  datestr(now);
             BiomarkerObject.ReseacherID = NaN;
