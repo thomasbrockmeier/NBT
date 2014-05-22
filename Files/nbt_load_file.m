@@ -60,20 +60,12 @@ if isempty(varargin)
 else
     path_filename=varargin{1};
     
-<<<<<<< HEAD
     stringindex = findstr(path_filename,filesep);
-=======
-    stringindex = findstr(path_filename,'\');
->>>>>>> FETCH_HEAD
     if(~isempty(stringindex))
         path = path_filename(1:stringindex(end)); % path
         file = path_filename(stringindex(end)+1:end);  % file name
     else
-<<<<<<< HEAD
         path = [pwd filesep];
-=======
-        path = [pwd '\'];
->>>>>>> FETCH_HEAD
         file = path_filename;
     end
 end
