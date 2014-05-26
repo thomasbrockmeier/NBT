@@ -26,7 +26,7 @@
 %--------------------------------------------------------------------------
 
 function [Signal, SignalInfo] = nbt_EEGLABwrp(funchandle, Signal, SignalInfo, SignalPath, UpdateFromBase, varargin)
-
+global EEG
 EEG = nbt_NBTtoEEG(Signal, SignalInfo, SignalPath); %some issues with noisy intervals
 ALLEEG(1) = EEG;
 assignin('base', 'EEG',EEG);
@@ -56,8 +56,8 @@ if(UpdateFromBase)
     close(findobj('Tag','NBT'))
     h = warndlg('Click OK to return to NBT','NBT external call to EEGLAB');
     uiwait(h)
-    close all 
-    nbt_gui
+ %   close all 
+ %   nbt_gui
     EEG = evalin('base', 'EEG');
     
 end
