@@ -34,6 +34,7 @@ classdef nbt_ARSQ < nbt_Biomarker
             end
             ARSQobject.Questions = Questions;
             ARSQobject.Answers = Answers;
+            ARSQobject.Biomarkers = {'Answers'};
         end
     end
 end

@@ -80,7 +80,7 @@ else
     path = G(1).fileslist.path;
     name = G(1).fileslist(1).name;
     % --- extract biomarkers
-    [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([path '/' name]);
+    [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([path filesep name]);
 end
 
 k = 1;
