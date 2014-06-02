@@ -67,8 +67,10 @@ evalin('base', 'clear EEG');
 evalin('base', 'clear ALLEEG');
 evalin('base', 'clear CURRENTSET');
 
+warning off
 try
 [Signal, SignalInfo]=nbt_EEGtoNBT(EEG, [], []);
 catch
 end
+warning on
 end

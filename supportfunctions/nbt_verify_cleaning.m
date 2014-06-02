@@ -178,13 +178,13 @@ axis off
 function L = loadInfofile(FileName,PathName)
     if isempty(findstr(FileName,'Info'))
         if isempty(findstr(FileName,'_'))
-            L = load([PathName '\' FileName(1:end-4) '_Info.mat']);
+            L = load([PathName filesep FileName(1:end-4) '_Info.mat']);
         else
             pos = findstr(FileName,'_');
-            L = load([PathName '\' FileName(1:pos-1) '_Info.mat']);
+            L = load([PathName filesep FileName(1:pos-1) '_Info.mat']);
         end
     else
-        L = load([PathName '\' FileName]);
+        L = load([PathName filesep FileName]);
     end
 end
 end
