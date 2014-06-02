@@ -10,14 +10,14 @@ S1_info = eval(['L.','ICASignalInfo']);
 if isempty(PathName2) 
 [FileName2,PathName2] = uigetfile('*.mat','Select Student SignalInfo file ');
 end
-L = loadInfofile(FileName1,PathName2);
+L = loadInfofile(FileName2,PathName2);
 S2_info = eval(['L.',StudentSignalName]);
 clear L
 
-Analysis1 = [PathName1,'/',S1_info.file_name,'_analysis.mat'];
+Analysis1 = [PathName1 filesep S1_info.file_name,'_analysis.mat'];
 [biomarker_objects1,biomarkers1] = nbt_ExtractBiomarkers(Analysis1);
 
-Analysis2 = [PathName2,'/',S2_info.file_name,'_analysis.mat'];
+Analysis2 = [PathName2 filesep S2_info.file_name,'_analysis.mat'];
 [biomarker_objects2,biomarkers2] = nbt_ExtractBiomarkers(Analysis2);
 
 % verify signal length
@@ -111,8 +111,8 @@ end
 
 chanloc = S1_info.Interface.EEG.chanlocs;
 % figure
-scrsz = get(0,'ScreenSize');
-figure('Position',[10 scrsz(4)/3 scrsz(3)/2 scrsz(4)/2],'Name','Percent Error','numbertitle','off')
+[W H] = nbt_getScreenSize;
+figure('Position',[10 H/3 W/2 H/2],'Name','Percent Error','numbertitle','off')
 coolWarm = load('nbt_CoolWarm.mat','coolWarm');
 coolWarm = coolWarm.coolWarm;
 colormap(coolWarm);
@@ -176,12 +176,12 @@ axis off
 
 %----------------------
 function L = loadInfofile(FileName,PathName)
-    if isempty(findstr(FileName,'Info'))
+    if isempty(findstr(FileName,'info'))
         if isempty(findstr(FileName,'_'))
-            L = load([PathName filesep FileName(1:end-4) '_Info.mat']);
+            L = load([PathName filesep FileName(1:end-4) '_info.mat']);
         else
             pos = findstr(FileName,'_');
-            L = load([PathName filesep FileName(1:pos-1) '_Info.mat']);
+            L = load([PathName filesep FileName(1:pos-1) '_info.mat']);
         end
     else
         L = load([PathName filesep FileName]);
