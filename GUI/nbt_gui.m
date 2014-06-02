@@ -141,10 +141,10 @@ if (standalone)
     %uimenu(PreProc,'label', 'Remove artifacts multiple NBT Signals', 'callback', 'nbt_NBTcompute(@nbt_get_artifacts);');
     %uimenu(PreProc,'label', 'Find & add bad channel to Info.BadChannels','callback',['[Signal,SignalInfo] = nbt_EEGLABwrp(@nbt_FindBadChannels, Signal, SignalInfo, SignalPath,0);']);
    ICAsub = uimenu(PreProc, 'label', '&ICA');
-    uimenu(ICAsub,'label', 'Run ICA on good channels only','callback',['[Signal, SignalInfo] = nbt_EEGLABwrp2(@nbt_filterbeforeICA, Signal, SignalInfo, SignalPath,0, ''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4);']);
+    uimenu(ICAsub,'label', 'Run ICA on good channels only','callback',['[Signal, SignalInfo] = nbt_EEGLABwrp2(@nbt_filterbeforeICA, Signal, SignalInfo, SignalPath,0, ''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4);[Signal, SignalInfo] = nbt_EEGLABwrp2(@nbt_rejectICAcomp, Signal, SignalInfo, SignalPath, 0,''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4,1);']);
     uimenu(ICAsub,'label', 'Filter ICA components', 'callback',['[Signal, SignalInfo] = nbt_EEGLABwrp2(@nbt_rejectICAcomp, Signal, SignalInfo, SignalPath, 0,''EEG.data = nbt_filter_firHp(EEG.data,0.5,EEG.srate,4);'',4,1);'],'Tag','NBTICAfilter');
     VisICAsub = uimenu(ICAsub, 'label', '&Visualize ICA');
-    uimenu(VisICAsub, 'label', 'Plot component activations', 'callback', '[Signal, SignalInfo]=nbt_EEGLABwrp2(@pop_eegplot, Signal, SignalInfo, SignalPath,1, 0, 1, 1);')
+    uimenu(VisICAsub, 'label', 'Plot component activations', 'callback', '[Signal, SignalInfo]=nbt_EEGLABwrp2(@pop_eegplot, Signal, SignalInfo, SignalPath,0, 0, 1, 1);')
     uimenu(VisICAsub, 'label', 'Reject component by map', 'callback', '[Signal, SignalInfo]=nbt_EEGLABwrp2(@pop_selectcomps, Signal, SignalInfo, SignalPath,1);')
 %    uimenu(ICAsub, 'label', 'Plot spectra and maps', 'callback', '[Signal, SignalInfo]=nbt_EEGLABwrp2(@pop_spectopo, Signal, SignalInfo, SignalPath,1, 0);')
    % uimenu(VisICAsub, 'label', 'Component statistics', 'callback', '[Signal, SignalInfo]=nbt_EEGLABwrp2(@pop_signalstat, Signal, SignalInfo, SignalPath,1,1);') 
@@ -163,7 +163,8 @@ if (standalone)
     
 %     perFolder = uimenu(CompBio, 'label', ' &For multiple NBT Signals');
 %     uimenu(perFolder,'label', 'Amplitudes', 'callback', 'nbt_NBTcompute(@nbt_get_amplitude)');
-%     uimenu(perFolder,'label', 'Spectral biomarkers', 'callback', 'nbt_NBTcompute(@nbt_runPeakFit)');
+%     uimenu(perFolder,'label', 'Spectral biomarkers', 'callback',
+%     'nbt_NBTcompute(@nbt_runPeakFit)');
 %     uimenu(perFolder,'label', 'Correlations', 'callback', 'nbt_NBTcompute(@nbt_get_correlations)');
 %     uimenu(perFolder,'label', 'DFA', 'callback',['SettingsDFA = [];nbt_NBTcompute(@nbt_runDFA_gui);clear SettingsDFA']);
     %uimenu(perFolder,'label', 'Coherence', 'callback',['SettingsCoher = []; nbt_NBTcompute(@nbt_runCoher_gui);clear SettingsCoher']);

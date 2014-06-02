@@ -207,6 +207,8 @@ function plotting
     x=xlim;
     axis tight
     y=ylim;
+    y(2)=2*median(max(Signal));
+    y(1) = 0;
     ylim([y(1)-distance,y(2)+distance])
     yoriginal=ylim;
     xoriginal=xlim;
