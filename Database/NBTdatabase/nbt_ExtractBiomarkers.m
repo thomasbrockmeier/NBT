@@ -17,11 +17,17 @@ else
     s = whos;
       counter=1;
       
+% temporary adjustement
 for ii=1:length(s)
-    if(isa(s(ii).class,'nbt_Biomarker'))
+    if(strcmp(superclasses(s(ii).class),'nbt_Biomarker')) & ~strcmp(s(ii).class,'nbt_questionnaire')
         BiomarkerObjects = [BiomarkerObjects, s(ii).name];
         Biomarkers{counter}=eval([s( ii ).name,'.Biomarkers']);
         counter=counter+1;
+    elseif (strcmp(superclasses(s(ii).class),'nbt_Biomarker')) & strcmp(s(ii).class,'nbt_questionnaire')
+        BiomarkerObjects = [BiomarkerObjects, s(ii).name];
+        Biomarkers{counter}={'Answers'};
+        counter=counter+1;
+        
     end
 end
 end
