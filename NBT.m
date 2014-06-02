@@ -5,7 +5,6 @@
 % Main development team: Simon-Shlomo Poil, Rick Jansen, Klaus Linkenkaer-Hansen.
 
 function NBT()
-installNBT
 nbt_gui
 disp('NBT Toolbox ')
 help NBT
