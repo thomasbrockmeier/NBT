@@ -1,4 +1,9 @@
-function [B_error,chans_faster,additional_student_chans,faster_student_chans,eye_student_chans,duration_faster_percent,duration_student_percent] = nbt_verify_cleaning(PathName1,PathName2,FileName1,StudentSignalName);
+function [B_error,chans_faster,additional_student_chans,faster_student_chans,eye_student_chans,duration_faster_percent,duration_student_percent] = nbt_verify_cleaning
+PathName1 = [];
+PathName2 = [];
+FileName1 = [];
+StudentSignalName = [];
+
 StudentSignalName = 'CleanedSignal'; %To comment
 StudentSignalName = [ StudentSignalName 'Info'];
 if isempty(PathName1) & isempty(FileName1)
@@ -6,7 +11,7 @@ if isempty(PathName1) & isempty(FileName1)
 end
 L = loadInfofile(FileName1,PathName1);
 
-S1_info = eval(['L.','ICASignalInfo']);
+S1_info = eval(['L.','AutoICASignalInfo']);
 if isempty(PathName2) 
 [FileName2,PathName2] = uigetfile('*.mat','Select Student SignalInfo file ');
 end
@@ -14,10 +19,10 @@ L = loadInfofile(FileName2,PathName2);
 S2_info = eval(['L.',StudentSignalName]);
 clear L
 
-Analysis1 = [PathName1 filesep S1_info.file_name,'_analysis.mat'];
+Analysis1 = [PathName1 S1_info.file_name,'_analysis.mat'];
 [biomarker_objects1,biomarkers1] = nbt_ExtractBiomarkers(Analysis1);
 
-Analysis2 = [PathName2 filesep S2_info.file_name,'_analysis.mat'];
+Analysis2 = [PathName2 S2_info.file_name,'_analysis.mat'];
 [biomarker_objects2,biomarkers2] = nbt_ExtractBiomarkers(Analysis2);
 
 % verify signal length
@@ -34,7 +39,7 @@ disp(['--- Student procedure: final duration = ' num2str(round(duration_student/
 % verify removed channels
 disp('Check on removed channels:')
 chans_eyes = [ 8 14 21 25 125 126 127 128 ];
-chans_faster = S1_info.notes.intchans;
+chans_faster = find(S1_info.BadChannels)';
 chans_student = find(S2_info.BadChannels)';
 join_faster_and_eyes_chans = sort([chans_eyes chans_faster]);
 k = 1;
@@ -121,6 +126,8 @@ for i = 1:length(biom1)
     hold on
     subplot(length(biom1)+1,4,k)
     topoplot(B1(:,i),chanloc,'headrad','rim');
+    cl = get(gca,'clim');
+    set(gca,'clim',[0 cl(2)]);
     axis square
     cb = colorbar('westoutside');
     set(get(cb,'title'),'String','\muV');
@@ -131,6 +138,8 @@ for i = 1:length(biom2)
     hold on
     subplot(length(biom2)+1,4,k)
     topoplot(B2(:,i),chanloc,'headrad','rim');
+    cl = get(gca,'clim');
+    set(gca,'clim',[0 cl(2)]);
     axis square
     cb = colorbar('westoutside');
     set(get(cb,'title'),'String','\muV');

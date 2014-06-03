@@ -74,11 +74,11 @@ channels=1:nr_channels;
 interval=1:size(Signal,1);
 fs=Info.converted_sample_frequency;
 
-if (nargs<3 || isempty(P{3})); timescale='samples'; else timescale = P{3}; end;
+if (nargs<3 || isempty(P{3})); timescale='seconds'; else timescale = P{3}; end;
 if (nargs<4 || isempty(P{4})); frequencyinterval = [1 45]; else frequencyinterval = P{4};end
 if (nargs<5 || isempty(P{5})); filterorder= 4;else filterorder = P{5}; end;
 if (nargs<6 || isempty(P{6})); addlegend=0;else addlegend=P{6}; end;
-if (nargs<7 || isempty(P{7})); addcolors='n'; else addcolors=P{7}; end;
+if (nargs<7 || isempty(P{7})); addcolors='1'; else addcolors=P{7}; end;
 if (nargs<8 || isempty(P{8})); distance=6*median(std(Signal)); else distance=P{8}; end;
 if (nargs<9 || isempty(P{9})); linepoint='L'; else linepoint=P{9}; end;
 

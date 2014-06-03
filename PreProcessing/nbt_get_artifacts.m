@@ -293,15 +293,25 @@ function plotting
         hold off
         set(l1,'visible','off') % set lines from interval to invisible
         set(l2,'visible','off')
+        
         if strcmp(timescale,'minutes')
+            
+            minInt = round(x*60*fs);
+            maxInt = round(x1*60*fs);
             noisey_intervals=[noisey_intervals;[round(x*60*fs) round(x1*60*fs)]];
         end
         if strcmp(timescale,'seconds')
-            noisey_intervals=[noisey_intervals;[round(x*fs) round(x1*fs)]];
+            minInt = round(x*fs);
+            maxInt = round(x1*fs);
         end
         if strcmp(timescale,'samples')
-            noisey_intervals=[noisey_intervals;[round(x) round(x1)]];
+            minInt = round(x);
+            maxInt = round(x1);
         end
+        
+        minInt = max(minInt,1);
+        maxInt = min(maxInt,length(Signal));
+        noisey_intervals=[noisey_intervals;[minInt maxInt]];
         SignalInfo.Interface.noisey_intervals=noisey_intervals;
         ax=axis;
         hold on
