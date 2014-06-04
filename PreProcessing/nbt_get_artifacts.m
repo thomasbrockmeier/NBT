@@ -285,15 +285,16 @@ function plotting
         title('Right or double click to select interval','fontsize',8,'fontweight','bold','color','k','verticalalignment','baseline')
         hold on
         yli=ylim;
-        [x,y]=nbt_getline;
-        l1= line([x x],[yli(1) yli(2)]);
-        [x1,y1]=nbt_getline;
-        l2=line([x1 x1],[yli(1) yli(2)]);
+        [xa,y]=nbt_getline;
+        l1= line([xa xa],[yli(1) yli(2)]);
+        [xb,y1]=nbt_getline;
+        l2=line([xb xb],[yli(1) yli(2)]);
         title([''])
         hold off
         set(l1,'visible','off') % set lines from interval to invisible
         set(l2,'visible','off')
-        
+        x = min(xa,xb);
+        x1 = max(xa,xb);
         if strcmp(timescale,'minutes')
             
             minInt = round(x*60*fs);
