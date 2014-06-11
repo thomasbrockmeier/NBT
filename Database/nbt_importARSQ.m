@@ -1,23 +1,21 @@
-function nbt_importARSQ(filename,SignalInfo, SaveDir)
+function nbt_importARSQ(filename,BiomarkerName, SignalInfo, SaveDir)
 
-%filename should be "*_analysis.mat"
-formatSpec = '%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%[^\n\r]';
-
-ARSQData = nbt_importCSV([filename '.csv'],1,56,formatSpec);
+ARSQData = importdata([filename '.csv']);
 
 %% Populate the ARSQ biomarker
-rsq = nbt_ARSQ;
+eval([BiomarkerName ' = nbt_ARSQ;']);
 %Questions
-for i=1:(size(ARSQData,1)-2)
-    IndQ=strfind(ARSQData{i,1},'"');
-    rsq.Questions{i,1} = ARSQData{i,1}(IndQ(3)+1:IndQ(4)-1);
+for i=1:(size(ARSQData.textdata,2))
+    IndQ=strfind(ARSQData.textdata{i,1},'"');
+   eval([BiomarkerName '.Questions{i,1} = ARSQData.textdata{i,1}(IndQ(1)+1:IndQ(2)-1);']);
 end
 %Answers 
-AnswerPos = size(ARSQData,1);
-for i=1:(size(ARSQData,2))
-   rsq.Answers{i,1} = ARSQData{AnswerPos,i};
+for i=1:(size(ARSQData.textdata,2))
+   eval([BiomarkerName '.Answers{i,1} = ARSQData.data(i)+1;']);
 end
 
-rsq = nbt_UpdateBiomarkerInfo(rsq, SignalInfo);
-nbt_SaveClearObject('rsq', SignalInfo, SaveDir)
+%Add factors
+
+eval([BiomarkerName ' = nbt_UpdateBiomarkerInfo(' BiomarkerName ', SignalInfo);']);
+nbt_SaveClearObject(BiomarkerName, SignalInfo, SaveDir)
 end
