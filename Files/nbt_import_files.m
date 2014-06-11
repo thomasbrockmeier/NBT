@@ -269,7 +269,8 @@ for i=1:length(directory)
                         fid = fopen([sourcedirectory,'/',directory(i).name], 'rb', 'b');
                         if fid == -1, error('Cannot open file'); end
                         head = readegihdr(fid); % read EGI file header
-                        nr_ch = head.nchan;fileloc =  ['GSN-HydroCel-' num2str(nr_ch) '.sfp'];
+                        nr_ch = head.nchan;
+                        fileloc =  ['GSN-HydroCel-' num2str(nr_ch) '.sfp'];
                         %---
                         if SegmentOption == 1
                             EEG = pop_readegi([sourcedirectory,'/',directory(i).name],[1:10]);
