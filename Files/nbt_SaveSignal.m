@@ -1,7 +1,9 @@
 function nbt_SaveSignal(Signal, SignalInfo, directoryname,auto,SignalName)
-narginchk(1, 5)
+narginchk(2, 5)
 if(~exist('auto','var'))
     auto = 0;
+end
+if(auto == 0)
     AskA = input('Do you want to save this Signal? ([Y]es/[N]o)','s');
     if(strcmpi(AskA,'y'))
         auto = 1;
