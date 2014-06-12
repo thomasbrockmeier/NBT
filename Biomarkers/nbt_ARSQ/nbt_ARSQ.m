@@ -33,10 +33,7 @@ classdef nbt_ARSQ < nbt_Biomarker
                Answers = [];
             end
             ARSQobject.Questions = cell(NumQ,1);
-            ARSQobject.Answers = cell(NumQ,1);
-            for i=1:NumQ;
-                ARSQobject.Answers{i,1} = nan;
-            end
+            ARSQobject.Answers = nan(NumQ,1);
             ARSQobject.Biomarkers = {'Answers'};
         end
     end
