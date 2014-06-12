@@ -1,5 +1,6 @@
 function nbt_LogBookExport
+%Should produce info files from LogBook
 
-%export data to info files. 
+
 
 end

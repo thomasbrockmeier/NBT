@@ -14,6 +14,9 @@ if(size(ARSQData.textdata,2) > 20)
     for i=1:(size(ARSQData.textdata,2))
         rsq.Answers(i,1) = ARSQData.data(i)+1;
     end
+    rsq.Questions{56,1} = 'I was mind wandering because of the complexity of the assignment';
+    rsq.Questions{57,1} = 'I focused on the task for 3 minutes';
+    rsq.Questions{58,1} = 'I lost control because I was panicking over the execution of the assignment';
 else %PLN task
     PLNIndex = [1:15 17:19];
     ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 9 52 56 57 58];
