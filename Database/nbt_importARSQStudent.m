@@ -1,7 +1,8 @@
 function nbt_importARSQStudent(filename, SignalInfo, SaveDir)
 
+rsq = nbt_ARSQ(72);
+if(~strcmp(SignalInfo.condition(1:4),'CTET'))
 ARSQData = importdata([filename '.csv']);
-rsq = nbt_ARSQ(68);
 %% Populate the ARSQ 
 %Normal ARSQ
 if(size(ARSQData.textdata,2) > 20)
@@ -48,6 +49,23 @@ rsq.Answers(65,1) = nanmedian(tmpQ([7,17,27]));
 rsq.Answers(66,1) = nanmedian(tmpQ([10,20,30]));
 rsq.Answers(67,1) = nanmedian(tmpQ([8,18,28]));
 rsq.Answers(68,1) = nanmedian(tmpQ([9,19,29]));
+
+else
+%add Mona's data
+    [d,d,BehavData] = xlsread('Behaviouralbiomarkers.xls',SignalInfo.condition);
+    rsq.Questions{69,1} = 'CTET: Average reaction time';
+    rsq.Questions{70,1} = 'CTET: Median reaction time';
+    rsq.Questions{71,1} = 'CTET: DFA: reaction time';
+    rsq.Questions{72,1} = 'CTET: Error';
+    for i=2:size(BehavData,1)
+        if(BehavData{i,1} == SignalInfo.subjectID)
+           rsq.Answers(69,1) = BehavData{i,2};
+           rsq.Answers(70,1) = BehavData{i,3};
+           rsq.Answers(71,1) = BehavData{i,4};
+           rsq.Answers(72,1) = BehavData{i,5};
+        end
+    end
+end
 
 rsq = nbt_UpdateBiomarkerInfo(rsq, SignalInfo);
 nbt_SaveClearObject('rsq', SignalInfo, SaveDir)
