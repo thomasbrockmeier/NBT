@@ -27,13 +27,13 @@ classdef nbt_ARSQ < nbt_Biomarker
         Answers
     end
     methods
-        function ARSQobject = nbt_ARSQ(Questions, Answers)
+        function ARSQobject = nbt_ARSQ(NumQ)
             if nargin == 0
                Questions = [];
                Answers = [];
             end
-            ARSQobject.Questions = Questions;
-            ARSQobject.Answers = Answers;
+            ARSQobject.Questions = cell(NumQ,1);
+            ARSQobject.Answers = nan(NumQ,1);
             ARSQobject.Biomarkers = {'Answers'};
         end
     end
