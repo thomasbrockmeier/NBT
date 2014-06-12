@@ -1,4 +1,4 @@
-function nbt_importARSQ(filename,BiomarkerName, SignalInfo, SaveDir)
+function nbt_importARSQStudent(filename, SignalInfo, SaveDir)
 
 ARSQData = importdata([filename '.csv']);
 
