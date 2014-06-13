@@ -84,6 +84,7 @@ classdef nbt_Biomarker
             biomarkerObject.ProjectID = SignalInfo.projectID;
             biomarkerObject.Fs = SignalInfo.converted_sample_frequency;
             %set Badchannels to NaN
+            if(~isa(biomarkerObject,'nbt_ARSQ'))
             if(~isempty(SignalInfo.BadChannels))
                 for i=1:length(biomarkerObject.Biomarkers)
                     eval(['biomarker=biomarkerObject.' biomarkerObject.Biomarkers{1,i} ';']);
@@ -102,6 +103,7 @@ classdef nbt_Biomarker
                     end
                    eval(['biomarkerObject.' biomarkerObject.Biomarkers{1,i} '=biomarker;']);
                end
+            end
             end
         end
     end 
