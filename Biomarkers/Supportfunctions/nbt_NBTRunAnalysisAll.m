@@ -88,7 +88,7 @@ ChannelToPlot = 1;
 %           nbt_SaveClearObject('amplitude_13_30_Hz_Normalized',SignalInfo,SaveDir);
           
           nbt_importARSQStudent(SignalInfo.file_name, SignalInfo, SaveDir) %requies Beviouralbiomarkers.xls
-          nbt_UpdateFromLogBook(Signal,SignalInfo,pwd,'NBTLogbook.xls','AutoICASignal')
+          nbt_UpdateFromLogBook(Signal,SignalInfo,pwd,'NBTLogbook.xls','RawSignal')
          
     end
 
