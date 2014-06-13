@@ -91,7 +91,6 @@ for i = 1:length(d)
     end
 end
 
-
 %---
 for j= startindex:length(d)
   %  if (d(j).isdir)
