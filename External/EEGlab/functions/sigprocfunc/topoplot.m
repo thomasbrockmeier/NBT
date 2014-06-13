@@ -191,7 +191,7 @@
 % 03-25-02 added details to "Unknown parameter" warning -sm & ad
 
 function [handle,Zi,grid,Xi,Yi] = topoplot(Values,loc_file,varargin)
-
+Values = double(Values);
 %
 %%%%%%%%%%%%%%%%%%%%%%%% Set defaults %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

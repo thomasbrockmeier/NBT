@@ -33,7 +33,7 @@ subplot(2,2,3)
 if strcmp(regs_or_chans_name,'Regions')
     nbt_plot_subregions_hack(log10(Pvalues(question,:)),-2.6,0);
 else
-    topoplot(log10(Pvalues(question,:)), G(1).chansregs.chanloc,'headrad','rim');
+    topoplot(log10(double(Pvalues(question,:))), G(1).chansregs.chanloc,'headrad','rim');
 end
 minPValue = -2.6;% Plot log10(P-Values) to trick colour bar
 maxPValue = -0;
