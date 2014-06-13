@@ -529,7 +529,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                         B1(:,:) = B_gebruik1(:,:,i);
                         B2(:,:) = B_gebruik2(:,:,i);
                         [stat_results(biomPerChans(i))] = 		nbt_run_stat_2groups_or_2conditions(Group1,Group2,B1,B2,s,bioms_name2{i},regs,unit{1,i});
-                    
+                    end
                     
                     %assign results to stat_results in base stack
                     
@@ -537,7 +537,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     % Plot Statistics
                     %----------------------
                     pvaluesmatrix(s,stat_results(biomPerChans),regs_or_chans_name,bioms_name(biomPerChans),regs,Group1,Group2,nameG1,nameG2)
-                end
+                
                 
                 try
                     B=evalin('base','stat_results');

@@ -49,10 +49,25 @@ rsq.Answers(65,1) = nanmedian(tmpQ([7,17,27]));
 rsq.Answers(66,1) = nanmedian(tmpQ([10,20,30]));
 rsq.Answers(67,1) = nanmedian(tmpQ([8,18,28]));
 rsq.Answers(68,1) = nanmedian(tmpQ([9,19,29]));
+CTETloadname = ['CTET' SignalInfo.condition(4)];
+%add Mona's data
+    [d,d,BehavData] = xlsread('Behaviouralbiomarkers.xlsx',CTETloadname);
+    rsq.Questions{69,1} = 'CTET: Average reaction time';
+    rsq.Questions{70,1} = 'CTET: Median reaction time';
+    rsq.Questions{71,1} = 'CTET: DFA: reaction time';
+    rsq.Questions{72,1} = 'CTET: Error';
+    for i=2:size(BehavData,1)
+        if(BehavData{i,1} == SignalInfo.subjectID)
+           rsq.Answers(69,1) = BehavData{i,2};
+           rsq.Answers(70,1) = BehavData{i,3};
+           rsq.Answers(71,1) = BehavData{i,4};
+           rsq.Answers(72,1) = BehavData{i,5};
+        end
+    end
 
 else
 %add Mona's data
-    [d,d,BehavData] = xlsread('Behaviouralbiomarkers.xls',SignalInfo.condition);
+    [d,d,BehavData] = xlsread('Behaviouralbiomarkers.xlsx',SignalInfo.condition);
     rsq.Questions{69,1} = 'CTET: Average reaction time';
     rsq.Questions{70,1} = 'CTET: Median reaction time';
     rsq.Questions{71,1} = 'CTET: DFA: reaction time';

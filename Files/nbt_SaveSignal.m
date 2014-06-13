@@ -28,7 +28,7 @@ if(auto ==1)
     
     present=0;
     for i=1:length(d)
-        if strcmp(d(i).name,[fn,'.mat'])
+        if strcmp(d(i).name,[fn,'_info.mat'])
             present=1;
         end
     end
@@ -50,7 +50,7 @@ if(auto ==1)
             end
         end
     else
-        OptionSave = input(['A file named' fn '.mat does not exist in this directory. Do you want create a new file? [[Y]es [N]o]'],'s'); % e.g. RawSignal, CleanSigna
+        OptionSave = input(['A file named' fn '_info.mat does not exist in this directory. Do you want create a new file? [[Y]es [N]o]'],'s'); % e.g. RawSignal, CleanSigna
         if strcmp(OptionSave(1),'Y') || strcmp(OptionSave(1),'y')
             save([directoryname '/' fn '_info.mat'],[name 'Info'])
             save([directoryname '/' fn '.mat'],name)
