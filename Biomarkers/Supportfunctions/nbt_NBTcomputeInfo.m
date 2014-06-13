@@ -90,6 +90,8 @@ for i = 1:length(d)
         startindex = i+1;
     end
 end
+
+startindex = 225;
 %---
 for j= startindex:length(d)
   %  if (d(j).isdir)
