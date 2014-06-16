@@ -25,12 +25,17 @@ if(size(ARSQData.textdata,2) > 20)
     rsq.Questions{57,1} = 'I focused on the task for 3 minutes';
     rsq.Questions{58,1} = 'I lost control because I was panicking over the execution of the assignment';
 else %PLN task
-    PLNIndex = [1:15 17:19];
-    ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 9 52 56 57 58];
+    %PLNIndex = [1:15 17:19];
+    %ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 9 52 56 57 58];
+    try
+    PLNIndex = [1:10 16 12:15 17:19];
+    ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 19 52 56 57 58];
     for i=1:18
         IndQ = strfind(ARSQData.textdata{PLNIndex(i),1},'"');
         rsq.Questions{ARSQIndex(i),1} = ARSQData.textdata{PLNIndex(i),1}(IndQ(1)+1:IndQ(2)-1);
         rsq.Answers(ARSQIndex(i),1) = ARSQData.data(PLNIndex(i))+1;
+    end
+    catch me
     end
 end 
 %Add factors
@@ -96,8 +101,12 @@ if(size(ARSQData.textdata,2) > 20)
     rsq.Questions{57,1} = 'I focused on the task for 3 minutes';
     rsq.Questions{58,1} = 'I lost control because I was panicking over the execution of the assignment';
 else %PLN task
-    PLNIndex = [1:15 17:19];
-    ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 9 52 56 57 58];
+    %PLNIndex = [1:15 17:19];
+    %ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 9 52 56 57 58];
+    
+    PLNIndex = [1:10 16 12:15 17:19];
+    ARSQIndex = [11 1 21 2 4 24 14 15 6 17 51 20 8 19 52 56 57 58];
+    
     for i=1:18
         IndQ = strfind(ARSQData.textdata{PLNIndex(i),1},'"');
         rsq.Questions{ARSQIndex(i),1} = ARSQData.textdata{PLNIndex(i),1}(IndQ(1)+1:IndQ(2)-1);
