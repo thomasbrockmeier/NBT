@@ -246,9 +246,9 @@ if nargs <= 1
 %     text_ui6= uicontrol(GroupSelection,'Style','text','Position',[560 270 100 20],'string','   Age   ','fontsize',12);
     
     text_ui7= uicontrol(GroupSelection,'Style','text','Position',[700 70 200 20],'string','Write a name for the Group','fontsize',10);
-    text_ui8= uicontrol(GroupSelection,'Style','edit','Position',[700 60 200 20],'string','','fontsize',10);
+    text_ui8= uicontrol(GroupSelection,'Style','edit','Position',[700 50 200 20],'string','','fontsize',10);
     
-    plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 40 40 40], 'String','OK','callback', @groupdefinition);
+    plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 30 40 40], 'String','OK','callback', @groupdefinition);
 else
     
     startindex = 0;
