@@ -29,7 +29,7 @@
 function nbt_createLogbook(ProjectInfo)
 
 % Create general stucture
-GenStruct = {'Logbook';' ';'Recording #'; 'Project information'; 'ProjectID'; 'ResearcherID'; 'Date'; 'Start time'; 'End time'; '   '; 'Subject information'; 'Name (optional)'; 'SubjectID';'Gender';'Age';'Handedness';'Mother tongue';'Informed consent signed'; '   ';'Acquisition settings'; 'EEG Lab'; 'Folder name';'Acquisition template'; 'ARSQ version';'Sampling rate';'Filter settings'; 'High impedance channels';'EGI EEG-net ID';'Earplugs';'   '; 'Sessions' };
+GenStruct = {'Logbook';' ';'Recording #'; 'Project information'; 'ProjectID'; 'ResearcherID'; 'Date'; 'Start time'; 'End time'; '   '; 'Subject information'; 'Name (optional)'; 'SubjectID';'Gender';'Age';'Handedness';'Mother tongue';'Informed consent signed';'Energy drink number'; '   ';'Acquisition settings'; 'EEG Lab'; 'Folder name';'Acquisition template'; 'ARSQ version';'Sampling rate';'Filter settings'; 'High impedance channels';'EGI EEG-net ID';'Earplugs';'   '; 'Sessions' };
 ConditionIDs = fieldnames(ProjectInfo.Info.ProjectInfo.condition);
 for CID = 1:length(ConditionIDs)
    GenStruct{length(GenStruct)+1,1} = ['Condition ' int2str(CID)];
@@ -43,14 +43,16 @@ xlwrite('NBTLogbook.xls', GenStruct,1,'A1');
 
 % Import data from external sources
 % call to nbt_importFromXLS (Return populated ProjectInfo)
-ProjectInfo = nbt_Info.importSubjectInfoFromCSV('HNcourse2014_Screening - Sheet1.csv',ProjectInfo);
+%ProjectInfo = nbt_Info.importSubjectInfoFromCSV('HNcourse2014_Screening - Sheet1.csv',ProjectInfo);
 %Populate sheet.
-for SID = 1:length(ProjectInfo.Info.SubjectInfo)
+for SID = 1:30%length(ProjectInfo.Info.SubjectInfo)
 ImportStruct{1,SID} = ProjectInfo.projectID;
-ImportStruct{9,SID} = ProjectInfo.Info.SubjectInfo(SID).subjectID;
-ImportStruct{11,SID} = ProjectInfo.Info.SubjectInfo(SID).subject_age;
-ImportStruct{12,SID} = ProjectInfo.Info.SubjectInfo(SID).subject_handedness;
-Cindex = 12+15;
+%ImportStruct{9,SID} = ProjectInfo.Info.SubjectInfo(SID).subjectID;
+%ImportStruct{11,SID} = ProjectInfo.Info.SubjectInfo(SID).subject_age;
+%ImportStruct{12,SID} = ProjectInfo.Info.SubjectInfo(SID).subject_handedness;
+RandomDrink=randperm(2);
+ImportStruct{15,SID} = RandomDrink(1);
+Cindex = 13+15;
 %Add conditions from ProjectInfo
 for CID=1:length(ConditionIDs)
     ImportStruct{Cindex+1,SID} = ConditionIDs{CID};
