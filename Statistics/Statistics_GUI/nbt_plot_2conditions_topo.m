@@ -277,12 +277,7 @@ else % when Regions are specified
     fontsize = 10;
     fig2 = figure('name',['NBT: Statistics (Regions) for ',regexprep(biomarker,'_',' ')],'NumberTitle','off',...
         'position',[10          80       1500      500]); %128
-    set(fig2,'CreateFcn','movegui')
-    hgsave(fig2,'onscreenfig')
-    close(fig2)
-    fig2= hgload('onscreenfig');
-    currentFolder = pwd;
-    delete([currentFolder '/onscreenfig.fig']);
+    fig2=nbt_movegui(fig2);
     
     % ---for color scale in following plots
     vmax=max([meanc1,meanc2]);

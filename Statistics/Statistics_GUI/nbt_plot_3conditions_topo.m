@@ -97,14 +97,7 @@ fontsize = 10;
     fontsize = 10;
     fig1 = figure('name',['NBT: Statistics (Channels) for ',regexprep(biomarker,'_',' ')],...
         'NumberTitle','off','position',[10          80       1500      500]); %128
-    set(fig1,'CreateFcn','movegui')
-    hgsave(fig1,'onscreenfig')
-    close(fig1)
-    fig1= hgload('onscreenfig');
-    currentFolder = pwd;
-    delete([currentFolder '/onscreenfig.fig']);
-    
-    
+    fig1=nbt_movegui(fig1);
     
     % ---for color scale in following plots
     vmax=max([meanc1,meanc2, meanc3]);

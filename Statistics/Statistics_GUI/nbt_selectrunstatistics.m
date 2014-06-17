@@ -978,12 +978,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 hh2 = figure('Units','pixels', 'name','Define group difference' ,'numbertitle','off','Position',[scrsz(3)/4  scrsz(4)/2  250  120],...
                     'MenuBar','none','NextPlot','new','Resize','off');
                 col =  get(hh2,'Color' );
-                set(hh2,'CreateFcn','movegui')
-                hgsave(hh2,'onscreenfig')
-                close(hh2)
-                hh2 = hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                hh2 = nbt_movegui(hh2);
                 step = 40;
                 
                 nameg1 = group_name{1};
@@ -1398,12 +1393,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                set(h4,'CreateFcn','movegui')
-                hgsave(h4,'onscreenfig')
-                close(h4)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h4 = nbt_movegui(h4);
                 
                 hold on
                 plot(1.2,g1,'g')
@@ -1476,12 +1466,8 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 h5 = figure('Visible','on','numbertitle','off','resize','off','Menubar','none',...
                     'Name',['Table with all items and their numbering that have a p-value lower than 0.05' ],...
                     'Position',[100   200  1000   500]);
-                set(h5,'CreateFcn','movegui')
-                hgsave(h5,'onscreenfig')
-                close(h5)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h5 = nbt_movegui(5);
+                
                 Notsign = find(s.p>=0.05);
                 for i = 1:length(s.p)
                     strp{i} = (sprintf('%.4f',s.p(i)));
@@ -1540,12 +1526,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 pval = sprintf('%.4f', s.p(chan_or_reg));
                 h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for item ' num2str(chan_or_reg) ' for each subjects'],'Position',[1000   200   350   700]);
                 
-                set(h4,'CreateFcn','movegui')
-                hgsave(h4,'onscreenfig')
-                close(h4)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h4 = nbt_movegui(h4);
                 
                 hold on
                 plot([1.2 1.8],g,'g')
@@ -1574,13 +1555,8 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h5 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ': Relative Frequencies of Responses'],...
                         'Position',[1000   500   450   300]);
+                    h5 = nbt_movegui(h5);
                     
-                    set(h5,'CreateFcn','movegui')
-                    hgsave(h5,'onscreenfig')
-                    close(h5)
-                    h4= hgload('onscreenfig');
-                    currentFolder = pwd;
-                    delete([currentFolder '/onscreenfig.fig']);
                     
                     c_hist = hist(answ,floor(min(min(answ))):ceil(max(max(answ))));
                     c_hist = c_hist/size(answ,1)*100;
@@ -1596,13 +1572,8 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h6 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ' Difference Distribution'],...
                         'Position',[1000   500   450   300]);
-                    
-                    set(h6,'CreateFcn','movegui')
-                    hgsave(h6,'onscreenfig')
-                    close(h6)
-                    h6= hgload('onscreenfig');
-                    currentFolder = pwd;
-                    delete([currentFolder '/onscreenfig.fig']);
+                    h6 = nbt_movegui(h6);
+
                     ansdiff = s.c2(chan_or_reg,:)-s.c1(chan_or_reg,:);
                     pdiff = s.p(chan_or_reg);
                     d_hist = hist(ansdiff,floor(min(min(ansdiff))):ceil(max(max(ansdiff))));
@@ -1666,13 +1637,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 pval = sprintf('%.4f',s.p(chan_or_reg));
                 
                 h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for item ' num2str(chan_or_reg) ' for each subjects'],'Position',[1000   200   350   700]);
-                
-                set(h4,'CreateFcn','movegui')
-                hgsave(h4,'onscreenfig')
-                close(h4)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h4 = nbt_movegui(h4);
                 
                 hold on
                 plot(1.2 ,g1,'g')
@@ -1713,13 +1678,8 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h5 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ': Relative Frequencies of Responses'],...
                         'Position',[1000   500   450   300]);
-                    
-                    set(h5,'CreateFcn','movegui')
-                    hgsave(h5,'onscreenfig')
-                    close(h5)
-                    h4= hgload('onscreenfig');
-                    currentFolder = pwd;
-                    delete([currentFolder '/onscreenfig.fig']);
+                    h5 = nbt_movegui(h5);
+
                     c_hist1 = hist(answ1,floor(min(min([answ1 answ2]))):ceil(max(max([answ1 answ2]))));
                     c_hist2 = hist(answ2,floor(min(min([answ1 answ2]))):ceil(max(max([answ1 answ2]))));
                     c_hist1 = c_hist1/size(answ1,2)*100;

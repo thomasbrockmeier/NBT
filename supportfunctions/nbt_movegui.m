@@ -36,6 +36,5 @@ function h=nbt_movegui(h)
     hgsave(h,figName)
     close(h)
     h = hgload(figName);
-    currentFolder = pwd;
     delete([figName '.fig']);  
 end
