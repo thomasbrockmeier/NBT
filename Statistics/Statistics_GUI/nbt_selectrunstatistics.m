@@ -79,7 +79,7 @@ G = evalin('base','G');
 StatSelection = figure('Units','pixels', 'name','NBT: Select Statistics' ,'numbertitle','off','Position',[200  200  610  750.000],...
     'MenuBar','none','NextPlot','new','Resize','off');
 % fit figure to screen, adapt to screen resolution
-nbt_movegui(StatSelection);
+StatSelection=nbt_movegui(StatSelection);
 
 % This loads the statistical tests- these needs to be set in nbt_statisticslog.
 statindex = 1;
@@ -699,7 +699,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -774,7 +774,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -865,7 +865,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             bh=bar3(x);
             for i=1:length(bh)
@@ -1272,7 +1272,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         fontsize = 10;
         fig1 = figure('name',['NBT: Statistics (Channels) for all selected biomarkers'],...
             'NumberTitle','off','position',[10          80       1500      500]); %128
-        nbt_movegui(fig1);
+        fig1=nbt_movegui(fig1);
         hold on;
         NR_Biomarkers = length(stat_results);
         for biomIndex = 1:NR_Biomarkers
@@ -1317,7 +1317,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                nbt_movegui(h4);
+                h4=nbt_movegui(h4);
                 
                 hold on
                 plot([1.2 1.8],g,'g')

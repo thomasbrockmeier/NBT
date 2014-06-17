@@ -30,12 +30,12 @@
 % See Readme.txt for additional copyright information.
 % ---------------------------------------------------------------------------------------
 
-function nbt_movegui(h)
+function h=nbt_movegui(h)
     set(h,'CreateFcn','movegui')
     figName = tempname;
     hgsave(h,figName)
     close(h)
-    hh2 = hgload(figName);
+    h = hgload(figName);
     currentFolder = pwd;
     delete([figName '.fig']);  
 end

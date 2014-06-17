@@ -199,7 +199,7 @@ if nargs <= 1
     scrsz = get(0,'ScreenSize');
     GroupSelection = figure('Units','pixels', 'name','NBT: Define Group' ,'numbertitle','off','Position',[390.0000  456.7500  1000  320], ...
         'MenuBar','none','NextPlot','new','Resize','off');
-    nbt_movegui(GroupSelection);
+    GroupSelection=nbt_movegui(GroupSelection);
 
     g = gcf;
     Col = get(g,'Color');

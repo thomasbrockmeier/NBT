@@ -67,7 +67,7 @@ LoadButton = uicontrol(hh2,'Style','pushbutton','String','Load Existing Group(s)
 DefineButton = uicontrol(hh2,'Style','pushbutton','String','Define New Group(s)','Position',[5 10 150 30],'fontsize',10,'callback',@def_groups);
 
 % fit figure to screen, adapt to screen resolution
-nbt_movegui(hh2)
+hh2=nbt_movegui(hh2);
 uiwait(hh2)
 
 

@@ -98,7 +98,7 @@ scrsz = get(0,'ScreenSize');
 Chans_RegsSelection = figure('Units','pixels', 'name','Select Channels and/or Regions' ,'numbertitle','off','Position',[scrsz(3)/4  scrsz(3)/5   550  400], ...
     'MenuBar','none','NextPlot','new','Resize','off');
 % fit figure to screen, adapt to screen resolution
-nbt_movegui(Chans_RegsSelection);
+Chans_RegsSelection=nbt_movegui(Chans_RegsSelection);
 %
 g = gcf;
 Col = get(g,'Color');

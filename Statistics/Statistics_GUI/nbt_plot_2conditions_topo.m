@@ -81,7 +81,7 @@ if isempty(regions)
     fontsize = 10;
     fig1 = figure('name',['NBT: Statistics (Channels) for ',regexprep(biomarker,'_',' ')],...
         'NumberTitle','off','position',[10          80       1500      500]); %128
-    nbt_movegui(fig1);
+    fig1=nbt_movegui(fig1);
     
     %plot control buttons
     uicontrol(fig1, 'Style', 'pushbutton', 'string', 'Pop out', 'position', [20 400 60 20],'callback',@plot_interpolatedFigure);

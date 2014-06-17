@@ -37,7 +37,7 @@ h2 = figure('Visible','on','numbertitle','off','Name',['NBT: Multiple comparison
     calctext = text(1,1,'Calculating...');
     drawnow
 %--- adapt to screen resolution
-nbt_movegui(h2);
+h2=nbt_movegui(h2);
 %---
 bh=bar3(PtoPlot);
 for i=1:length(bh)

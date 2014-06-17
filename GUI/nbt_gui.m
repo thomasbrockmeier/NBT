@@ -100,7 +100,7 @@ if(isempty(varargin))
         'MenuBar','none','NextPlot','new','Resize','off');
    
    %make sure the GUI is onscreen
-    nbt_movegui(NBTMenu);
+    NBTMenu=nbt_movegui(NBTMenu);
 
         try
             nbt_set_name(evalin('base','Signal'),evalin('base','SignalInfo'));
