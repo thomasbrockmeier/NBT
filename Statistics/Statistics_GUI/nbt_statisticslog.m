@@ -137,12 +137,17 @@ switch index
         s.statfunc = @anova2;
         s.statfuncname = 'Two-way ANOVA';
         s.statname = 'Two-way ANOVA'; 
-    case 18 %Kruskal-Wallis test
+    case 18
+        s.statistic = @nanmean;
+        s.statfunc = @anova2;
+        s.statfuncname = 'n-way ANOVA';
+        s.statname = 'n-way ANOVA';  
+    case 19 %Kruskal-Wallis test
         s.statistic = @nanmedian;
         s.statfunc = @kruskalwallis;
         s.statfuncname = 'Kruskal-Wallis test';
         s.statname = 'Kruskal-Wallis test';
-    case 19 %Friedman test
+    case 20 %Friedman test
         s.statistic = @nanmedian;
         s.statfunc = @friedman;
         s.statfuncname = 'Friedman test';
