@@ -11,11 +11,14 @@ classdef nbt_db
         OutputFormat %output format - remove nans, etc. cell vs matrix vs struct
     end
     
-    methods (Access = Public)
-        dbObj = nbt_db
+    methods (Access = public)
+        function dbObj = nbt_db %object contructor
+            dbObj.DatabaseType = 'NBTelement';
+        end
+        
         dbObj = nbt_GetData(dbObj) %get data
     end
-    methods (Hidden = True)
+    methods (Hidden = true)
        dbObj = OutputFormating %called by GetData before returning Data 
     end
     
