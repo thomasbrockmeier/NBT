@@ -6,8 +6,10 @@ classdef nbt_db
         ProjectID %
         SubjectID
         ConditionID
+        Age
+        Gender
         Biomarker
-        Parameters %for addtional search parameters.
+        Parameters %for additional search parameters.
         OutputFormat %output format - remove nans, etc. cell vs matrix vs struct
     end
     
