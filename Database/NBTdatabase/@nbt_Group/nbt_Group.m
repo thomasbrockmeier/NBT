@@ -2,8 +2,6 @@ classdef nbt_Group %NBT GroupObject - contain group definitions + Database point
     properties
         DatabaseType %e.g. NBTelement, File
         DatabaseLocation %path to files 
-        Data
-        DataType %per Channels vs not 
         ProjectID %
         SubjectID
         Age
@@ -12,8 +10,6 @@ classdef nbt_Group %NBT GroupObject - contain group definitions + Database point
         Biomarker
         FreqBand
         Parameters %for additional search parameters.
-        OutputFormat %output format - remove nans, etc. cell vs matrix vs struct
-       
     end
     
     methods (Access = public)
@@ -21,7 +17,9 @@ classdef nbt_Group %NBT GroupObject - contain group definitions + Database point
             dbObj.DatabaseType = 'NBTelement';
         end
         
-        dbObj = nbt_GetData(dbObj) %get data
+        nbt_GroupObject = nbt_definegroup %Returns a group object based on selections (e.g., from the GUI)
+        
+        nbt_DataObject = nbt_GetData(nbt_GroupObject, Parameters) %Returns a nbt_Data Object based on the GroupObject and additional parameters
     end 
 end
 
