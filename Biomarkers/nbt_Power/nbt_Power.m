@@ -35,7 +35,7 @@ classdef nbt_Power < nbt_Biomarker
                 Unit = '\muV^2';
             else
                 BiomarkerObject.Power = nan(fbins,NumChannels);
-                BiomarkerObject.Biomarkers ={'Power';'Frequencybins'};
+                BiomarkerObject.Biomarkers ={'Power'};
                 BiomarkerObject.PrimaryBiomarker = 'Power';
                 BiomarkerObject.BiomarkerUnits = Unit;
                 BiomarkerObject.Frequencybins = nan(fbins,1);
