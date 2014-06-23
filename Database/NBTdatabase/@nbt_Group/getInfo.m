@@ -4,7 +4,17 @@ function [InfoCell, GrpObj, FileInfo]=getInfo(GrpObj)
 
 switch GrpObj.DatabaseType
     case 'NBTelement' %NBTelement database in base.
-        readconditions = evalin('base', 'Condition.Data');
+        try
+          readconditions = evalin('base', 'Condition.Data');
+        catch %in the case the NBTelement database is not loaded
+            try
+                evalin('base', 'load(''NBTelementBase.mat'')');
+            catch % in the case the NBTelement database does not exist
+                nbt_importBiomarkers
+                evalin('base', 'load(''NBTelementBase.mat'')');
+            end
+            readconditions = evalin('base', 'Condition.Data');
+        end
         SubjList = evalin('base', 'Subject.Data');
         readproject = evalin('base', 'Project.Data');
         readgender=evalin('base','Gender.Data');
