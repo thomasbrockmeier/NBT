@@ -1,4 +1,4 @@
-function dbObj=nbt_GetData(dbObj)
+function  DataObj = getData(GrpObj)
 
 %Load data from Database
 switch dbObj.DatabaseType

@@ -85,7 +85,7 @@ uiwait(hh2)
 
     function def_groups(d1,d2)
         %--- indicate how many groups you want to create
-        n_group = str2num(cell2mat(inputdlg('How many groups you want to define?: ' )));
+        n_group = str2num(cell2mat(inputdlg('How many groups do you want to define?: ' )));
         
         %--- run the nbt_definegroup interface
         if isempty(G)
