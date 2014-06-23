@@ -121,7 +121,8 @@ end
 if (standalone)
     %%  NBT standalone GUI
     %define "use NBTelements" check box
-    uicontrol(NBTMenu, 'Style', 'Checkbox','String', 'Use NBTelements','Position',[10 10 200 20],'Tag','NBTelementSwitch')
+    tmpG = nbt_Group;
+    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.DatabaseType],'Position',[0 15 150 12])
     
     %define menu
     FileSub = uimenu(NBTMenu,'label', ' &File ');

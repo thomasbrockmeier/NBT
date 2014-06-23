@@ -68,7 +68,6 @@ end
 if (isempty(G))
     nbt_definegroups;
 end
-nbt_selectbiomarkers;
 
 
 G = evalin('base','G');

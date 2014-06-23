@@ -5,7 +5,7 @@ function [InfoCell, GrpObj, FileInfo]=getInfo(GrpObj)
 switch GrpObj.DatabaseType
     case 'NBTelement' %NBTelement database in base.
         try
-          readconditions = evalin('base', 'Condition.Data');
+            readconditions = evalin('base', 'Condition.Data');
         catch %in the case the NBTelement database is not loaded
             try
                 evalin('base', 'load(''NBTelementBase.mat'')');
@@ -23,10 +23,33 @@ switch GrpObj.DatabaseType
         
         for mm=1:length(SubjList);
             readsubject{mm} = SubjList(mm);
-        end 
+        end
+        
+        %Populate Biomarkers
+        s=evalin('base','whos');
+        FreqBands = evalin('base', 'FrequencyBand.Data');
+        counter =0;
+        for ii=1:length(s)
+            if(strcmp(s(ii).class,'nbt_NBTelement'))
+                NBTe = evalin('base',s(ii).name);
+                if(~isempty(NBTe.Biomarkers))
+                    if(NBTe.Uplink == 4)
+                        for fb = 1:length(FreqBands)
+                            counter = counter+1;
+                            biomarker_objects{counter} = [s(ii).name '.' FreqBands{1,fb}];
+                            biomarkers{counter} = NBTe.Biomarkers;
+                        end
+                    else
+                        counter = counter+1;
+                        biomarker_objects{counter} = s(ii).name;
+                        biomarkers{counter} = NBTe.Biomarkers;
+                    end
+                end
+            end
+        end
         FileInfo = [];
     case 'File' %File based database.
-        [FileInfo, GrpObj] =getFileInfo(GrpObj);
+        [FileInfo, GrpObj] = getFileInfo(GrpObj);
         readconditions = unique(FileInfo(:,2));
         readproject = unique(FileInfo(:,3));
         readsubject = unique(FileInfo(:,4));
@@ -41,7 +64,9 @@ switch GrpObj.DatabaseType
         emptyCells = cellfun(@isempty,temp);
         temp(emptyCells) = [];
         readage=unique(cell2mat((temp)));
+        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.DatabaaseLocation filesep FileInfo{1,1}]);
 end
+
 
 %Contruct InfoCell
 InfoCell = cell(6,2);
@@ -57,4 +82,14 @@ InfoCell{5,1} = 'Gender';
 InfoCell{5,2} = readgender;
 InfoCell{6,1} = 'Age';
 InfoCell{6,2} = readage;
+
+k = 1;
+for i = 1:length(biomarker_objects)
+    tmp = biomarkers{i};
+    for j = 1:length(tmp)
+        biom{k} = [biomarker_objects{i} '.' tmp{j}];
+        k = k+1;
+    end
+end
+GrpObj.Biomarker = biom(:);
 end
