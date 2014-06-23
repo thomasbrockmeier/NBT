@@ -16,12 +16,14 @@ classdef nbt_Group %NBT GroupObject - contain group definitions + Database point
     
     methods (Access = public)
         function GrpObj = nbt_Group %object contructor
-            GrpObj.DatabaseType = 'File';
+            GrpObj.DatabaseType = 'File'; % 'NBTelement' or 'File'
         end
                 
         nbt_DataObject = getData(nbt_GroupObject, Parameters) %Returns a nbt_Data Object based on the GroupObject and additional parameters
         
-       [InfoCell, nbt_GroupObject] = getInfo(nbt_GroupObject) %Returns a cell with information about the database.
+       [InfoCell, nbt_GroupObject, FileInfo] = getInfo(nbt_GroupObject) %Returns a cell with information about the database.
+       nbt_GroupObject = generateFileList(nbt_GroupObject, FileInfo);
+       [FileInfo, nbt_GroupObject] = getFileInfo(nbt_GroupObject);
     end 
     
     methods (Static = true)

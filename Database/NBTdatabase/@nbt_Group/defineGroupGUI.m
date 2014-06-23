@@ -51,7 +51,7 @@ text_ui7= uicontrol(GroupSelection,'Style','text','Position',[700 70 200 20],'st
 text_ui8= uicontrol(GroupSelection,'Style','edit','Position',[700 50 200 20],'string','','fontsize',10);
 
 plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 30 40 40], 'String','OK','callback', @groupdefinition);
-wait(GroupSelection) %now we wait for the user to select parameters - GroupSelection is closed by groupdefinition below
+uiwait(GroupSelection) %now we wait for the user to select parameters - GroupSelection is closed by groupdefinition below
 
 % --- callback function - nested function
     function groupdefinition(src,evt)
@@ -66,7 +66,7 @@ wait(GroupSelection) %now we wait for the user to select parameters - GroupSelec
         end
         
         SubjectList_index = get(listBox2,'Value');
-        if ~isempty(SubjecList_index)
+        if ~isempty(SubjectList_index)
            SubjectList = get(listBox2,'String');
            GrpObj.SubjectID = SubjectList(SubjectList_index);
         end

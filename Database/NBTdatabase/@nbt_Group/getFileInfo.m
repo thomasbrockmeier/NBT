@@ -1,4 +1,4 @@
-function FileInfo=getFileInfo(GrpObj)
+function [FileInfo, GrpObj]=getFileInfo(GrpObj)
 %This function loads FileInfo
 if isempty(GrpObj.DatabaseLocation)
     GrpObj.DatabaseLocation=uigetdir([],'Select folder with NBT Signals');

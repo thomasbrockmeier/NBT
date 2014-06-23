@@ -16,7 +16,7 @@ switch GrpObj.DatabaseType
         end 
         FileInfo = [];
     case 'File' %File based database.
-        FileInfo=getFileInfo(GrpObj);
+        [FileInfo, GrpObj] =getFileInfo(GrpObj);
         readconditions = unique(FileInfo(:,2));
         readproject = unique(FileInfo(:,3));
         readsubject = unique(FileInfo(:,4));

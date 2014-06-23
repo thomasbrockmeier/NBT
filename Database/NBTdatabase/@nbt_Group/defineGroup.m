@@ -1,9 +1,12 @@
 function GrpObj=defineGroup(GrpObj)
+if(isempty(GrpObj))
+     GrpObj = nbt_Group;
+     GUIswitch = 1;
+end
 %First we load information about the content of the database
 [InfoCell, GrpObj,FileInfo] = getInfo(GrpObj);
 
-if(isempty(GrpObj))
-    GrpObj = nbt_Group;
+if(GUIswitch)
     GrpObj = defineGroupGUI(GrpObj, InfoCell);
 end
 
@@ -14,7 +17,7 @@ end
 if(isempty(GrpObj.SubjectID))
    GrpObj.SubjectID = InfoCell{2,2}; 
 end
-if(isempty(GrpObj.ConditionID)
+if(isempty(GrpObj.ConditionID))
    GrpObj.ConditionID = InfoCell{4,2}; 
 end
 if(isempty(GrpObj.Gender))
@@ -25,7 +28,7 @@ if(isempty(GrpObj.Age))
 end
 
 % if File based generate FileList
-if(strcmp(GrpObj.DatabaesType,'File'))
+if(strcmp(GrpObj.DatabaseType,'File'))
     GrpObj = generateFileList(GrpObj,FileInfo);
 end
 end

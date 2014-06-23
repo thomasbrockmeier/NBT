@@ -59,9 +59,8 @@ catch
     G = [];
 end
 
-
-scrsz = get(0,'ScreenSize');
-hh2 = figure('Units','pixels', 'name','Select Group(s)' ,'numbertitle','off','Position',[scrsz(3)/4  scrsz(4)/2  160  100],...
+[ScreenWidth, ScreenHeight] = nbt_getScreenSize();
+hh2 = figure('Units','pixels', 'name','Select Group(s)' ,'numbertitle','off','Position',[ScreenWidth/4  ScreenHeight/2  160  100],...
     'MenuBar','none','NextPlot','new','Resize','off');
 LoadButton = uicontrol(hh2,'Style','pushbutton','String','Load Existing Group(s)','Position',[5 50 150 30],'fontsize',10,'callback',@load_groups);
 DefineButton = uicontrol(hh2,'Style','pushbutton','String','Define New Group(s)','Position',[5 10 150 30],'fontsize',10,'callback',@def_groups);
@@ -75,7 +74,7 @@ uiwait(hh2)
     function load_groups(d1,d2)
         try
         [FileName,PathName,FilterIndex] = uigetfile;
-        Loaded = (load([PathName '/' FileName ]));
+        Loaded = (load([PathName filesep FileName ]));
         G = Loaded.G;
         assignin('base','G',G);
         close(hh2)
@@ -98,26 +97,10 @@ uiwait(hh2)
         %--------------------------
         for i=start:start+n_group-1
             disp(['Define group ' num2str(i)])
-            nbt_definegroup;
-            waitforbuttonpress
-            
-            % waitforbuttonpress
-            
-            h = get(0,'CurrentFigure');
-            waitfor(h)
-            if(nbt_determineNBTelementState)
-                G(i).selection = evalin('base','selection');
-                eval(['evalin(''caller'',''clear selection'');']);
-                G(i).group_difference = [];
-            else
-                G(i).fileslist = evalin('base','SelectedFiles');
-                G(i).selection.group_name = G(i).fileslist.group_name;
-                eval(['evalin(''caller'',''clear SelectedFiles'');']);
-                G(i).group_difference = [];
-            end
+            G{i,1} = nbt_Group.defineGroup([]);
+      
             %--- save the Group struct in the workspace
             assignin('base','G',G);
-            
         end
         
         close(hh2)
