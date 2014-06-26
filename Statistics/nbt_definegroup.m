@@ -245,7 +245,11 @@ if nargs == 0
         if ischar(readage{anni})
         eta(countage) = str2num(readage{anni});  
         else
-            eta(countage) = (readage{anni});  
+            if isempty((readage{anni}))
+                eta(countage) = 99;  
+            else
+                eta(countage) = (readage{anni});  
+            end
         end
         countage = countage + 1;     
     end
