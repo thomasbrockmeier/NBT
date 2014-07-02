@@ -36,3 +36,12 @@ line 79 to 80 (which deletes the first 3 channels in locs structure) should be d
 in topoplot.m
 line 1337: the following line, should not be out-commented
 %ringh= patch(headx,heady,ones(size(headx)),HEADCOLOR,'edgecolor',HEADCOLOR,'linewidth', HLINEWIDTH); hold on
+%%%%%%%%%%%%%%%%%%%%
+Fix contour function bug:
+    %workaround conture function bug (Matlab R2014b)
+    ind=isnan(ZiC);
+    F=scatteredInterpolant(Xi(~ind),Yi(~ind),ZiC(~ind));
+    ZiC(ind)=F(Xi(ind),Yi(ind));
+    %workaround end
+
+See https://github.com/NeurophysiologicalBiomarkerToolbox/NBT/commit/13d67549fda123dfec5d8e406d16fe9cf54a44a7
