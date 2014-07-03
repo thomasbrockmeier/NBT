@@ -1,4 +1,4 @@
-% nbt_doBarlow BARLOW calculates ACTIVITY, MOBILITY, COMPLEXITY
+% nbt_doBarlow BARLOW calculates frequency, amplitude, spi
 %
 % Usage:
 %   biomarkerObject = nbt_DoBarlow(...)
@@ -21,7 +21,12 @@
 %       B,A     filter coefficients (window function) 
 %
 % Outputs:
-%   
+% 
+% Running mean amplitude
+% Running mean frequency: the mean of all frequencies present, taking into account their relative amplitudes
+% Spectral Purity Index (SPI): the ratio of the square of the running mean absolute slope (steepness) 
+%          to the product of the running mean absolute curvature (sharpness) and the running mean absolute amplitude
+%
 %
 % Example:
 %    

@@ -116,7 +116,7 @@ for j= startindex:length(d)
                         clear([SignalName 'Info'])
                         load ([LoadDir,'/',d(j).name],SignalName)
                         try
-                        load ([LoadDir,'/',d(j).name(1:end-4),'_info.mat'],[SignalName,'Info'])
+                            load ([LoadDir,'/',d(j).name(1:end-4),'_info.mat'],[SignalName,'Info'])
                         catch
                             load ([LoadDir,'/',d(j).name],[SignalName 'Info'])
                         end
@@ -130,6 +130,11 @@ for j= startindex:length(d)
                                 Signal = eval(SignalName);
                                 try
                                     SignalInfo = eval([SignalName 'Info']);
+                                    %backward compatibility 
+                                    if(isempty(SignalInfo.SignalName))
+                                        SignalInfo.SignalName = SignalName;
+                                    end
+                                    %end
                                 catch
                                     try
                                         load([SignalInfo.file_name,'_info.mat'])

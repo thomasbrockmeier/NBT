@@ -7,9 +7,21 @@ function SL = nbt_doSL(Signal,SignalInfo,LP,HP,PREF)
 % SignalInfo = NBT Info object 
 % LF = Low frequency
 % HP = High Frequency
-% PREF 
+% PREF: pair of optimal p_ref values
+% P: parameter structure containing
+%       m: time-delay embedding dimension m
+%       lag: time-delay
+%
+% Output:
+%   SLm: synchronization likelihood matrix <2 channels, iterations i>
+%   HITm: matrix of number of hits <2 channels, iterations i>
+%   RECm: logical matrix, 1: recurrence of reference vector i, 0: otherwise 
+%         <2 channels, iterations i, state vectors j>
+%   D: Distance matrix containing Euclidean distances between the reference
+%           vector and state vectors <2 channels, iterations i, state vectors j>
+%   E: threshold distances epsilon <2 channels, iterations i>
+%   P: updated parameter structure
 
-%Output: biomarker object
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -45,9 +57,7 @@ SL = nbt_SL(size(Signal,2));
 
 %%   Compute Synchronization likelihood
 % initialize core vars
-if isempty(PREF)
-    P.p_ref   = P.p_ref * ones(1,2);
-else
+if ~isempty(PREF)
     P.p_ref   = PREF;
 end
 

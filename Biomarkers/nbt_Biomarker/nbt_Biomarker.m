@@ -62,6 +62,8 @@ classdef nbt_Biomarker
         SubjectID % The ID of the subject
         FrequencyRange %Frequency range of processed signal [] means broadband.
         Condition % The condition ID
+        SignalName % Name of the signal used to compute the biomaker
+        NBTDID %NBTDID of the signal used to compute the biomakrer
         NBTversion
     end
     methods
@@ -73,11 +75,14 @@ classdef nbt_Biomarker
             BiomarkerObject.ProjectID = NaN;
             BiomarkerObject.FrequencyRange = [];
             BiomarkerObject.Biomarkers = {'MarkerValues'};
-            BiomarkerObject.NBTversion = 2;
+            BiomarkerObject.NBTversion = nbt_GetVersion;
         end
         
         function biomarkerObject=nbt_UpdateBiomarkerInfo(biomarkerObject, SignalInfo)
             biomarkerObject.DateLastUpdate = datestr(now);
+            [~, biomarkerObject.NBTversion] = nbt_GetVersion;
+            biomarkerObject.NBTDID = SignalInfo.NBTDID;
+            biomarkerObject.SignalName =  SignalInfo.SignalName;
             biomarkerObject.FrequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.SubjectID = SignalInfo.subjectID;
             biomarkerObject.Condition = SignalInfo.condition;
