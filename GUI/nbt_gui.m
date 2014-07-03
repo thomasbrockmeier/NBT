@@ -64,35 +64,7 @@ try
 catch
 end
 if(isempty(varargin))
-    %% get NBT version THIS TAKES LOTS OF TIME!!!!
-    %     try
-    %         [m,s] =system('bzr revno');
-    %         if(m ~= 0 | length(s)> 5 )
-    %             s = textread('rev.txt');
-    %         end
-    %     catch
-    %         s = textread('rev.txt');
-    %     end
-    %     try
-    %         NBT_version = ['NBT version ' int2str(s)];
-    %     catch
-    %         NBT_version = 'NBT';
-    %     end
-    
-    try
-        filepath = fileparts(which('NBT.m'));
-        filename = fullfile(filepath, 'Contents.m');
-        
-        if isempty(filename), throwerro; end;
-        
-        fid = fopen(filename, 'r');
-        fgetl(fid);
-        versionline = fgetl(fid);
-        NBT_version = [versionline(11:end)];
-        fclose(fid);
-    catch
-        NBT_version= 'NBT www.nbtwiki.net';
-    end
+    NBT_version = nbt_GetVersion;
     
     %% Make menu
     if(standalone)
