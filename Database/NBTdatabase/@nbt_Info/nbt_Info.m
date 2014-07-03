@@ -33,6 +33,7 @@
 
 classdef nbt_Info
     properties
+        SignalName
         projectID
         researcherID
         subjectID

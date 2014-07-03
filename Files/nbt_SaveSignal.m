@@ -17,6 +17,7 @@ if(auto ==1)
     else
         name = SignalName;
     end
+    SignalInfo.SignalName = name;
     eval(['[',name,'Info]=SignalInfo;']);
     fn=SignalInfo.file_name;
 

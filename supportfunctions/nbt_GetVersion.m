@@ -22,15 +22,16 @@ FILE_NAME = '.git/refs/heads/master';
 
 dirName = rel2abs([fileparts(mfilename('fullpath')) filesep '..']);
 fileName = catfile(dirName, FILE_NAME);
-try
+
     if exist(fileName, 'file')
         fid = safefid.fopen(fileName, 'r');
         id = fid.fgetl;
-        id = id(1:7);
-        NBT_version = [NBT_version ':' id];
+        NBT_version = [NBT_version ':' id(1:7)];
+    else
+        id = NBT_version;
     end
-catch
-end
+
+
 
 NBT_version = [NBT_version ' - www.nbtwiki.net'];
 
