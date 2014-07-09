@@ -64,7 +64,7 @@ switch GrpObj.DatabaseType
         emptyCells = cellfun(@isempty,temp);
         temp(emptyCells) = [];
         readage=unique(cell2mat((temp)));
-        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.DatabaaseLocation filesep FileInfo{1,1}]);
+        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.DatabaseLocation filesep FileInfo{1,1}]);
 end
 
 
