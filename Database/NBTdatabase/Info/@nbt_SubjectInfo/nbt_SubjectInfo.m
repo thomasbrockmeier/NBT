@@ -41,7 +41,8 @@ classdef nbt_SubjectInfo
         subjectAge
         subjectHeadsize
         subjectHandedness
-        subjectMedication        
+        subjectMedication  
+        subjectClassification
         info
         lastUpdate
         listOfBiomarkers

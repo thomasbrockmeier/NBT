@@ -94,7 +94,7 @@ if (standalone)
     %%  NBT standalone GUI
     %define "use NBTelements" check box
     tmpG = nbt_Group;
-    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.DatabaseType],'Position',[0 15 150 12])
+    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.databaseType],'Position',[0 15 150 12])
     
     %define menu
     FileSub = uimenu(NBTMenu,'label', ' &File ');
@@ -166,11 +166,8 @@ if (standalone)
     
     Stat = uimenu(NBTMenu, 'label', ' &Biomarker statistics');
     uimenu(Stat, 'label', ' &Current Signal', 'callback',  ['nbt_statistics_group([SignalPath  SignalInfo.file_name ''.mat''])'  ]);
-    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectrunstatistics;');
-%     uimenu(Stat, 'label', ' &Within a group','callback', 'nbt_stat_group;');
-%     uimenu(Stat, 'label', ' &Between two conditions','callback', 'nbt_stat_conditions;');
-%     uimenu(Stat, 'label', ' &Between two groups','callback', 'nbt_stat_groups;');
-%     uimenu(Stat,'label', 'List of Performed Tests', 'callback', 'nbt_list_statistics');
+    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectRunStatistics;');
+
     
     
     nbt_commonMenu

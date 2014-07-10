@@ -1,10 +1,10 @@
 function [FileInfo, GrpObj] = getFileInfo(GrpObj)
 %This function loads FileInfo
-if isempty(GrpObj.DatabaseLocation)
-    GrpObj.DatabaseLocation=uigetdir([],'Select folder with NBT Signals');
+if isempty(GrpObj.databaseLocation)
+    GrpObj.databaseLocation = uigetdir([],'Select folder with NBT Signals');
 end
-path = GrpObj.DatabaseLocation;
-d = dir(GrpObj.DatabaseLocation);
+path = GrpObj.databaseLocation;
+d = dir(GrpObj.databaseLocation);
 
 %--- scan files in the folder
 %--- for files copied from a mac

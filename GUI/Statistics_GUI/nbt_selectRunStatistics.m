@@ -1,4 +1,4 @@
-% nbt_selectrunstatistics - this function is part of the statistics GUI, it allows
+% nbt_selectRunStatistics - this function is part of the statistics GUI, it allows
 % to select specific statistical test and run the test for
 % biomarkers/groups/channels or regions
 %
@@ -57,20 +57,16 @@
 % --------------
 
 
-function nbt_selectrunstatistics
-global questions
-global G
+function nbt_selectRunStatistics
 try
-    G = evalin('base','G');
+    NBTstudy = evalin('base','NBTstudy');
 catch
-    G = [];
+   evalin('base','NBTstudy = nbt_Study') ;
+   NBTstudy = evalin('base','NBTstudy');
 end
-if (isempty(G))
-    nbt_definegroups;
+if (isempty(NBTstudy.groups))
+    NBTstudy = nbt_definegroups(NBTstudy);
 end
-
-
-G = evalin('base','G');
 
 %----------------------
 % First we build the Interface

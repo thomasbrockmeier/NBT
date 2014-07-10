@@ -1,22 +1,22 @@
-classdef nbt_Group %NBT GroupObject - contain group definitions + Database pointers.
+classdef nbt_Group %NBT GroupObject - contains group definitions + Database pointers.
     properties
-        DatabaseType %e.g. NBTelement, File
-        DatabaseLocation %path to files 
-        GroupName
-        FileList
-        ProjectID %
-        SubjectID
-        Age
-        Gender
-        ConditionID
-        Biomarker
-        FreqBand
-        Parameters %for additional search parameters.
+        databaseType %e.g. NBTelement, File
+        databaseLocation %path to files 
+        groupName
+        fileList
+        projectID %
+        subjectID
+        age
+        gender
+        conditionID
+        biomarker
+        frequencyRange
+        parameters %for additional search parameters.
     end
     
     methods (Access = public)
         function GrpObj = nbt_Group %object contructor
-            GrpObj.DatabaseType = 'File'; % 'NBTelement' or 'File'
+            GrpObj.databaseType = 'File'; % 'NBTelement' or 'File'
         end
                 
         nbt_DataObject = getData(nbt_GroupObject, Parameters) %Returns a nbt_Data Object based on the GroupObject and additional parameters

@@ -50,20 +50,13 @@
 % See Readme.txt for additional copyright information.
 % ---------------------------------------------------------------------------------------
 
-function nbt_definegroups
-
-
-try
-    G = evalin('base','G');
-catch
-    G = [];
-end
+function  NBTstudy = nbt_definegroups(NBTstudy)
 
 [ScreenWidth, ScreenHeight] = nbt_getScreenSize();
 hh2 = figure('Units','pixels', 'name','Select Group(s)' ,'numbertitle','off','Position',[ScreenWidth/4  ScreenHeight/2  160  100],...
     'MenuBar','none','NextPlot','new','Resize','off');
-LoadButton = uicontrol(hh2,'Style','pushbutton','String','Load Existing Group(s)','Position',[5 50 150 30],'fontsize',10,'callback',@load_groups);
-DefineButton = uicontrol(hh2,'Style','pushbutton','String','Define New Group(s)','Position',[5 10 150 30],'fontsize',10,'callback',@def_groups);
+uicontrol(hh2,'Style','pushbutton','String','Load Existing Group(s)','Position',[5 50 150 30],'fontsize',10,'callback',@loadGroups);
+uicontrol(hh2,'Style','pushbutton','String','Define New Group(s)','Position',[5 10 150 30],'fontsize',10,'callback',@defGroups);
 
 % fit figure to screen, adapt to screen resolution
 hh2=nbt_movegui(hh2);
@@ -71,7 +64,7 @@ uiwait(hh2)
 
 
 %% nested functions part
-    function load_groups(d1,d2)
+    function loadGroups(d1,d2)
         try
         [FileName,PathName,FilterIndex] = uigetfile;
         Loaded = (load([PathName filesep FileName ]));
@@ -82,27 +75,21 @@ uiwait(hh2)
         end
     end
 
-    function def_groups(d1,d2)
+    function defGroups(d1,d2)
         %--- indicate how many groups you want to create
-        n_group = str2num(cell2mat(inputdlg('How many groups do you want to define?: ' )));
+        n_group = str2double(cell2mat(inputdlg('How many groups do you want to define?: ' )));
         
         %--- run the nbt_definegroup interface
-        if isempty(G)
+        if isempty(NBTstudy.groups)
             start = 1;
         else
-            start = length(G)+1;
+            start = length(NBTstudy.groups)+1;
         end
-        %---Attention this NBTelement lines need to be commented later on
-        % nbt_determineNBTelementState = 0;
-        %--------------------------
+
         for i=start:start+n_group-1
             disp(['Define group ' num2str(i)])
-            G{i,1} = nbt_Group.defineGroup([]);
-      
-            %--- save the Group struct in the workspace
-            assignin('base','G',G);
+            NBTstudy.groups{i,1} = nbt_Group.defineGroup([]);
         end
-        
         close(hh2)
     end
 end

@@ -1,8 +1,8 @@
-function [InfoCell, GrpObj, FileInfo]=getInfo(GrpObj)
-% Return an InfoCell which, e.g., can be used to fill the boxes in the
+% This method returns an InfoCell which, e.g., can be used to fill the boxes in the
 % defineGroup GUI.
-
-switch GrpObj.DatabaseType
+function [InfoCell, GrpObj, FileInfo]=getInfo(GrpObj)
+%First we determine which database is used.
+switch GrpObj.databaseType 
     case 'NBTelement' %NBTelement database in base.
         try
             readconditions = evalin('base', 'Condition.Data');
@@ -64,7 +64,7 @@ switch GrpObj.DatabaseType
         emptyCells = cellfun(@isempty,temp);
         temp(emptyCells) = [];
         readage=unique(cell2mat((temp)));
-        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.DatabaseLocation filesep FileInfo{1,1}]);
+        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.databaseLocation filesep FileInfo{1,1}]);
 end
 
 
