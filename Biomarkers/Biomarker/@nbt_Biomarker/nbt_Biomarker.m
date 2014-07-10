@@ -75,12 +75,12 @@ classdef nbt_Biomarker
             BiomarkerObject.ProjectID = NaN;
             BiomarkerObject.FrequencyRange = [];
             BiomarkerObject.Biomarkers = {'MarkerValues'};
-            BiomarkerObject.NBTversion = nbt_GetVersion;
+            BiomarkerObject.NBTversion = nbt_getVersion;
         end
         
         function biomarkerObject=nbt_UpdateBiomarkerInfo(biomarkerObject, SignalInfo)
             biomarkerObject.DateLastUpdate = datestr(now);
-            [~, biomarkerObject.NBTversion] = nbt_GetVersion;
+            [~, biomarkerObject.NBTversion] = nbt_getVersion;
             biomarkerObject.NBTDID = SignalInfo.NBTDID;
             biomarkerObject.SignalName =  SignalInfo.SignalName;
             biomarkerObject.FrequencyRange = SignalInfo.frequencyRange;

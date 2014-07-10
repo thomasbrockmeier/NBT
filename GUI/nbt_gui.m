@@ -64,7 +64,7 @@ try
 catch
 end
 if(isempty(varargin))
-    NBT_version = nbt_GetVersion;
+    NBT_version = [nbt_getVersion ' -  www.nbtwiki.net'];
     
     %% Make menu
     if(standalone)
