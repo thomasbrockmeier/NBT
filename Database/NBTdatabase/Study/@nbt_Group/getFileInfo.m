@@ -17,42 +17,27 @@ end
 %---
 pro=1;
 disp('Please wait: NBT is checking the files in your folder...')
+FileInfo = cell(length(d)-startindex,7);
 for i = startindex:length(d)
-    if isempty(findstr(d(i).name,'analysis')) && ~isempty(findstr(d(i).name,'info')) && ~isempty(findstr(d(i).name(end-3:end),'.mat')) && isempty(findstr(d(i).name,'statistics'))
-        index = findstr(d(i).name,'.');
-        index2 = findstr(d(i).name,'_');
+    if isempty(strfind(d(i).name,'analysis')) && ~isempty(strfind(d(i).name,'info')) && ~isempty(strfind(d(i).name(end-3:end),'.mat')) && isempty(strfind(d(i).name,'statistics'))
+        index = strfind(d(i).name,'.');
+        index2 = strfind(d(i).name,'_');
         
-        % Load info file
-        Loaded = load([path filesep d(i).name]);
-        
-        Infofields = fieldnames(Loaded);
-        Firstfield = Infofields{1};
-        clear Loaded Infofields;
-        
-        SignalInfo = load([path filesep d(i).name],Firstfield);
-        SignalInfo = eval(strcat('SignalInfo.',Firstfield));
+        % Load info file  
+        clear SubjectInfo
+        load([path filesep d(i).name],'SubjectInfo');
         
         %% FileInfo collects data for further selection
-        FileInfo(pro,1)= {strcat(d(i).name(1:index2-1),'_analysis.mat')};%contains filename
-        FileInfo(pro,2) = {d(i).name(index(3)+1:index2-1)}; %ConditionID
-        FileInfo(pro,3) = {d(i).name(1:index(1)-1)}; %ProjectID
-        FileInfo(pro,4) = {d(i).name(index(1)+1:index(2)-1)}; %SubjectID
-        FileInfo(pro,5) = {d(i).name(index(2)+1:index(3)-1)}; %Recording Date
-        
-        if ~isempty(SignalInfo.subject_gender)
-            FileInfo(pro,6) = {SignalInfo.subject_gender};
+        FileInfo(pro,1)= {[SubjectInfo.fileName '_analysis.mat']};%contains filename
+        FileInfo(pro,2) = SubjectInfo.conditionID; %ConditionID
+        FileInfo(pro,3) = SubjectInfo.projectID; %ProjectID
+        FileInfo(pro,4) = SubjectInfo.subjectID; %SubjectID
+        FileInfo(pro,5) = SubjectInfo.dataOfRecording; %Recording Date
+        FileInfo(pro,6) = {SignalInfo.subjectGender};
+        if isa(SubjectInfo.subjectAge,'char')
+            FileInfo(pro,7) = {str2double(SubjectInfo.subjectAge)};
         else
-            FileInfo(pro,6) = {[]};
-        end
-        
-        if ~isempty(SignalInfo.subject_age)
-            if isa(SignalInfo.subject_age,'char')
-                FileInfo(pro,7) = {str2num(SignalInfo.subject_age)};
-            else
-                FileInfo(pro,7) = {SignalInfo.subject_age};
-            end
-        else
-            FileInfo(pro,7) = {[]};
+            FileInfo(pro,7) = {SubjectInfo.subjectAge};
         end
         pro=pro+1;
     end

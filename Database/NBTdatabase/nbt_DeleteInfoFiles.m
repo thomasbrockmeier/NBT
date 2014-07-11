@@ -18,17 +18,17 @@
 %
 % See Readme.txt for additional copyright information.
 %
-function nbt_DeleteInfoFiles(startpath)
+function nbt_deleteInfoFiles(startpath)
 d= dir (startpath);
 for j=3:length(d)
-    if (d(j).isdir )
-        nbt_DeleteInfoFiles([startpath,'\', d(j).name ]);
+    if (d(j).isdir)
+        nbt_deleteInfoFiles([startpath filesep  d(j).name ]);
     else
-        b = strfind(d(j).name,'mat');
-        cc= strfind(d(j).name,'info');
+        b  = strfind(d(j).name,'mat');
+        cc = strfind(d(j).name,'info');
         
-        if (length(b)~=0  && length(cc)~=0)
-            delete([startpath , '/',d(j).name]);
+        if (~isempty(b) && ~isempty(cc))
+            delete([startpath  filesep  d(j).name]);
         end
     end
 end

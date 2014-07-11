@@ -60,7 +60,7 @@ classdef nbt_SignalInfo
     methods
         function SignalInfo = nbt_SignalInfo
             if(isempty(SignalInfo.nbtVersion))
-                SignalInfo.nbtVersion = nbt_GetVersion;
+                SignalInfo.nbtVersion = nbt_getVersion;
             end
             if(isempty(SignalInfo.signalID))
                 SignalInfo.signalID = nbt_MakeNBTDID;

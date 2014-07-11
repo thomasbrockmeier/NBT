@@ -1,6 +1,6 @@
-function [BiomarkerObjects,Biomarkers]=nbt_ExtractBiomarkers(s)
+function [BiomarkerObjects,Biomarkers, BiomarkersFullList]=nbt_extractBiomarkers(s)
 BiomarkerObjects = cell(0,0);
-error(nargchk(0,1,nargin))
+narginchk(0,1)
 if(~exist('s','var'))
     s=evalin('caller','whos');
   counter=1;
@@ -19,9 +19,12 @@ else
       
 % temporary adjustement
 for ii=1:length(s)
-    if(strcmp(superclasses(s(ii).class),'nbt_Biomarker')) & ~strcmp(s(ii).class,'nbt_questionnaire')
-        BiomarkerObjects = [BiomarkerObjects, s(ii).name];
-        Biomarkers{counter}=eval([s( ii ).name,'.Biomarkers']);
+    try
+    Sclass = superclasses(s(ii).class);
+    Sclass = Sclass(1);
+    if(strcmp(Sclass{1,1}(end-8:end),'Biomarker') & ~strcmp(s(ii).class,'nbt_questionnaire'))
+        BiomarkerObjects    = [BiomarkerObjects, s(ii).name];
+        Biomarkers{counter} = eval([s( ii ).name,'.Biomarkers']);
         counter=counter+1;
     elseif (strcmp(superclasses(s(ii).class),'nbt_Biomarker')) & strcmp(s(ii).class,'nbt_questionnaire')
         BiomarkerObjects = [BiomarkerObjects, s(ii).name];
@@ -29,7 +32,17 @@ for ii=1:length(s)
         counter=counter+1;
         
     end
+    catch
+    end
 end
+in = 1;
+for i = 1:length(BiomarkerObjects)
+    for m = 1:length(Biomarkers{1,i})
+       BiomarkersFullList{in,1} = strcat(BiomarkerObjects{i}, strcat( '.', Biomarkers{m})); 
+       in = in + 1;
+    end
+end
+
 end
 
 

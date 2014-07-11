@@ -21,6 +21,7 @@ switch GrpObj.databaseType
         readage=evalin('base','Age.Data');
         readdate = evalin('base','Date.Data');
         
+        readsubject = cell(length(SubjList),1);
         for mm=1:length(SubjList);
             readsubject{mm} = SubjList(mm);
         end
@@ -64,7 +65,7 @@ switch GrpObj.databaseType
         emptyCells = cellfun(@isempty,temp);
         temp(emptyCells) = [];
         readage=unique(cell2mat((temp)));
-        [biomarker_objects,biomarkers] = nbt_ExtractBiomarkers([GrpObj.databaseLocation filesep FileInfo{1,1}]);
+        [biomarker_objects,biomarkers] = nbt_extractBiomarkers([GrpObj.databaseLocation filesep FileInfo{1,1}]);
 end
 
 
