@@ -50,29 +50,34 @@ for j=3:length(d)
             SubjectInfo.subjectMedication = oldInfo.(oldInfoFields{1}).subject_medication;
             SubjectInfo.info = oldInfo.(oldInfoFields{1}).Info;
             SubjectInfo.lastUpdate = oldInfo.(oldInfoFields{1}).LastUpdate;
-            [~, SubjectInfo.listOfBiomarkers] = nbt_extractBiomarkers([d(j).name(1:end-8) 'analysis.mat']);%load from analysis
-            
-            
-            
-            
+            [~, ~, SubjectInfo.listOfBiomarkers] = nbt_extractBiomarkers([d(j).name(1:end-8) 'analysis.mat']);%load from analysis
+            save(d(j).name, 'SubjectInfo');
+     
             
             %then we create the SignalInfo objects
             for i=1:length(oldInfoFields)
-                
-                
-            end
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+                tmp = nbt_SignalInfo;
+                tmp.subjectInfo     = oldInfo.(oldInfoFields{i}).file_name;
+                tmp.signalName      = oldInfoFields{i}(1:end-4);
+                tmp.signalID        = oldInfo.(oldInfoFields{i}).NBTDID;
+                tmp.signalOrigin    = 'converted from old Info object';
+                tmp.researcherID    = oldInfo.(oldInfoFields{i}).researcherID;
+                tmp.signalType      = oldInfo.(oldInfoFields{i}).fileType;
+                tmp.frequencyRange  = oldInfo.(oldInfoFields{i}).frequencyRange;
+                tmp.timeOfRecording = oldInfo.(oldInfoFields{i}).time_of_recording;
+                tmp.originalSamplingFrequency = oldInfo.(oldInfoFields{i}).original_sample_frequency;
+                tmp.notes           = oldInfo.(oldInfoFields{i}).notes;
+                tmp.badChannels     = oldInfo.(oldInfoFields{i}).BadChannels;
+                tmp.nonEEGch        = oldInfo.(oldInfoFields{i}).NonEEGch;
+                tmp.eyeCh           = oldInfo.(oldInfoFields{i}).EyeCh;
+                tmp.reference       = oldInfo.(oldInfoFields{i}).reference;
+                tmp.lastUpdate      = oldInfo.(oldInfoFields{i}).LastUpdate;
+                tmp.interface       = oldInfo.(oldInfoFields{i}).Interface;
+                tmp.nbtVersion      = nbt_getVersion;
+                tmp.convertedSamplingFrequency = oldInfo.(oldInfoFields{i}).converted_sample_frequency;
+                eval([ oldInfoFields{i} '= tmp;']);
+                save(d(j).name,(oldInfoFields{i}),'-append')
+            end  
         end
     end
 end

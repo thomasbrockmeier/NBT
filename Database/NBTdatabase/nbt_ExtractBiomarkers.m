@@ -7,7 +7,7 @@ if(~exist('s','var'))
 for ii=1:length(s)
     if(strcmp(superclasses(s(ii).class),'nbt_Biomarker')) 
         BiomarkerObjects = [BiomarkerObjects, s(ii).name];
-        Biomarkers{counter}=evalin('caller',[s( ii ).name,'.Biomarkers']);
+        Biomarkers{counter}=evalin('caller',[s( ii ).name,'.Biomarkers;']);
         counter=counter+1;
     end
 end
@@ -24,13 +24,12 @@ for ii=1:length(s)
     Sclass = Sclass(1);
     if(strcmp(Sclass{1,1}(end-8:end),'Biomarker') & ~strcmp(s(ii).class,'nbt_questionnaire'))
         BiomarkerObjects    = [BiomarkerObjects, s(ii).name];
-        Biomarkers{counter} = eval([s( ii ).name,'.Biomarkers']);
-        counter=counter+1;
-    elseif (strcmp(superclasses(s(ii).class),'nbt_Biomarker')) & strcmp(s(ii).class,'nbt_questionnaire')
-        BiomarkerObjects = [BiomarkerObjects, s(ii).name];
-        Biomarkers{counter}={'Answers'};
-        counter=counter+1;
-        
+        try
+            Biomarkers{counter} = eval([s( ii ).name,'.Biomarkers;']);
+        catch
+            Biomarkers{counter} = eval([s( ii ).name,'.biomarkers;']);
+        end
+        counter=counter+1;    
     end
     catch
     end
@@ -38,7 +37,11 @@ end
 in = 1;
 for i = 1:length(BiomarkerObjects)
     for m = 1:length(Biomarkers{1,i})
-       BiomarkersFullList{in,1} = strcat(BiomarkerObjects{i}, strcat( '.', Biomarkers{m})); 
+       BiomarkersFullList{in,1} = strcat(BiomarkerObjects{i}, strcat( '.', Biomarkers{1,i}{m})); 
+       in = in + 1;
+    end
+    if(isempty(Biomarkers{1,i}))
+       BiomarkersFullList{in,1} = BiomarkerObjects{i}; 
        in = in + 1;
     end
 end
