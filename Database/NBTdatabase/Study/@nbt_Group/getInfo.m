@@ -92,5 +92,5 @@ for i = 1:length(biomarker_objects)
         k = k+1;
     end
 end
-GrpObj.Biomarker = biom(:);
+GrpObj.biomarker = biom(:);
 end

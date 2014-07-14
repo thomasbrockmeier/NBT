@@ -62,36 +62,36 @@ uiwait(GroupSelection) %now we wait for the user to select parameters - GroupSel
         ConditionList_index = get(listBox1,'Value');
         if ~isempty(ConditionList_index)
             ConditionList = get(listBox1,'String');
-            GrpObj.ConditionID = ConditionList(ConditionList_index);
+            GrpObj.conditionID = ConditionList(ConditionList_index);
         end
         
         SubjectList_index = get(listBox2,'Value');
         if ~isempty(SubjectList_index)
            SubjectList = get(listBox2,'String');
-           GrpObj.SubjectID = SubjectList(SubjectList_index);
+           GrpObj.subjectID = SubjectList(SubjectList_index);
         end
         
         ProjectList_index = get(listBox4,'Value');
         if ~isempty(ProjectList_index)
            ProjectList = get(listBox4,'String');
-           GrpObj.ProjectID = ProjectList(ProjectList_index);
+           GrpObj.projectID = ProjectList(ProjectList_index);
         end
 
         GenderList_index = get(listBox5,'Value');
         if ~isempty(GenderList_index)
            GenderList = get(listBox5,'String');
-           GrpObj.Gender = GenderList(GenderList_index);
+           GrpObj.gender = GenderList(GenderList_index);
         end
         
         AgeList_index = get(listBox6,'Value');
         if ~isempty(AgeList_index)
            AgeList = get(listBox6,'String');
-           GrpObj.Age = AgeList(AgeList_index);
+           GrpObj.age = AgeList(AgeList_index);
         end
 
         
-        GrpObj.GroupName = get(text_ui8,'String');
-        if(isempty(GrpObj.GroupName))
+        GrpObj.groupName = get(text_ui8,'String');
+        if(isempty(GrpObj.groupName))
             set(plotButton,'String', 'OK');
             disp('Please write a group name to continue');
             return

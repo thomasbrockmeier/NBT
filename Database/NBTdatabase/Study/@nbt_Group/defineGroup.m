@@ -13,24 +13,24 @@ if(GUIswitch)
 end
 
 %Populate empty fields from InfoCell
-if(isempty(GrpObj.ProjectID))
-    GrpObj.ProjectID = InfoCell{1,2};
+if(isempty(GrpObj.projectID))
+    GrpObj.projectID = InfoCell{1,2};
 end
-if(isempty(GrpObj.SubjectID))
-   GrpObj.SubjectID = InfoCell{2,2}; 
+if(isempty(GrpObj.subjectID))
+   GrpObj.subjectID = InfoCell{2,2}; 
 end
-if(isempty(GrpObj.ConditionID))
-   GrpObj.ConditionID = InfoCell{4,2}; 
+if(isempty(GrpObj.conditionID))
+   GrpObj.conditionID = InfoCell{4,2}; 
 end
-if(isempty(GrpObj.Gender))
-   GrpObj.Gender = InfoCell{5,2};
+if(isempty(GrpObj.gender))
+   GrpObj.gender = InfoCell{5,2};
 end
-if(isempty(GrpObj.Age))
-   GrpObj.Age = InfoCell{6,2};
+if(isempty(GrpObj.age))
+   GrpObj.age = InfoCell{6,2};
 end
 
 % if File based generate FileList
-if(strcmp(GrpObj.DatabaseType,'File'))
+if(strcmp(GrpObj.databaseType,'File'))
     GrpObj = generateFileList(GrpObj,FileInfo);
 end
 end

@@ -17,7 +17,7 @@ end
 %---
 pro=1;
 disp('Please wait: NBT is checking the files in your folder...')
-FileInfo = cell(length(d)-startindex,7);
+FileInfo = cell(floor((length(d)-startindex)/3),7);
 for i = startindex:length(d)
     if isempty(strfind(d(i).name,'analysis')) && ~isempty(strfind(d(i).name,'info')) && ~isempty(strfind(d(i).name(end-3:end),'.mat')) && isempty(strfind(d(i).name,'statistics'))
         index = strfind(d(i).name,'.');
@@ -28,12 +28,12 @@ for i = startindex:length(d)
         load([path filesep d(i).name],'SubjectInfo');
         
         %% FileInfo collects data for further selection
-        FileInfo(pro,1)= {[SubjectInfo.fileName '_analysis.mat']};%contains filename
-        FileInfo(pro,2) = SubjectInfo.conditionID; %ConditionID
-        FileInfo(pro,3) = SubjectInfo.projectID; %ProjectID
-        FileInfo(pro,4) = SubjectInfo.subjectID; %SubjectID
-        FileInfo(pro,5) = SubjectInfo.dataOfRecording; %Recording Date
-        FileInfo(pro,6) = {SignalInfo.subjectGender};
+        FileInfo(pro,1) = {[SubjectInfo.fileName '_analysis.mat']};%contains filename
+        FileInfo(pro,2) = {SubjectInfo.conditionID}; %ConditionID
+        FileInfo(pro,3) = {SubjectInfo.projectInfo(1:end-4)}; %ProjectID
+        FileInfo(pro,4) = {num2str(SubjectInfo.subjectID)}; %SubjectID
+        FileInfo(pro,5) = {SubjectInfo.dateOfRecording}; %Recording Date
+        FileInfo(pro,6) = {SubjectInfo.subjectGender};
         if isa(SubjectInfo.subjectAge,'char')
             FileInfo(pro,7) = {str2double(SubjectInfo.subjectAge)};
         else

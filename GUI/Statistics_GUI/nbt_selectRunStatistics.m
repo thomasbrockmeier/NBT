@@ -58,14 +58,15 @@
 
 
 function nbt_selectRunStatistics
+global NBTstudy
 try
     NBTstudy = evalin('base','NBTstudy');
 catch
-   evalin('base','NBTstudy = nbt_Study') ;
-   NBTstudy = evalin('base','NBTstudy');
+   evalin('base','global NBTstudy');
+   evalin('base','NBTstudy = nbt_Study;');
 end
 if (isempty(NBTstudy.groups))
-    NBTstudy = nbt_definegroups(NBTstudy);
+    nbt_definegroups;
 end
 
 %----------------------

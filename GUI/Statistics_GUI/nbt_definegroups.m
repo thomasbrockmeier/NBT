@@ -50,8 +50,9 @@
 % See Readme.txt for additional copyright information.
 % ---------------------------------------------------------------------------------------
 
-function  NBTstudy = nbt_definegroups(NBTstudy)
-
+function nbt_definegroups
+global NBTstudy
+global hh2
 [ScreenWidth, ScreenHeight] = nbt_getScreenSize();
 hh2 = figure('Units','pixels', 'name','Select Group(s)' ,'numbertitle','off','Position',[ScreenWidth/4  ScreenHeight/2  160  100],...
     'MenuBar','none','NextPlot','new','Resize','off');
@@ -61,7 +62,6 @@ uicontrol(hh2,'Style','pushbutton','String','Define New Group(s)','Position',[5 
 % fit figure to screen, adapt to screen resolution
 hh2=nbt_movegui(hh2);
 uiwait(hh2)
-
 
 %% nested functions part
     function loadGroups(d1,d2)
@@ -75,7 +75,13 @@ uiwait(hh2)
         end
     end
 
-    function defGroups(d1,d2)
+    
+end
+
+
+function defGroups(d1,d2)
+    global NBTstudy 
+    global hh2
         %--- indicate how many groups you want to create
         n_group = str2double(cell2mat(inputdlg('How many groups do you want to define?: ' )));
         
@@ -90,6 +96,6 @@ uiwait(hh2)
             disp(['Define group ' num2str(i)])
             NBTstudy.groups{i,1} = nbt_Group.defineGroup([]);
         end
+        
         close(hh2)
     end
-end
