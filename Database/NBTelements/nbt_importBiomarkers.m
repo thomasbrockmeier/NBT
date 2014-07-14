@@ -1,7 +1,7 @@
 %  Copyright (C) 2010: Simon-Shlomo Poil
 function nbt_importBiomarkers(startpath)
 if(~exist('startpath','var'))
-        startpath = uigetdir('C:\','Select folder with NBT analysis files');
+    startpath = uigetdir('C:\','Select folder with NBT analysis files');
 end
 % load('NBTelementBase.mat')
 %NBTelement structure
@@ -24,23 +24,27 @@ FileList = nbt_ExtractTree(startpath,'mat','analysis');
 for i=1:length(FileList)
     load(FileList{1,i}) %load analysis file
     disp(FileList{1,i})
-    BiomarkerList = nbt_ExtractBiomarkers; % build biomarker list
+    BiomarkerList = nbt_extractBiomarkers; % build biomarker list
     
     load([ FileList{1,i}(1:end-12) 'info.mat']) % load info file
     InfoList = nbt_ExtractObject('nbt_Info');
-   
+    
     
     
     for m=1:length(BiomarkerList)
         % create NBTelement, unless it exists
         eval(['NBTelementName = class(' BiomarkerList{1,m} ');']);
-        eval(['FreqRange = ' BiomarkerList{1,m} '.FrequencyRange;'])
-        if(size(FreqRange,1)>1)
+        try
+            eval(['FreqRange = ' BiomarkerList{1,m} '.frequencyRange;'])
+            if(size(FreqRange,1)>1)
+                FreqRange = [];
+            end
+        catch
             FreqRange = [];
         end
-            
+        
         if(~isempty(FreqRange))
-        FreqRange = {int2str(FreqRange)};
+            FreqRange = {int2str(FreqRange)};
         end
         eval(['SubjectID = ' BiomarkerList{1,m} '.SubjectID;'])
         if(~isempty(SubjectID))
@@ -84,31 +88,31 @@ for i=1:length(FileList)
             end
         end
     end
-     % delete BiomarkerList..
-   cellfun(@clear,BiomarkerList);
-   %add Age and Gender
-   try
-     eval(['Age = nbt_SetData(Age,' InfoList{1,1} '.subject_age, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
-   catch
-   end
-   try
-     eval(['Gender = nbt_SetData(Gender,{' InfoList{1,1} '.subject_gender}, {Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
-   catch
-   end
-   try
-       eval(['Date = nbt_SetData(Date,{' InfoList{1,1} '.time_of_recording}, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
-   catch
-   end
-   
+    % delete BiomarkerList..
+    cellfun(@clear,BiomarkerList);
+    %add Age and Gender
+    try
+        eval(['Age = nbt_SetData(Age,' InfoList{1,1} '.subject_age, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
+    catch
+    end
+    try
+        eval(['Gender = nbt_SetData(Gender,{' InfoList{1,1} '.subject_gender}, {Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
+    catch
+    end
+    try
+        eval(['Date = nbt_SetData(Date,{' InfoList{1,1} '.time_of_recording}, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
+    catch
+    end
+    
 end
 s = whos;
-        for ii=1:length(s)
-            if(~strcmp(s(ii).class,'nbt_NBTelement') && ~strcmp(s(ii).name,'s'))
-                clear([s(ii).name])
-            end
-        end
-        clear s
-        clear ii
+for ii=1:length(s)
+    if(~strcmp(s(ii).class,'nbt_NBTelement') && ~strcmp(s(ii).name,'s'))
+        clear([s(ii).name])
+    end
+end
+clear s
+clear ii
 
 save NBTelementBase.mat
 disp('NBTelements imported')
