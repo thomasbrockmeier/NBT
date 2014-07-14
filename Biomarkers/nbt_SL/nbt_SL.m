@@ -1,5 +1,5 @@
 %Syncronization likelihood
-classdef nbt_SL < nbt_Biomarker  
+classdef nbt_SL < nbt_SignalBiomarker  
     properties
         m
         lag

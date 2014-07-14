@@ -1,4 +1,4 @@
-classdef nbt_tdp < nbt_Biomarker
+classdef nbt_tdp < nbt_SignalBiomarker
 %NBT_TDP Summary of this class goes here
 %   Detailed explanation goes here
 

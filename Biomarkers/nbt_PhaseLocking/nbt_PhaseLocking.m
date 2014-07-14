@@ -48,7 +48,7 @@
 % -------------------------------------------------------------------------
 
     
-classdef nbt_PhaseLocking < nbt_Biomarker  
+classdef nbt_PhaseLocking < nbt_CrossChannelBiomarker  
     properties 
         
     Ratio 

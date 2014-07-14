@@ -1,4 +1,4 @@
-classdef nbt_PSD < nbt_Biomarker
+classdef nbt_PSD < nbt_SignalBiomarker
 
     %% Copyright (c) 2008, Simon-Shlomo Poil (Center for Neurogenomics and Cognitive Research (CNCR), VU University Amsterdam)
     %% ChangeLog - remember to set NBTversion property

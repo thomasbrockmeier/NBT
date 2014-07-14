@@ -1,5 +1,5 @@
 
-classdef nbt_HFO < nbt_Biomarker
+classdef nbt_HFO < nbt_SignalBiomarker
     properties
         results
         fs

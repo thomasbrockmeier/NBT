@@ -26,7 +26,7 @@
 % ChangeLog - see version control log for details
 % <date> - Version <#> - <text>
 
-classdef nbt_PeakFit < nbt_Biomarker
+classdef nbt_PeakFit < nbt_SignalBiomarker
     properties
         AlphaFreq
         IAF

@@ -47,7 +47,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_ampDist < nbt_Biomarker
+classdef nbt_ampDist < nbt_SignalBiomarker
     %% Copyright (c) 2009,  Simon-Shlomo Poil (Center for Neurogenomics and Cognitive Research (CNCR), VU University Amsterdam)
     %% ChangeLog - remember to set NBTversion property
     %$ Version 0 - 

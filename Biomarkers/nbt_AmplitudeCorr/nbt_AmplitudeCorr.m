@@ -22,7 +22,7 @@
 % ChangeLog - see version control log for details
 % <date> - Version <#> - <text>
 
-classdef nbt_AmplitudeCorr < nbt_Biomarker
+classdef nbt_AmplitudeCorr < nbt_CrossChannelBiomarker
     properties
         MaxCorr
         MinCorr

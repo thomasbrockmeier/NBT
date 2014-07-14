@@ -47,7 +47,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_Coher < nbt_Biomarker  
+classdef nbt_Coher < nbt_CrossChannelBiomarker  
     properties  
         Coherence
         ICoherence

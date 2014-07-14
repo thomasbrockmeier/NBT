@@ -30,7 +30,6 @@ for j=3:length(d)
         cc= strfind(d(j).name,'analysis');
         
         if (~isempty(b)  && ~isempty(cc))
-            disp('break')
             % here comes the conversion
             oldBiomarkers = load(d(j).name);
             oldBiomarkerFields = fields(oldBiomarkers);

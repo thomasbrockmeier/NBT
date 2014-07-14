@@ -22,7 +22,7 @@
 % ChangeLog - see version control log for details
 % <date> - Version <#> - <text>
 
-classdef nbt_Power < nbt_Biomarker
+classdef nbt_Power < nbt_SignalBiomarker
     properties
         Power      
         Frequencybins

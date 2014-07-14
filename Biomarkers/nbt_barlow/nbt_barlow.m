@@ -45,7 +45,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_barlow < nbt_Biomarker
+classdef nbt_barlow < nbt_SignalBiomarker
    properties
        amplitude
        frequency
