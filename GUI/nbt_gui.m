@@ -166,7 +166,7 @@ if (standalone)
     
     Stat = uimenu(NBTMenu, 'label', ' &Biomarker statistics');
     uimenu(Stat, 'label', ' &Current Signal', 'callback',  ['nbt_statistics_group([SignalPath  SignalInfo.file_name ''.mat''])'  ]);
-    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectRunStatistics;');
+    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_statisticsGUI;');
 
     
     
