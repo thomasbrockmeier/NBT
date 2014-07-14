@@ -68,8 +68,8 @@ classdef nbt_DFA < nbt_SignalBiomarker
             %% Define DFA exponent field
             DFAobject.MarkerValues = nan(NumChannels, 1);
             %% Define fields for additional information
-            DFAobject.PrimaryBiomarker = 'MarkerValues';
-            DFAobject.Biomarkers = {'MarkerValues'};
+            DFAobject.PrimaryBiomarker = 'markerValues';
+            DFAobject.Biomarkers = {'markerValues'};
             DFAobject.FitInterval = nan(2,1);
             DFAobject.CalcInterval = nan(2,1);
             DFAobject.Overlap = NaN;
