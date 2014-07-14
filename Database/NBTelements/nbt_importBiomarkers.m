@@ -15,8 +15,7 @@ Condition = nbt_NBTelement(3, '3.2.1',2);
 FrequencyBand = nbt_NBTelement(4,'4.3.2.1',3);
 Age = nbt_NBTelement(5, '5.3.2.1', 3);
 Gender = nbt_NBTelement(6,'6.2.1', 2);
-Date = nbt_NBTelement(7,'7.3.2.1',3);
-NextID = 8;
+NextID = 7;
 
 %determine tree
 FileList = nbt_ExtractTree(startpath,'mat','analysis');
@@ -26,11 +25,11 @@ for i=1:length(FileList)
     disp(FileList{1,i})
     BiomarkerList = nbt_extractBiomarkers; % build biomarker list
     
-    load([ FileList{1,i}(1:end-12) 'info.mat']) % load info file
-    InfoList = nbt_ExtractObject('nbt_Info');
+    clear SubjectInfo;
+    load([ FileList{1,i}(1:end-12) 'info.mat'],'SubjectInfo') % load info file
+
     
-    
-    
+
     for m=1:length(BiomarkerList)
         % create NBTelement, unless it exists
         eval(['NBTelementName = class(' BiomarkerList{1,m} ');']);
@@ -46,7 +45,7 @@ for i=1:length(FileList)
         if(~isempty(FreqRange))
             FreqRange = {int2str(FreqRange)};
         end
-        eval(['SubjectID = ' BiomarkerList{1,m} '.SubjectID;'])
+        SubjectID = SubjectInfo.subjectID;
         if(~isempty(SubjectID))
             addflag = ~exist(NBTelementName,'var');
             if(addflag)
@@ -60,29 +59,29 @@ for i=1:length(FileList)
             
             %set data in NBTelements
             % update Project with new project
-            eval(['Project = nbt_SetData(Project,{' BiomarkerList{1,m} '.ProjectID}, []);']);
+            Project = nbt_SetData(Project, {SubjectInfo.projectInfo(1:end-4)}, []);
             % update Subject with new subject
-            eval(['Subject = nbt_SetData(Subject,' BiomarkerList{1,m} '.SubjectID,{Project, ' BiomarkerList{1,m} '.ProjectID});']);
+            Subject = nbt_SetData(Subject, SubjectInfo.subjectID, {Project, SubjectInfo.projectInfo(1:end-4)});
             % update Condition
-            eval(['Condition = nbt_SetData(Condition,{' BiomarkerList{1,m} '.Condition},{Subject,'  BiomarkerList{1,m} '.SubjectID;Project, ' BiomarkerList{1,m} '.ProjectID});']);
+            Condition = nbt_SetData(Condition, { SubjectInfo.conditionID }, {Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
             
             % Add frequency band if relevant
             if(~isempty(FreqRange))
-                eval(['FrequencyBand = nbt_SetData(FrequencyBand,FreqRange,{Condition,' BiomarkerList{1,m} '.Condition; Subject,'   BiomarkerList{1,m} '.SubjectID;Project, ' BiomarkerList{1,m} '.ProjectID});']);
+                FrequencyBand = nbt_SetData(FrequencyBand, FreqRange, {Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
             end
             
             %Create the Data cell
-            eval(['NumBiomarkers = length(' BiomarkerList{1,m} '.Biomarkers);']);
+            eval(['NumBiomarkers = length(' BiomarkerList{1,m} '.biomarkers);']);
             if(NumBiomarkers ~=0)
                 for dd = 1:NumBiomarkers
-                    eval( ['DataString = nbt_cellc(' BiomarkerList{1,m} '.Biomarkers,dd);']);
+                    eval( ['DataString = nbt_cellc(' BiomarkerList{1,m} '.biomarkers,dd);']);
                     eval(['Data{dd,1} = ' BiomarkerList{1,m} '.' DataString ';']);
                     eval([NBTelementName '.Biomarkers{ dd ,1} = DataString; '])
                 end
                 if(isempty(FreqRange))
-                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {Condition,' BiomarkerList{1,m} '.Condition; Subject,'   BiomarkerList{1,m} '.SubjectID;Project, ' BiomarkerList{1,m} '.ProjectID});']);
+                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID;Project, SubjectInfo.projectInfo(1:end-4)});']);
                 else
-                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {FrequencyBand, FreqRange; Condition,' BiomarkerList{1,m} '.Condition; Subject,'   BiomarkerList{1,m} '.SubjectID;Project, ' BiomarkerList{1,m} '.ProjectID});']);
+                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {FrequencyBand, FreqRange; Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID;Project, SubjectInfo.projectInfo(1:end-4)});']);
                 end
                 clear Data
             end
@@ -92,18 +91,13 @@ for i=1:length(FileList)
     cellfun(@clear,BiomarkerList);
     %add Age and Gender
     try
-        eval(['Age = nbt_SetData(Age,' InfoList{1,1} '.subject_age, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
+        Age = nbt_SetData(Age, SubjectInfo.subjectAge, {Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
     catch
     end
     try
-        eval(['Gender = nbt_SetData(Gender,{' InfoList{1,1} '.subject_gender}, {Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
+        Gender = nbt_SetData(Gender, SubjectInfo.subjectGender, { Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
     catch
-    end
-    try
-        eval(['Date = nbt_SetData(Date,{' InfoList{1,1} '.time_of_recording}, {Condition,' InfoList{1,1} '.condition;Subject,' InfoList{1,1} '.subjectID;Project,' InfoList{1,1} '.projectID});']);
-    catch
-    end
-    
+    end    
 end
 s = whos;
 for ii=1:length(s)
