@@ -11,8 +11,8 @@
 %
 % ChangeLog - see version control log at NBT website for details.
 %
-% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group, 
-% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research, 
+% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group,
+% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research,
 % Neuroscience Campus Amsterdam, VU University Amsterdam)
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)
@@ -41,13 +41,34 @@ classdef (Abstract) nbt_CoreBiomarker
         primaryBiomarker % the primary biomarker to use in scripts
         biomarkers % list of all biomarkers in the object
         biomarkerUnits %list of biomarker units
-        reseacherID % ID of the Reseacher or script that made the last update
-        subjectInfo       
-        nbtVersion 
+        researcherID % ID of the Reseacher or script that made the last update
+        subjectInfo
+        nbtVersion
     end
+    
+    properties (Hidden = true) %to provide backward compatibility
+        MarkerValues % the biomarker values
+        NumChannels % number of channels
+        Fs % The sampling frequency
+        DateLastUpdate %last date this biomarker was updated
+        PrimaryBiomarker % the primary biomarker to use in scripts
+        Biomarkers % list of all biomarkers in the object
+        BiomarkerUnits %list of biomarker units
+        ReseacherID % ID of the Reseacher or script that made the last update
+        ProjectID % The ID of the project which the biomarker belongs to
+        SubjectID % The ID of the subject
+        FrequencyRange %Frequency range of processed signal [] means broadband.
+        Condition % The condition ID
+        SignalName % Name of the signal used to compute the biomaker
+        NBTDID %NBTDID of the signal used to compute the biomakrer
+        NBTversion
+    end
+    
     methods
         function BiomarkerObject = nbt_CoreBiomarker()
             BiomarkerObject.nbtVersion = nbt_getVersion;
         end
+        
+
     end
 end

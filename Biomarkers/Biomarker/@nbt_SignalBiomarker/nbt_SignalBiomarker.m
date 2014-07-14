@@ -17,8 +17,8 @@
 %
 % ChangeLog - see version control log at NBT website for details.
 %
-% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group, 
-% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research, 
+% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group,
+% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research,
 % Neuroscience Campus Amsterdam, VU University Amsterdam)
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)
@@ -43,6 +43,7 @@
 
 classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
     properties
+        numChannels % Number of channels.
         samplingFrequency   % The sampling frequency
         frequencyRange %Frequency range of processed signal [] means broadband.
         filterSettings
@@ -51,7 +52,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
     end
     methods
         function BiomarkerObject = nbt_SignalBiomarker()
-        % no content.
+            % no content.
         end
         
         function biomarkerObject=nbt_UpdateBiomarkerInfo(biomarkerObject, SignalInfo)
@@ -62,7 +63,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.subjectInfo = SignalInfo.subjectInfo;
             biomarkerObject.samplingFrequency = SignalInfo.convertedSamplingFrequency;
-           
+            
             %set Badchannels to NaN
             if(~isempty(SignalInfo.badChannels))
                 for i=1:length(biomarkerObject.biomarkers)
@@ -70,7 +71,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
                     if(iscell(biomarker))
                         for m=1:length(biomarker)
                             if(~iscell(biomarker{m,1}))
-                            biomarker{m,1}(find(SignalInfo.badChannels)) = NaN;
+                                biomarker{m,1}(find(SignalInfo.badChannels)) = NaN;
                             else
                                 for mm=1:length(biomarker{m,1})
                                     biomarker{m,1}{mm,1}(find(SignalInfo.badChannels)) = NaN;
@@ -80,9 +81,31 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
                     else
                         biomarker(find(SignalInfo.badChannels)) = NaN;
                     end
-                   eval(['biomarkerObject.' biomarkerObject.biomarkers{1,i} '=biomarker;']);
+                    eval(['biomarkerObject.' biomarkerObject.biomarkers{1,i} '=biomarker;']);
                 end
             end
         end
-    end 
+        
+        function BiomarkerObject = convertBiomarker(BiomarkerObject,subjectInfo)
+            try
+                BiomarkerObject.markerValues = BiomarkerObject.MarkerValues; % the biomarker values
+            catch
+                if(~isempty(BiomarkerObject.MarkerValues))
+                   error('You need to define a markerValues field in your biomarker to convert it from the old format') 
+                end
+            end
+            BiomarkerObject.numChannels  = BiomarkerObject.NumChannels; % number of channels
+            BiomarkerObject.samplingFrequency = BiomarkerObject.Fs; % The sampling frequency
+            BiomarkerObject.lastUpdate = BiomarkerObject.DateLastUpdate; %last date this biomarker was updated
+            BiomarkerObject.primaryBiomarker = BiomarkerObject.PrimaryBiomarker; % the primary biomarker to use in scripts
+            BiomarkerObject.biomarkers = BiomarkerObject.Biomarkers; % list of all biomarkers in the object
+            BiomarkerObject.biomarkerUnits = BiomarkerObject.BiomarkerUnits; %list of biomarker units
+            BiomarkerObject.researcherID = BiomarkerObject.ReseacherID; % ID of the Reseacher or script that made the last update
+            BiomarkerObject.frequencyRange = BiomarkerObject.FrequencyRange; %Frequency range of processed signal [] means broadband.
+            BiomarkerObject.signalName = BiomarkerObject.SignalName; % Name of the signal used to compute the biomaker
+            BiomarkerObject.signalID = BiomarkerObject.NBTDID; %NBTDID of the signal used to compute the biomakrer
+            BiomarkerObject.nbtVersion = BiomarkerObject.NBTversion;
+            BiomarkerObject.subjectInfo = subjectInfo(1:end-13);
+        end 
+    end % end methods
 end

@@ -22,7 +22,7 @@
 % ChangeLog - see version control log for details
 % <date> - Version <#> - <text>
 
-classdef nbt_amplitude < nbt_Biomarker
+classdef nbt_amplitude < nbt_SignalBiomarker
     properties
         Channels
 %         SubRegions

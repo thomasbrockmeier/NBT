@@ -1,4 +1,4 @@
-classdef nbt_ARSQ < nbt_Biomarker
+classdef nbt_ARSQ < nbt_QBiomarker
     %% Copyright (c) 2010,  B.A. Diaz (Center for Neurogenomics and Cognitive Research (CNCR), VU University Amsterdam)
     %
     % Part of the Neurophysiological Biomarker Toolbox (NBT)

@@ -1,3 +1,5 @@
+% This function converts Info objects to the new SubjectInfo and SignalInfo
+% objects. 
 % Copyright (C) 2014 Simon-Shlomo Poil
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)

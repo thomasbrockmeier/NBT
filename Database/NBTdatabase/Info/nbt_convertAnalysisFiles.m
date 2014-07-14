@@ -20,17 +20,27 @@
 %
 
 
-function nbt_DeleteAnalysisFiles(startpath)
+function nbt_convertAnalysisFiles(startpath)
 d= dir (startpath);
 for j=3:length(d)
     if (d(j).isdir )
-        nbt_DeleteAnalysisFiles([startpath,filesep, d(j).name ]);
+        nbt_convertAnalysisFiles([startpath filesep d(j).name ]);
     else
         b = strfind(d(j).name,'mat');
         cc= strfind(d(j).name,'analysis');
         
-        if (length(b)~=0  && length(cc)~=0)
-            delete([startpath , filesep,d(j).name]);
+        if (~isempty(b)  && ~isempty(cc))
+            disp('break')
+            % here comes the conversion
+            oldBiomarkers = load(d(j).name);
+            oldBiomarkerFields = fields(oldBiomarkers);
+            
+            for i=1:length(oldBiomarkerFields)
+                if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_CoreBiomarker'))
+                   eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
+                   save(d(j).name,(oldBiomarkerFields{i}),'-append')
+                end
+            end
         end
     end
 end

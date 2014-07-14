@@ -47,8 +47,9 @@
 % See Readme.txt for additional copyright information.
 % -
 
-classdef nbt_DFA < nbt_Biomarker
+classdef nbt_DFA < nbt_SignalBiomarker
     properties
+        markerValues
         DFA_y
         DFA_x
         FitInterval

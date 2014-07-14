@@ -7,8 +7,8 @@
 %
 % ChangeLog - see version control log at NBT website for details.
 %
-% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group, 
-% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research, 
+% Copyright (C) 2014 Simon-Shlomo Poil  (Neuronal Oscillations and Cognition group,
+% Department of Integrative Neurophysiology, Center for Neurogenomics and Cognitive Research,
 % Neuroscience Campus Amsterdam, VU University Amsterdam)
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)
@@ -43,5 +43,22 @@ classdef nbt_QBiomarker < nbt_CoreBiomarker
             [~, biomarkerObject.nbtVersion] = nbt_getVersion;
             biomarkerObject.subjectInfo = subjectInfo;
         end
-    end 
+        
+        function BiomarkerObject = convertBiomarker(BiomarkerObject,subjectInfo)
+            try
+                BiomarkerObject.markerValues = BiomarkerObject.MarkerValues; % the biomarker values
+            catch
+                if(~isempty(BiomarkerObject.MarkerValues))
+                    error('You need to define a markerValues field in your biomarker to convert it from the old format')
+                end
+            end
+            BiomarkerObject.lastUpdate = BiomarkerObject.DateLastUpdate; %last date this biomarker was updated
+            BiomarkerObject.primaryBiomarker = BiomarkerObject.PrimaryBiomarker; % the primary biomarker to use in scripts
+            BiomarkerObject.biomarkers = BiomarkerObject.Biomarkers; % list of all biomarkers in the object
+            BiomarkerObject.biomarkerUnits = BiomarkerObject.BiomarkerUnits; %list of biomarker units
+            BiomarkerObject.researcherID = BiomarkerObject.ReseacherID; % ID of the Reseacher or script that made the last update
+            BiomarkerObject.nbtVersion = BiomarkerObject.NBTversion;
+            BiomarkerObject.subjectInfo = subjectInfo;
+        end
+    end %end methods
 end
