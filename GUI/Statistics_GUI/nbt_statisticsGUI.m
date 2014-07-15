@@ -61,11 +61,11 @@ while (~isempty(nbt_statisticslog(statindex)))
     statindex = statindex + 1;
 end
 hp3 = uipanel(StatSelection,'Title','SELECT TEST','FontSize',10,'Units','pixels','Position',[10 520 360 200],'BackgroundColor','w','fontweight','bold');
-ListStat = uicontrol(hp3,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',statList,'BackgroundColor','w');
+ListStat = uicontrol(hp3,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',statList,'BackgroundColor','w','Tag','ListStat');
 % biomarkers
 hp2 = uipanel(StatSelection,'Title','SELECT BIOMARKER(S)','FontSize',10,'Units','pixels','Position',[10 300 360 200],'BackgroundColor','w','fontweight','bold');
 
-ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(NBTstudy.groups{1}.biomarker),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',NBTstudy.groups{1}.biomarker,'BackgroundColor','w');
+ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(NBTstudy.groups{1}.biomarker),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',NBTstudy.groups{1}.biomarker,'BackgroundColor','w','Tag','ListBiomarker');
 
 % regions or channels
 reglist{1} = 'Channels';
@@ -73,7 +73,7 @@ reglist{2} = 'Regions';
 reglist{3} = 'Match channels';
 
 hp = uipanel(StatSelection,'Title','SELECT CHANNELS OR REGIONS','FontSize',10,'Units','pixels','Position',[10 220 360 70],'BackgroundColor','w','fontweight','bold');
-ListRegion = uicontrol(hp,'Units', 'pixels','style','listbox','Min',0,'Max',2,'Units', 'pixels','Position',[5 5 350 50],'fontsize',10,'String',reglist,'BackgroundColor','w','tag','ListRegion');
+ListRegion = uicontrol(hp,'Units', 'pixels','style','listbox','Min',0,'Max',2,'Units', 'pixels','Position',[5 5 350 50],'fontsize',10,'String',reglist,'BackgroundColor','w','Tag','ListRegion');
 
 % channel selection button
 ChannelsButton = uicontrol(StatSelection,'Style','pushbutton','String','Select Channels and Regions','Position',[400 240 200 30],'fontsize',12);%,'callback',@ChannelsButton_Callback);
@@ -86,9 +86,9 @@ for i = 1:length(NBTstudy.groups)
 end
 
 hp4 = uipanel(StatSelection,'Title','SELECT GROUP(S)','FontSize',10,'Units','pixels','Position',[10 110 360 100],'BackgroundColor','w','fontweight','bold');
-ListGroup = uicontrol(hp4,'Units', 'pixels','style','listbox','Max',length(groupList),'Units', 'pixels','Position',[5 5 350 80],'fontsize',10,'String',groupList,'BackgroundColor','w','tag','ListGroup');
+ListGroup = uicontrol(hp4,'Units', 'pixels','style','listbox','Max',length(groupList),'Units', 'pixels','Position',[5 5 350 80],'fontsize',10,'String',groupList,'BackgroundColor','w','Tag','ListGroup');
 % run test
-RunButton = uicontrol(StatSelection,'Style','pushbutton','String','Run Test','Position',[500 5 100 50],'fontsize',10,'callback',@get_settings, 'Tag', 'NBTstatRunButton');
+RunButton = uicontrol(StatSelection,'Style','pushbutton','String','Run Test','Position',[500 5 100 50],'fontsize',10,'callback', 'nbt_runStatistics', 'Tag', 'NBTstatRunButton');
 % join button
 joinButton = uicontrol(StatSelection,'Style','pushbutton','String','Join Groups','Position',[5 70 70 30],'fontsize',8,'callback',@join_groups);
 % create difference group button
