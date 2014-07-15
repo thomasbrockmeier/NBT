@@ -3,15 +3,25 @@ classdef nbt_Data
     %by the getData method of the nbt_Group object
     
     properties
-        DataStore %function handle to nested DataStore (NBTelement based)
-        Biomarker
+        dataStore %function handle to nested DataStore (NBTelement based)
+        biomarker
         %Further parameters..
-        Group %pointer to Group object
-        OutputFormat %output format - remove nans, etc. cell vs matrix vs struct
+        group %pointer to Group object
+        outputFormat %output format - remove nans, etc. cell vs matrix vs struct
     end 
     
     methods
+      function DataObject = nbt_Data  
+      end
+      
+      
+        
+        
        Biomarker = getBiomarker(nbt_DataObject, Parameters, OutputFormat);   
+    end
+    
+    methods (Static = true)
+     DataObject = dataContainer(GrpObj);
     end
     
      methods (Hidden = true)

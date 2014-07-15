@@ -1,6 +1,6 @@
 %The method defines new groups. If called with empty input the
 %defineGroupGUI is called.
-function GrpObj=defineGroup(GrpObj)
+function GrpObj = defineGroup(GrpObj)
 if(isempty(GrpObj))
      GrpObj = nbt_Group;
      GUIswitch = 1;

@@ -73,6 +73,8 @@ InfoCell{1,1} = 'ProjectID';
 InfoCell{1,2} = readproject;
 InfoCell{2,1} = 'SubjectID';
 InfoCell{2,2} = readsubject;
+InfoCell{3,1} = 'FrequencyBands';
+InfoCell{3,2} = FreqBands;
 InfoCell{4,1} = 'ConditionID';
 InfoCell{4,2} = readconditions;
 InfoCell{5,1} = 'Gender';
@@ -89,4 +91,5 @@ for i = 1:length(biomarker_objects)
     end
 end
 GrpObj.biomarker = biom(:);
+GrpObj.frequencyRange = FreqBands;
 end
