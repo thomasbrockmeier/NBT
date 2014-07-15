@@ -1,9 +1,10 @@
 function  DataObj = getData(GrpObj)
 
 %Load data from Database
-switch dbObj.DatabaseType
+switch GrpObj.databaseType
     %switch database type
     case 'NBTelement'
+      nbt_GetData(Project  
     case 'File'
 end
 

@@ -95,7 +95,7 @@ for i=1:length(FileList)
     catch
     end
     try
-        Gender = nbt_SetData(Gender, SubjectInfo.subjectGender, { Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
+        Gender = nbt_SetData(Gender, {SubjectInfo.subjectGender}, { Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
     catch
     end    
 end
