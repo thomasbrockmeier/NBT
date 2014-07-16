@@ -4,7 +4,7 @@ classdef nbt_PLI < nbt_Biomarker
         pliVal
     end
     methods
-        function BiomarkerObject = nbt_Biomarker_template(NumChannels)
+        function BiomarkerObject = nbt_PLI(NumChannels)
             BiomarkerObject.pliVal = nan(NumChannels,NumChannels); 
             BiomarkerObject.Biomarkers ={'pliVal'};
         end
