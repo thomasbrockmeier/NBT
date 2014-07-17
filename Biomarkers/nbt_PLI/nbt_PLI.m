@@ -1,5 +1,5 @@
 
-classdef nbt_PLI < nbt_Biomarker 
+classdef nbt_PLI < nbt_CrossChannelBiomarker 
     properties
         pliVal
     end
