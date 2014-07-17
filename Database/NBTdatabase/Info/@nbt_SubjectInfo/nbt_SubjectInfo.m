@@ -30,33 +30,45 @@
 classdef nbt_SubjectInfo
     properties
         projectInfo
-        researcherID
         subjectID
         conditionID
         fileName
         fileNameFormat
-        dateOfRecording
-        notes
-        subjectGender
-        subjectAge
-        subjectHeadsize
-        subjectHandedness
-        subjectMedication  
-        subjectClassification
-        info
         lastUpdate
         listOfBiomarkers
+        
+        info
+        %This should contain all other fields that can you can define groups by.  Please use the names given below where possible
+        % dateOfRecording
+        % subjectGender
+        % subjectAge
+        % subjectHeadsize
+        % subjectHandedness
+        % subjectMedication
+        % subjectClassification
+        % notes
+        % researcherID
+        
     end
     
     
     methods
-        function SubjectInfo = nbt_SubjectInfo  
+        function SubjectInfo = nbt_SubjectInfo
             SubjectInfo.lastUpdate = datestr(now);
+            SubjectInfo.info.dateOfRecording = [];
+            SubjectInfo.info.subjectGender = [];
+            SubjectInfo.info.subjectAge = [];
+            SubjectInfo.info.subjectHeadsize = [];
+            SubjectInfo.info.subjectHandedness = [];
+            SubjectInfo.info.subjectMedication   = [];
+            SubjectInfo.info.subjectClassification = [];
+            SubjectInfo.info.notes = [];
+            SubjectInfo.info.researcherID = [];
         end
     end
-
+    
     methods(Static)
-         InfoObject = importSubjectInfoFromXLS;
-         InfoObject = importSubjectInfoFromCSV(filename,InfoObject);
+        InfoObject = importSubjectInfoFromXLS;
+        InfoObject = importSubjectInfoFromCSV(filename,InfoObject);
     end
 end

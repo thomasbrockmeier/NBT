@@ -119,15 +119,15 @@ if(iscell(Data) & isnumeric(nbt_cellc(Data,1)));
     doDeDub = 0;
 end
 if(doDeDub)
-try
-    NewIDs = nbt_searchvector(NBTelement.Data, Data);
-    doAppend = 0;
-    if(length(NewIDs) ~= length(Data))
+    try
+        NewIDs = nbt_searchvector(NBTelement.Data, Data);
+        doAppend = 0;
+        if(length(NewIDs) ~= length(Data))
+            NewIDs = [];
+        end
+    catch
         NewIDs = [];
     end
-catch
-    NewIDs = [];
-end
 else
     NewIDs = [];
 end
@@ -144,10 +144,10 @@ if(isempty(NewIDs))
         CurrentID = 0;
     end
     % make new IDs
-    NewIDs = CurrentID + [1:size(Data,2)]; 
+    NewIDs = CurrentID + [1:size(Data,2)];
 else %probably we do not need to do more
     if(size(upID,1) == 1 && isempty(upID{1,1}))
-       return 
+        return
     end
 end
 IDstep = length(NBTelement.ID);
@@ -163,13 +163,13 @@ try
     for i=1:length(NewIDs)
         tt = tt+1;
         if(~isempty(upID{1,1}))
-           if(~strcmp(upID{1,1},'[]'))
-               NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i)) '.' upID{i,1}];
-           else
-               NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i)) '.[]'];
-           end
+            if(~strcmp(upID{1,1},'[]'))
+                NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i)) '.' upID{i,1}];
+            else
+                NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i)) '.[]'];
+            end
         else
-          NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i))];
+            NBTelement.ID{IDstep+tt,1} = [int2str(NewIDs(i))];
         end
     end
 catch
@@ -186,7 +186,11 @@ if(doAppend)
             NBTelement=nbt_PruneData(NBTelement);
         else
             if(IDstep ~=0)
-                NBTelement.Data(end+1) = Data;
+                if iscell(NBTelement.Data)
+                    NBTelement.Data(end+1) = {Data};
+                else
+                    NBTelement.Data(end+1) = Data;
+                end
             else
                 NBTelement.Data(1) = Data;
             end
@@ -201,7 +205,7 @@ if(doAppend)
     end
 end
 if(doDeDub)
-NBTelement=nbt_FindDublicatedIDs(NBTelement);
+    NBTelement=nbt_FindDublicatedIDs(NBTelement);
 end
 end
 
@@ -209,7 +213,7 @@ end
 %% Sub-functions
 function NBTelement=nbt_FindDublicatedIDs(NBTelement)
 chDone =0;
- IDs = NBTelement.ID;
+IDs = NBTelement.ID;
 for iii=1:size(NBTelement.ID,1)
     pDub=nbt_searchvector(NBTelement.ID,{NBTelement.ID{iii,1}});
     if (length(pDub) >1)
@@ -221,14 +225,14 @@ for iii=1:size(NBTelement.ID,1)
     end
 end
 if(chDone)
-        NBTelement.ID = cell(1,1);
-        tt = 0;
-        for mm=1:length(IDs)
-            if(~isempty(IDs{mm,1}))
-                tt = tt +1;
-                NBTelement.ID{tt,1} = IDs{mm,1};
-            end
+    NBTelement.ID = cell(1,1);
+    tt = 0;
+    for mm=1:length(IDs)
+        if(~isempty(IDs{mm,1}))
+            tt = tt +1;
+            NBTelement.ID{tt,1} = IDs{mm,1};
         end
+    end
 end
 end
 
@@ -237,18 +241,23 @@ end
 function NBTelement=nbt_PruneData(NBTelement)
 % in progress
 DataTmp = NBTelement.Data;
+StoreData = NBTelement;
 NewData = [];
 if(~iscell(DataTmp))
     %case of numeric
-    if(length(unique(DataTmp)) < length(DataTmp))
+    DataTmp = NBTelement.Data;
+    
+    
+    if (length(unique(DataTmp)) < length(DataTmp)) || nnz(isnan(DataTmp))>1
         for i=1:length(NBTelement.Data)
             pDub = find(DataTmp == NBTelement.Data(i));
+            
             if(length(pDub) > 1)
                 DataTmp(pDub(2:end)) = nan;
                 NewData(pDub(1)) = DataTmp(pDub(1));
                 NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
             else
-                if(isempty(pDub)) % in case of NaN values
+                if nnz(isnan(NBTelement.Data))>1
                     pDub = find(isnan(NBTelement.Data));
                     NewData(pDub(1)) = NaN;
                     NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
@@ -257,10 +266,24 @@ if(~iscell(DataTmp))
                 end
             end
         end
-       
-       NBTelement.Data = NewData; 
-       NBTelement = nbt_collapseDataAndID(NBTelement);
+        
+        NBTelement.Data = NewData;
+        NBTelement = nbt_collapseDataAndID(NBTelement);
+
     end
+    %
+    %     DataTmp = NBTelement.Data;
+    %     if nnz(isnan(DataTmp))>1
+    %         pDub = find(isnan(DataTmp));
+    %         npDub = find(~isnan(DataTmp));
+    %         bothDub = sort([pDub(1) npDub]);
+    %         NewData(pDub(1)) = DataTmp(pDub(1));
+    %         NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
+    %         NBTelement.Data = NewData;
+    %         NBTelement = nbt_collapseDataAndID(NBTelement);
+    %
+    %     end
+    
     
     
 end
@@ -275,9 +298,9 @@ end
 keepID = nbt_searchvector(ID, pDubb);
 UpIdsKeep = UpIds(keepID);
 UpIdsKeep = nbt_TrimCellStr(UpIdsKeep);
-    for i=1:length(keepID)
-        NBTelement.ID{keepID(i),1} = nbt_TrimCellStr([int2str(pDub(1)) '.' UpIdsKeep{i,1}]);
-    end 
+for i=1:length(keepID)
+    NBTelement.ID{keepID(i),1} = nbt_TrimCellStr([int2str(pDub(1)) '.' UpIdsKeep{i,1}]);
+end
 end
 
 function NBTelement = collapseData(NBTelement, DataTmp)
@@ -293,24 +316,25 @@ NBTelement = nbt_FindDublicatedIDs(NBTelement);
 
 [NewID dummy OldIDindex] = unique(str2double(oldID));
 DiffIndex = diff((NewID));
-
-%update Data field
-NewData = NBTelement.Data(:,1:find(DiffIndex > 1,1,'first'));
-
-while(sum(DiffIndex) > length(DiffIndex))
-    IndexToMove = find(DiffIndex > 1,1,'first')+1;
-    tmp = NewID(IndexToMove);
-    NewID(IndexToMove) = NewID(IndexToMove-1) + 1;
-    NewData(:,NewID(IndexToMove)) = NBTelement.Data(:,tmp);
-    DiffIndex = diff((NewID));
+if ~isempty(DiffIndex)
+    %update Data field
+    NewData = NBTelement.Data(:,1:find(DiffIndex > 1,1,'first'));
+    
+    while(sum(DiffIndex) > length(DiffIndex))
+        IndexToMove = find(DiffIndex > 1,1,'first')+1;
+        tmp = NewID(IndexToMove);
+        NewID(IndexToMove) = NewID(IndexToMove-1) + 1;
+        NewData(:,NewID(IndexToMove)) = NBTelement.Data(:,tmp);
+        DiffIndex = diff((NewID));
+    end
+    for m=1:length(OldIDindex)
+        NewNewID(m) = NewID(OldIDindex(m));
+    end
+    NBTelement.ID = cell(0,0);
+    for m=1:length(NewNewID)
+        NBTelement.ID{m,1} = [num2str(NewNewID(m))  UpIds{m,1}];
+    end
+    NBTelement.ID = nbt_TrimCellStr(NBTelement.ID);
+    NBTelement.Data = NewData;
 end
-for m=1:length(OldIDindex)
-    NewNewID(m) = NewID(OldIDindex(m));
-end
-NBTelement.ID = cell(0,0);
-for m=1:length(NewNewID)
-    NBTelement.ID{m,1} = [num2str(NewNewID(m))  UpIds{m,1}];
-end
-NBTelement.ID = nbt_TrimCellStr(NBTelement.ID);
-NBTelement.Data = NewData;
 end

@@ -55,6 +55,7 @@ classdef nbt_NBTelement %< handle
         ElementID = []; % define element position
         Key = []; % define format of ID
         Uplink = [];
+        Children = [];
         Relation =[];
         ID = cell(0,0); % ID
         Data = []; %Data
@@ -67,6 +68,24 @@ classdef nbt_NBTelement %< handle
             NBTelement.ElementID = ElementID;
             NBTelement.Key = Key;
             NBTelement.Uplink = Uplink;
+            if ~isempty(Uplink)
+                s = evalin('caller','whos');
+                parentName = [];
+                for i = 1:length(s)
+                    if strcmp(s(i).class,'nbt_NBTelement')
+                        sID = evalin('caller',[s(i).name '.ElementID']);
+                        if sID == Uplink
+                            parentName = s(i).name;
+                        end
+                    end
+                end               
+                if isempty(parentName)
+                    disp('Parent Not Found');
+                else
+                    evalin('caller',[parentName '.Children = unique([' parentName '.Children; ' num2str(ElementID) ']);']);
+                end
+            end
+            NBTelement.Children = [];
             NBTelement.Relation = [];
             NBTelement.ID = [];
             NBTelement.Data = [];
@@ -123,8 +142,8 @@ classdef nbt_NBTelement %< handle
                                 NewPool = [NewPool mm];
                             end
                         end
-                    end 
-                end 
+                    end
+                end
             end
             
             

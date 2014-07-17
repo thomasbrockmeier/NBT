@@ -44,6 +44,7 @@ classdef (Abstract) nbt_CoreBiomarker
         researcherID % ID of the Reseacher or script that made the last update
         subjectInfo
         nbtVersion
+        uniqueIdentifiers %list of biomarker properties that uniquely identify this biomarker
     end
     
     properties (Hidden = true) %to provide backward compatibility

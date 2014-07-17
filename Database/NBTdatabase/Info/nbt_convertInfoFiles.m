@@ -38,19 +38,19 @@ for j=3:length(d)
             
             
             SubjectInfo.projectInfo = [oldInfo.(oldInfoFields{1}).projectID '.mat'];
-            SubjectInfo.researcherID = oldInfo.(oldInfoFields{1}).researcherID;
+            SubjectInfo.info.researcherID = oldInfo.(oldInfoFields{1}).researcherID;
             SubjectInfo.subjectID = oldInfo.(oldInfoFields{1}).subjectID;
             SubjectInfo.conditionID = oldInfo.(oldInfoFields{1}).condition;
             SubjectInfo.fileName = oldInfo.(oldInfoFields{1}).file_name;
             SubjectInfo.fileNameFormat = oldInfo.(oldInfoFields{1}).file_name_format;
-            SubjectInfo.dateOfRecording = oldInfo.(oldInfoFields{1}).time_of_recording;
-            SubjectInfo.notes = oldInfo.(oldInfoFields{1}).notes;
-            SubjectInfo.subjectGender = oldInfo.(oldInfoFields{1}).subject_gender;
-            SubjectInfo.subjectAge = oldInfo.(oldInfoFields{1}).subject_age;
-            SubjectInfo.subjectHeadsize = oldInfo.(oldInfoFields{1}).subject_headsize;
-            SubjectInfo.subjectHandedness = oldInfo.(oldInfoFields{1}).subject_handedness;
-            SubjectInfo.subjectMedication = oldInfo.(oldInfoFields{1}).subject_medication;
-            SubjectInfo.info = oldInfo.(oldInfoFields{1}).Info;
+            SubjectInfo.info.dateOfRecording = oldInfo.(oldInfoFields{1}).time_of_recording;
+            SubjectInfo.info.notes = oldInfo.(oldInfoFields{1}).notes;
+            SubjectInfo.info.subjectGender = oldInfo.(oldInfoFields{1}).subject_gender;
+            SubjectInfo.info.subjectAge = oldInfo.(oldInfoFields{1}).subject_age;
+            SubjectInfo.info.subjectHeadsize = oldInfo.(oldInfoFields{1}).subject_headsize;
+            SubjectInfo.info.subjectHandedness = oldInfo.(oldInfoFields{1}).subject_handedness;
+            SubjectInfo.info.subjectMedication = oldInfo.(oldInfoFields{1}).subject_medication;
+            
             SubjectInfo.lastUpdate = oldInfo.(oldInfoFields{1}).LastUpdate;
             [~, ~, SubjectInfo.listOfBiomarkers] = nbt_extractBiomarkers([d(j).name(1:end-8) 'analysis.mat']);%load from analysis
             save(d(j).name, 'SubjectInfo');
