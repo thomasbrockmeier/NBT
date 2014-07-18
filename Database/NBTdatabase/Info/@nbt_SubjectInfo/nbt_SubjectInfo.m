@@ -32,6 +32,7 @@ classdef nbt_SubjectInfo
         projectInfo
         subjectID
         conditionID
+        
         fileName
         fileNameFormat
         lastUpdate

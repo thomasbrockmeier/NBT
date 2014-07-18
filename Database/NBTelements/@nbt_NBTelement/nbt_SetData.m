@@ -44,6 +44,21 @@
 
 function NBTelement = nbt_SetData(NBTelement, Data, JoinArray)
 
+
+if isempty(Data)
+    Data = {'nbt_empty'};
+end
+if iscell(Data)
+    if isnan(Data{1})
+        Data = {'nbt_nan'};
+    end
+else
+    if isnan(Data)
+        Data = {'nbt_nan'};
+    end
+end
+
+
 if(~isempty(JoinArray))
     %check UpKey
     UpKey =  [];
@@ -248,7 +263,7 @@ if(~iscell(DataTmp))
     DataTmp = NBTelement.Data;
     
     
-    if (length(unique(DataTmp)) < length(DataTmp)) || nnz(isnan(DataTmp))>1
+    if (length(unique(DataTmp)) < length(DataTmp)) 
         for i=1:length(NBTelement.Data)
             pDub = find(DataTmp == NBTelement.Data(i));
             
@@ -256,14 +271,6 @@ if(~iscell(DataTmp))
                 DataTmp(pDub(2:end)) = nan;
                 NewData(pDub(1)) = DataTmp(pDub(1));
                 NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
-            else
-                if nnz(isnan(NBTelement.Data))>1
-                    pDub = find(isnan(NBTelement.Data));
-                    NewData(pDub(1)) = NaN;
-                    NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
-                else
-                    NewData(pDub) = DataTmp(pDub);
-                end
             end
         end
         
@@ -271,18 +278,7 @@ if(~iscell(DataTmp))
         NBTelement = nbt_collapseDataAndID(NBTelement);
 
     end
-    %
-    %     DataTmp = NBTelement.Data;
-    %     if nnz(isnan(DataTmp))>1
-    %         pDub = find(isnan(DataTmp));
-    %         npDub = find(~isnan(DataTmp));
-    %         bothDub = sort([pDub(1) npDub]);
-    %         NewData(pDub(1)) = DataTmp(pDub(1));
-    %         NBTelement=nbt_rePlaceIDs(NBTelement,pDub);
-    %         NBTelement.Data = NewData;
-    %         NBTelement = nbt_collapseDataAndID(NBTelement);
-    %
-    %     end
+
     
     
     
