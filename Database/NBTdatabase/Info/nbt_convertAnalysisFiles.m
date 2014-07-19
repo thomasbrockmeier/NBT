@@ -20,11 +20,31 @@
 %
 
 
-function nbt_convertAnalysisFiles(startpath)
+function nbt_convertAnalysisFiles(startpath,signalName)
+
+if isempty(signalName)
+    everyFile = cell2mat(inputdlg('Do you want to define a different signal attached for each biomarker? {y/n}: ' ));
+    
+    if strcmp(everyFile(1),'y')
+        
+    else
+        if strcmp(everyFile(1),'n')
+            signalName = cell2mat(inputdlg('Please type SignalName (e.g. RawSignal): ' ));
+            
+        else
+            disp('please either input y or n')
+            return
+            
+        end
+        
+    end
+    
+    
+end
 d= dir (startpath);
 for j=3:length(d)
     if (d(j).isdir )
-        nbt_convertAnalysisFiles([startpath filesep d(j).name ]);
+        nbt_convertAnalysisFiles([startpath filesep d(j).name ],signalName);
     else
         b = strfind(d(j).name,'mat');
         cc= strfind(d(j).name,'analysis');
@@ -33,13 +53,38 @@ for j=3:length(d)
             % here comes the conversion
             oldBiomarkers = load(d(j).name);
             oldBiomarkerFields = fields(oldBiomarkers);
+            if ~isempty(signalName)
+                sigInfo = load([d(j).name(1:end-12) 'info.mat']);
+                SubjectInfo = sigInfo.SubjectInfo;
+                eval([signalName ' = sigInfo.' signalName ';']);
+            end
             
             for i=1:length(oldBiomarkerFields)
+                
                 if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_CoreBiomarker'))
-                   eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
-                   save(d(j).name,(oldBiomarkerFields{i}),'-append')
+                    if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_SignalBiomarker'))
+                        eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
+                        if isempty(signalName)
+                            signalName = cell2mat(inputdlg(['Please type SignalName (e.g. RawSignal) for : ' oldBiomarkerFields{i}]));
+                            sigInfo = load([d(j).name(1:end-12) 'info.mat']);
+                            SubjectInfo = sigInfo.SubjectInfo;
+                            eval([signalName ' = sigInfo.' signalName ';']);
+                        end
+                        eval([ oldBiomarkerFields{i} '= nbt_UpdateBiomarkerInfo( oldBiomarkers.(oldBiomarkerFields{i}),' signalName ');']);
+                        
+                        eval([signalName '.listOfBiomarkers = [' signalName '.listOfBiomarkers ; {''' oldBiomarkerFields{i} '''}];']);
+                        
+                        save(d(j).name,(oldBiomarkerFields{i}),'-append')
+                    else
+                        eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
+                        eval(['SubjectInfo.listOfBiomarkers = [SubjectInfo.listOfBiomarkers ; {''' oldBiomarkerFields{i} '''}];']);
+                        
+                        save(d(j).name,(oldBiomarkerFields{i}),'-append')
+                    end
                 end
+                
             end
+            save([d(j).name(1:end-12) 'info.mat'],signalName,'SubjectInfo','-append')
         end
     end
 end

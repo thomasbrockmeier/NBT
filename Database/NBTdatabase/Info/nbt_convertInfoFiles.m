@@ -52,7 +52,10 @@ for j=3:length(d)
             SubjectInfo.info.subjectMedication = oldInfo.(oldInfoFields{1}).subject_medication;
             
             SubjectInfo.lastUpdate = oldInfo.(oldInfoFields{1}).LastUpdate;
-            [~, ~, SubjectInfo.listOfBiomarkers] = nbt_extractBiomarkers([d(j).name(1:end-8) 'analysis.mat']);%load from analysis
+      %      [~, ~, SubjectInfo.listOfBiomarkers] =
+      %      nbt_extractBiomarkers([d(j).name(1:end-8)
+      %      'analysis.mat']);%This is now added when analysis files are
+      %      converted or created
             save(d(j).name, 'SubjectInfo');
      
             

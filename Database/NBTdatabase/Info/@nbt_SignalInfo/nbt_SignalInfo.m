@@ -47,6 +47,7 @@ classdef nbt_SignalInfo
         log
         interface
         nbtVersion
+        listOfBiomarkers
     end
     
     properties(Dependent)

@@ -60,7 +60,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             [~, biomarkerObject.NBTversion] = nbt_getVersion;
             biomarkerObject.signalID = SignalInfo.signalID;
             biomarkerObject.signalName =  SignalInfo.signalName;
-            biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
+            %biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.subjectInfo = SignalInfo.subjectInfo;
             biomarkerObject.samplingFrequency = SignalInfo.convertedSamplingFrequency;
             

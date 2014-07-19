@@ -4,13 +4,6 @@ classdef nbt_Group %NBT GroupObject - contains group definitions + Database poin
         databaseLocation %path to files 
         groupName
         fileList
-        projectID %
-        subjectID
-        age
-        gender
-        conditionID
-        biomarker
-        frequencyRange
         parameters %for additional search parameters.
     end
     
