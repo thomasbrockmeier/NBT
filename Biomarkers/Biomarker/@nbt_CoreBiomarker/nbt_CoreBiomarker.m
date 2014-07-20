@@ -35,7 +35,7 @@
 % -
 
 
-classdef (Abstract) nbt_CoreBiomarker
+classdef nbt_CoreBiomarker
     properties
         lastUpdate %last date this biomarker was updated
         primaryBiomarker % the primary biomarker to use in scripts
