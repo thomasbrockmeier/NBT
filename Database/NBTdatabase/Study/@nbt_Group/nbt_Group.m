@@ -5,11 +5,13 @@ classdef nbt_Group %NBT GroupObject - contains group definitions + Database poin
         groupName
         fileList
         parameters %for additional search parameters.
+        biomarkerList
     end
     
     methods (Access = public)
         function GrpObj = nbt_Group %object contructor
             GrpObj.databaseType = 'NBTelement'; % 'NBTelement' or 'File'
+            GrpObj.biomarkerList = [];
         end
                 
         nbt_DataObject = getData(nbt_GroupObject, Parameters) %Returns a nbt_Data Object based on the GroupObject and additional parameters

@@ -65,7 +65,7 @@ ListStat = uicontrol(hp3,'Units', 'pixels','style','listbox','Max',1,'Units', 'p
 % biomarkers
 hp2 = uipanel(StatSelection,'Title','SELECT BIOMARKER(S)','FontSize',10,'Units','pixels','Position',[10 300 360 200],'BackgroundColor','w','fontweight','bold');
 
-ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(NBTstudy.groups{1}.biomarker),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',NBTstudy.groups{1}.biomarker,'BackgroundColor','w','Tag','ListBiomarker');
+ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(NBTstudy.groups{1}.biomarkerList),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',NBTstudy.groups{1}.biomarkerList,'BackgroundColor','w','Tag','ListBiomarker');
 
 % regions or channels
 reglist{1} = 'Channels';

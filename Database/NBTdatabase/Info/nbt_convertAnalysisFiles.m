@@ -29,7 +29,7 @@ if isempty(signalName)
         
     else
         if strcmp(everyFile(1),'n')
-            signalName = cell2mat(inputdlg('Please type SignalName (e.g. RawSignal): ' ));
+            signalName = cell2mat(inputdlg('Please type SignalInfoName (e.g. RawSignalInfo): ' ));
             
         else
             disp('please either input y or n')
@@ -65,12 +65,12 @@ for j=3:length(d)
                     if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_SignalBiomarker'))
                         eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
                         if isempty(signalName)
-                            signalName = cell2mat(inputdlg(['Please type SignalName (e.g. RawSignal) for : ' oldBiomarkerFields{i}]));
+                            signalName = cell2mat(inputdlg(['Please type SignalInfoName (e.g. RawSignalInfo) for : ' oldBiomarkerFields{i}]));
                             sigInfo = load([d(j).name(1:end-12) 'info.mat']);
                             SubjectInfo = sigInfo.SubjectInfo;
                             eval([signalName ' = sigInfo.' signalName ';']);
                         end
-                        eval([ oldBiomarkerFields{i} '= nbt_UpdateBiomarkerInfo( oldBiomarkers.(oldBiomarkerFields{i}),' signalName ');']);
+                        eval([ oldBiomarkerFields{i} '= nbt_UpdateBiomarkerInfo(' oldBiomarkerFields{i} ',' signalName ');']);
                         
                         eval([signalName '.listOfBiomarkers = [' signalName '.listOfBiomarkers ; {''' oldBiomarkerFields{i} '''}];']);
                         
