@@ -31,6 +31,7 @@ classdef nbt_SignalInfo
         subjectInfo
         signalName
         signalID
+        signalSHA256
         signalOrigin
         researcherID
         signalType
@@ -84,5 +85,12 @@ classdef nbt_SignalInfo
         function Biomarker = SetBadChannelsToNaN(Info,Biomarker)
             Biomarker(:,find(Info.badChannels)) = nan(size(Biomarker,1),length(find(Info.badChannels)));
         end 
+        
+        function yesno = checkHash(SignalInfo, Signal)
+            yesno = false;
+            if(~isempty(SignalInfo.signalSHA256)
+                yesno = strcmp(nbt_getHash(Signal),SignalInfo.signalSHA256)
+            end
+        end
     end
 end
