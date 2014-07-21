@@ -73,12 +73,15 @@ uiwait(GroupSelection) %now we wait for the user to select parameters - GroupSel
         %the following simply gets the selections from the GUI and add them
         %to the nbt_Group object
         
-        for i = 1:noPanels
-            picked = get(listBox(i),'Value');
+        for ii = 1:noPanels
+            picked = get(listBox(ii),'Value');
             if ~isempty(picked)
-                elementName = get(Gp(i),'Title');
-                pickedLabels = get(listBox(i),'String');
-                eval(['GrpObj.parameters.' elementName ' = pickedLabels(picked);']);
+                elementName = get(Gp(ii),'Title');
+                pickedLabels = get(listBox(ii),'String');
+                eval(['GrpObj.parameters.' elementName ' = [];']);
+                for j = 1:length(picked)
+                    eval(['GrpObj.parameters.' elementName ' = [GrpObj.parameters.' elementName '; pickedLabels(picked(j))];']);
+                end
             end
         end
         
