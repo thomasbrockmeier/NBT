@@ -106,6 +106,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             BiomarkerObject.signalID = BiomarkerObject.NBTDID; %NBTDID of the signal used to compute the biomakrer
             BiomarkerObject.nbtVersion = BiomarkerObject.NBTversion;
             BiomarkerObject.subjectInfo = subjectInfo(1:end-13);
+            BiomarkerObject = setUniqueIdentifiers(BiomarkerObject);
         end 
     end % end methods
 end

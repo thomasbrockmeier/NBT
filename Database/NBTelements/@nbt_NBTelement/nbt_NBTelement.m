@@ -62,6 +62,7 @@ classdef nbt_NBTelement %< handle
         Biomarkers = cell(0,0);
         ProjectID = [];
         Info = [];
+        Identifier = false;
     end
     methods
         function NBTelement = nbt_NBTelement(ElementID, Key, Uplink)

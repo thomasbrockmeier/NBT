@@ -19,11 +19,10 @@ Project = nbt_NBTelement(1,'1',[]);
 Subject = nbt_NBTelement(2, '2.1',1);
 Condition = nbt_NBTelement(3,'3.2.1',2);
 Signals = nbt_NBTelement(4,'4.3.2.1',3);
-FrequencyBand = nbt_NBTelement(5,'5.4.3.2.1',4);
 
 % could include last Update
 
-NextID = 6;
+NextID = 5;
 
 %determine tree
 FileList = nbt_ExtractTree(startpath,'mat','analysis');
@@ -66,6 +65,8 @@ for i=1:length(FileList)
         
         
         eval(['NBTelementName = class(' subjectBiomarkerFields{m} ');']);
+          
+        
         addflag = ~exist(NBTelementName,'var');
         if addflag
             eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.3.2.1'', 3);'])
@@ -93,34 +94,39 @@ for i=1:length(FileList)
         for m = 1:length(BiomarkerList)
             % create NBTelement, unless it exists
             eval(['NBTelementName = class(' BiomarkerList{m} ');']);
+        
+            NumIdentifiers  = eval([BiomarkerList{m} '.uniqueIdentifiers;']);
             
-            try
-                eval(['FreqRange = ' BiomarkerList{m} '.frequencyRange;'])
-                if(size(FreqRange,1)>1)
-                    FreqRange = [];
+            connector = Signals;
+            connectorKeys = 'Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)';
+            for ni = 1:length(NumIdentifiers)    
+                addflag = ~exist(NumIdentifiers{ni},'var');
+                if(addflag)
+                    eval([NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.' connector.Key ''', ' num2str(connector.ElementID) ');'])    
+                    eval([NumIdentifiers{ni} '.Identifier = true;']);
+                     NextID = NextID + 1;
                 end
-            catch
-                FreqRange = [];
+                
+                eval(['connector = ' NumIdentifiers{ni} ';']);
+                
+                connectorValue = {num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]))};
+                oldValue{ni} = num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]));
+                
+                newStuff = eval(['''' NumIdentifiers{ni} ', oldValue{' num2str(ni) '}''']);
+                
+                    
+                eval([NumIdentifiers{ni} '= nbt_SetData(' NumIdentifiers{ni} ', connectorValue ,{' connectorKeys '});']);
+                
+                
+                connectorKeys = [newStuff, ';' ,  connectorKeys];
+                
             end
             
-            if(~isempty(FreqRange))
-                FreqRange = {int2str(FreqRange)};
-            end
-            SubjectID = SubjectInfo.subjectID;
             
             addflag = ~exist(NBTelementName,'var');
             if(addflag)
-                if(~isempty(FreqRange))
-                    eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.5.4.3.2.1'', 5);'])
-                else
-                    eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.4.3.2.1'', 4);'])
-                end
+                eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' connector.Key '''  , ' num2str(connector.ElementID) ');'])    
                 NextID = NextID + 1;
-            end
-            
-            
-            if(~isempty(FreqRange))
-                FrequencyBand = nbt_SetData(FrequencyBand, FreqRange, {Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
             end
             
             %Create the Data cell
@@ -131,11 +137,10 @@ for i=1:length(FileList)
                     eval(['Data{dd,1} = ' BiomarkerList{m} '.' DataString ';']);
                     eval([NBTelementName '.Biomarkers{ dd ,1} = DataString; '])
                 end
-                if(isempty(FreqRange))
-                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID;Project, SubjectInfo.projectInfo(1:end-4)});']);
-                else
-                    eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {FrequencyBand, FreqRange; Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID;Project, SubjectInfo.projectInfo(1:end-4)});']);
-                end
+                
+                eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {' connectorKeys '});']);
+                
+                
                 clear Data
             end
         end

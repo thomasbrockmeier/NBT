@@ -59,6 +59,7 @@ classdef nbt_QBiomarker < nbt_CoreBiomarker
             BiomarkerObject.researcherID = BiomarkerObject.ReseacherID; % ID of the Reseacher or script that made the last update
             BiomarkerObject.nbtVersion = BiomarkerObject.NBTversion;
             BiomarkerObject.subjectInfo = subjectInfo;
+            BiomarkerObject = setUniqueIdentifiers(BiomarkerObject);
         end
     end %end methods
 end

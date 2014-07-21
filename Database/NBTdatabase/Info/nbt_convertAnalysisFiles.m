@@ -41,6 +41,7 @@ if isempty(signalName)
     
     
 end
+firstTime = 1;
 d= dir (startpath);
 for j=3:length(d)
     if (d(j).isdir )
@@ -63,6 +64,18 @@ for j=3:length(d)
                 
                 if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_CoreBiomarker'))
                     if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_SignalBiomarker'))
+                        
+                        if(isa(oldBiomarkers.(oldBiomarkerFields{i}),'nbt_amplitude'))
+                            if firstTime
+                                disp('Amplitude hack for frequency Range - Assumes amplitude_lf_hf form');
+                                firstTime = 0;
+                            end
+                            x = oldBiomarkerFields{i};
+                            y = strfind(x,'_');
+                            freqRange = [str2num(x(y(1)+1:y(2)-1)) str2num(x(y(2)+1:y(3)-1))];
+                            eval(['oldBiomarkers.' oldBiomarkerFields{i} '.FrequencyRange = freqRange;']);    
+                        end
+                        
                         eval([ oldBiomarkerFields{i} '= convertBiomarker( oldBiomarkers.(oldBiomarkerFields{i}),d(j).name);']);
                         if isempty(signalName)
                             signalName = cell2mat(inputdlg(['Please type SignalInfoName (e.g. RawSignalInfo) for : ' oldBiomarkerFields{i}]));

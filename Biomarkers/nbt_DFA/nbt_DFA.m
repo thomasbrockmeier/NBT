@@ -77,6 +77,7 @@ classdef nbt_DFA < nbt_SignalBiomarker
             DFAobject.DateLastUpdate = NaN;
             DFAobject.Fs = NaN;
             DFAobject.res_logbin = 10;
+            DFAobject = setUniqueIdentifiers(DFAobject);
         end
         
         function LastUpdate=GetLog(DFAobject)
@@ -84,6 +85,10 @@ classdef nbt_DFA < nbt_SignalBiomarker
             LastUpdate = DFAobject.LastUpdate;
             disp('The DFAobject was last updated')
             disp(LastUpdate)
+        end
+        
+        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
+            BiomarkerObject.uniqueIdentifiers = {'frequencyRange','FitInterval','CalcInterval','Overlap'};
         end
         
         function plot(DFAobject, ChannelID, DFA_Plot)

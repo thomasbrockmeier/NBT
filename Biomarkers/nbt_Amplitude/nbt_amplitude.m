@@ -41,7 +41,12 @@ classdef nbt_amplitude < nbt_SignalBiomarker
 %                 BiomarkerObject.SubRegions=SubRegions;
                 BiomarkerObject.Biomarkers ={'Channels'};
                 BiomarkerObject.BiomarkerUnits = Unit;
+                BiomarkerObject = setUniqueIdentifiers(BiomarkerObject);
             end
+        end
+        
+        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
+            BiomarkerObject.uniqueIdentifiers = {'frequencyRange','Normalized'};
         end
     end
 end
