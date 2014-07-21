@@ -88,7 +88,7 @@ classdef nbt_SignalInfo
         
         function yesno = checkHash(SignalInfo, Signal)
             yesno = false;
-            if(~isempty(SignalInfo.signalSHA256)
+            if(~isempty(SignalInfo.signalSHA256))
                 yesno = strcmp(nbt_getHash(Signal),SignalInfo.signalSHA256)
             end
         end
