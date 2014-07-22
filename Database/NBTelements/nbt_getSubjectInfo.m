@@ -1,6 +1,6 @@
 % This method returns an InfoCell which, e.g., can be used to fill the boxes in the
 % defineGroup GUI.
-function [InfoCell, BioCell] = nbt_getSubjectInfo
+function [InfoCell, BioCell, IdentCell] = nbt_getSubjectInfo
 %First we determine which database is used.
 %Any Elements loaded?
 s = evalin('base', 'whos');
@@ -34,19 +34,25 @@ end
 %InfoCell = cell(length(inds),2);
 k = 0;
 n = 0;
+m = 0;
 for i = 1:length(inds)
-    bios = evalin('base',[flds{inds(i)} '.Biomarkers';]);
-    if isempty(bios);
-        k= k+1;
-        InfoCell{k,1} = flds{inds(i)};
-        InfoCell{k,2} = evalin('base',[flds{inds(i)} '.Data';]);
+    if evalin('base',[flds{inds(i)} '.Identifier';])
+        m= m+1;
+        IdentCell{m,1} = flds{inds(i)};
+        IdentCell{m,2} = evalin('base',[flds{inds(i)} '.Data';]);
     else
-        for j = 1:length(bios)
-            n = n+1;
-            BioCell{n} = [flds{inds(i)} '.' bios{j}];
-        end
+        bios = evalin('base',[flds{inds(i)} '.Biomarkers';]);
+        if isempty(bios);
+            k= k+1;
+            InfoCell{k,1} = flds{inds(i)};
+            InfoCell{k,2} = evalin('base',[flds{inds(i)} '.Data';]);
+        else
+            for j = 1:length(bios)
+                n = n+1;
+                BioCell{n} = [flds{inds(i)} '.' bios{j}];
+            end 
+        end        
     end
-    
 end
 
 

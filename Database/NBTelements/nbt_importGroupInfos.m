@@ -65,7 +65,7 @@ for i=1:length(FileList)
         
         
         eval(['NBTelementName = class(' subjectBiomarkerFields{m} ');']);
-          
+        NBTelementName = NBTelementName(5:end);  
         
         addflag = ~exist(NBTelementName,'var');
         if addflag
@@ -94,30 +94,31 @@ for i=1:length(FileList)
         for m = 1:length(BiomarkerList)
             % create NBTelement, unless it exists
             eval(['NBTelementName = class(' BiomarkerList{m} ');']);
+            NBTelementName = NBTelementName(5:end);  
         
             NumIdentifiers  = eval([BiomarkerList{m} '.uniqueIdentifiers;']);
             
             connector = 'Signals';
             connectorKeys = 'Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)';
             for ni = 1:length(NumIdentifiers)    
-                addflag = ~exist(NumIdentifiers{ni},'var');
+                addflag = ~exist([NBTelementName '_' NumIdentifiers{ni}],'var');
                 if(addflag)
                     newkey = eval(['[''' int2str(NextID) '.'' ' connector '.Key]']);
                     uplink = eval(['num2str(' connector '.ElementID);']);
-                    eval([NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' newkey ''',' uplink ');']); 
-                    eval([NumIdentifiers{ni} '.Identifier = true;']);
+                    eval([NBTelementName '_' NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' newkey ''',' uplink ');']); 
+                    eval([NBTelementName '_' NumIdentifiers{ni} '.Identifier = true;']);
                     NextID = NextID + 1;
                 end
                 
-                eval(['connector = ''' NumIdentifiers{ni} ''';']);
+                eval(['connector = ''' NBTelementName '_' NumIdentifiers{ni} ''';']);
                 
                 connectorValue = {num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]))};
                 oldValue{ni} = num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]));
                 
-                newStuff = eval(['''' NumIdentifiers{ni} ', oldValue{' num2str(ni) '}''']);
+                newStuff = eval(['''' NBTelementName '_' NumIdentifiers{ni} ', oldValue{' num2str(ni) '}''']);
                 
                     
-                eval([NumIdentifiers{ni} '= nbt_SetData(' NumIdentifiers{ni} ', connectorValue ,{' connectorKeys '});']);
+                eval([NBTelementName '_' NumIdentifiers{ni} '= nbt_SetData(' NBTelementName '_' NumIdentifiers{ni} ', connectorValue ,{' connectorKeys '});']);
                 
                 
                 connectorKeys = [newStuff, ';' ,  connectorKeys];
@@ -129,7 +130,6 @@ for i=1:length(FileList)
             if(addflag)
                 ky = eval([connector '.Key']);
                 kid = eval([connector '.ElementID']); 
-                disp([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
                 eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
                 NextID = NextID + 1;
             end

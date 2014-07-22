@@ -1,4 +1,4 @@
-function GrpObj = defineSubjectGroupGUI(GrpObj, InfoCell, BioCell)
+function GrpObj = defineSubjectGroupGUI(GrpObj, InfoCell, BioCell, IdentCell)
 
 %defineGroupGUI returns a nbt_Group object based on the selection made in
 %the GUI
@@ -63,11 +63,11 @@ end
 text_ui7= uicontrol(GroupSelection,'Style','text','Position',[700 70 200 20],'string','Write a name for the Group','fontsize',10);
 text_ui8= uicontrol(GroupSelection,'Style','edit','Position',[700 50 200 20],'string','','fontsize',10);
 
-plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 30 40 40], 'String','OK','callback', {@groupdefinition,noPanels, BioCell});
+plotButton = uicontrol(GroupSelection,'Style','pushbutton','Units','pixels','Position',[920 30 40 40], 'String','OK','callback', {@groupdefinition,noPanels, BioCell, IdentCell});
 uiwait(GroupSelection) %now we wait for the user to select parameters - GroupSelection is closed by groupdefinition below
 
 % --- callback function - nested function
-    function groupdefinition(src,evt,noPanels, BioCell)
+    function groupdefinition(src,evt,noPanels, BioCell, IdentCell)
         set(plotButton,'String', 'Busy...');
         
         %the following simply gets the selections from the GUI and add them
@@ -87,6 +87,7 @@ uiwait(GroupSelection) %now we wait for the user to select parameters - GroupSel
         
         GrpObj.groupName = get(text_ui8,'String');
         GrpObj.biomarkerList = BioCell;
+        GrpObj.identList = IdentCell;
         if(isempty(GrpObj.groupName))
             set(plotButton,'String', 'OK');
             disp('Please write a group name to continue');
