@@ -6,6 +6,7 @@ classdef nbt_Group %NBT GroupObject - contains group definitions + Database poin
         fileList
         parameters %for additional search parameters.
         biomarkerList
+        identList
     end
     
     methods (Access = public)

@@ -7,10 +7,10 @@ if(isempty(GrpObj))
     GUIswitch = 1;
 end
 %First we load information about the content of the database
-[InfoCell, BioCell] = nbt_getSubjectInfo;
+[InfoCell, BioCell, IdentCell] = nbt_getSubjectInfo;
 
 if(GUIswitch)
-    GrpObj = defineSubjectGroupGUI(GrpObj, InfoCell, BioCell);
+    GrpObj = defineSubjectGroupGUI(GrpObj, InfoCell, BioCell, IdentCell);
 end
 
 
