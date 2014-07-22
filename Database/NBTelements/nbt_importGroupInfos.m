@@ -97,17 +97,19 @@ for i=1:length(FileList)
         
             NumIdentifiers  = eval([BiomarkerList{m} '.uniqueIdentifiers;']);
             
-            connector = Signals;
+            connector = 'Signals';
             connectorKeys = 'Signals,signalFields{mm};Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)';
             for ni = 1:length(NumIdentifiers)    
                 addflag = ~exist(NumIdentifiers{ni},'var');
                 if(addflag)
-                    eval([NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.' connector.Key ''', ' num2str(connector.ElementID) ');'])    
+                    newkey = eval(['[''' int2str(NextID) '.'' ' connector '.Key]']);
+                    uplink = eval(['num2str(' connector '.ElementID);']);
+                    eval([NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' newkey ''',' uplink ');']); 
                     eval([NumIdentifiers{ni} '.Identifier = true;']);
-                     NextID = NextID + 1;
+                    NextID = NextID + 1;
                 end
                 
-                eval(['connector = ' NumIdentifiers{ni} ';']);
+                eval(['connector = ''' NumIdentifiers{ni} ''';']);
                 
                 connectorValue = {num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]))};
                 oldValue{ni} = num2str(eval([BiomarkerList{m} '.' NumIdentifiers{ni}]));
@@ -125,7 +127,10 @@ for i=1:length(FileList)
             
             addflag = ~exist(NBTelementName,'var');
             if(addflag)
-                eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' connector.Key '''  , ' num2str(connector.ElementID) ');'])    
+                ky = eval([connector '.Key']);
+                kid = eval([connector '.ElementID']); 
+                disp([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
+                eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
                 NextID = NextID + 1;
             end
             

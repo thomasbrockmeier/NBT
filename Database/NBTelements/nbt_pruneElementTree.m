@@ -26,7 +26,8 @@ for i = maxLevel:-1:0
                 disp(['      node ' flds{leaf} ' has no Children']);
                 parent = eval(['elements.' flds{leaf} '.Uplink;']);
                 parentName = ['elements.' flds{find(ids==parent)}];
-                eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= leaf);']);
+                id = eval(['elements.' flds{leaf} '.ElementID;']);
+                eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
                 elements = rmfield(elements,flds{leaf});
             else
                 disp(['      node ' flds{leaf} ' has  Children']);
@@ -47,6 +48,8 @@ for i = maxLevel:-1:0
                     eval([childName '.Uplink = parent;']);
                     elements = removeID(elements,ids, flds, childName,ids(leaf));
                 end
+                id = eval(['elements.' flds{leaf} '.ElementID;']);
+                eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
                 elements = rmfield(elements,flds{leaf});
             end
         end
