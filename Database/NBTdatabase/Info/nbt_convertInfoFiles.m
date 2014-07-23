@@ -1,5 +1,5 @@
 % This function converts Info objects to the new SubjectInfo and SignalInfo
-% objects. 
+% objects (from NBT v0.5.0-alpha). 
 % Copyright (C) 2014 Simon-Shlomo Poil
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)
@@ -52,12 +52,7 @@ for j=3:length(d)
             SubjectInfo.info.subjectMedication = oldInfo.(oldInfoFields{1}).subject_medication;
             
             SubjectInfo.lastUpdate = oldInfo.(oldInfoFields{1}).LastUpdate;
-      %      [~, ~, SubjectInfo.listOfBiomarkers] =
-      %      nbt_extractBiomarkers([d(j).name(1:end-8)
-      %      'analysis.mat']);%This is now added when analysis files are
-      %      converted or created
             save(d(j).name, 'SubjectInfo');
-     
             
             %then we create the SignalInfo objects
             for i=1:length(oldInfoFields)
