@@ -40,26 +40,44 @@
 %
 
 function [positive] = nbt_searchvector(vector, searchvector)
-positive  = [];
+
+if(isempty(vector) || isempty(searchvector))
+    positive  = [];
+    return;
+end
 if(iscell(searchvector))
-    searchvector = nbt_cellc(searchvector, 0);
-    vector = nbt_cellc(vector,0);
-    for i=1:length(searchvector)
-        vs = searchvector{i,1};
-        if(isnumeric(vs))
+    if(length(searchvector) == 1)
+        if(ischar(searchvector{1,1}))
+            positive = find(strcmp(vector,searchvector{1,1}));
+        elseif(isnumeric(searchvector{1,1}))
+            vector = nbt_cellc(vector,0);
+            positive = [];
             for m=1:length(vector)
-                positive = [positive; find(vector{m,1} == vs)];
+                positive = [positive; find(vector{m,1} == searchvector{1,1})];
             end
-        elseif(ischar(vs))       
-                  positive = [positive; find(strcmp(vector,vs))];
+        end
+    else
+        searchvector = nbt_cellc(searchvector, 0);
+        vector = nbt_cellc(vector,0);
+         positive = [];
+        for i=1:length(searchvector)
+            vs = searchvector{i,1};
+            if(isnumeric(vs))
+                for m=1:length(vector)
+                    positive = [positive; find(vector{m,1} == vs)];
+                end
+            elseif(ischar(vs))
+                positive = [positive; find(strcmp(vector,vs))];
+            end
         end
     end
 else
+    positive = [];
     for i=1:length(searchvector)
         temp = find(vector == searchvector(i));
         if(~isempty(temp))
             for mm=1:length(temp)
-            positive = [positive temp(mm)];
+                positive = [positive temp(mm)];
             end
         end
     end
