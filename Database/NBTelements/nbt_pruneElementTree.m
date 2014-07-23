@@ -11,7 +11,7 @@ for i = 1:length(flds)
 end
 
 maxLevel = max(level);
-
+pruned = 0;
 for i = maxLevel:-1:0
     leaves = find(level==i);
     for j = 1:length(leaves)
@@ -21,6 +21,10 @@ for i = maxLevel:-1:0
             disp(['keeping node ' flds{leaf}]);
         else
             disp(['pruning node ' flds{leaf}]);
+            pruned = pruned+1;
+            elements.constant{pruned,1} = flds{leaf};
+            elements.constant{pruned,2} = eval(['elements.' flds{leaf} '.Data;']);
+            
             childs = eval(['elements.' flds{leaf} '.Children;']);
             if length(childs) < 1
                 disp(['      node ' flds{leaf} ' has no Children']);
