@@ -3,24 +3,30 @@ classdef nbt_Stat
     
     properties
         %Input
-        Test
-        TestOptions
-        GroupObjects
-        Biomarkers
-        BiomarkerIdentifiers
+        testName
         
-        IntermediateData  %== [pool/poolkeys
+        testOptions
+        groupObjects
+        biomarkers
+        biomarkerIdentifiers
         
-        Results %== pvalues and r values
+        intermediateData  %== [pool/poolkeys
+        
+        results %== pvalues and r values
         
         %add statresults..
     end
     
     methods
+        function StatObj = nbt_Stat()
+            
+        end
+        
         plot()
         createReport();
         calculate();
         checkPreCondition();
+        
     end
     
 end

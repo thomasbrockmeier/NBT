@@ -53,13 +53,9 @@ StatSelection = figure('Units','pixels', 'name','NBT: Select Statistics' ,'numbe
 % fit figure to screen, adapt to screen resolution
 StatSelection=nbt_movegui(StatSelection);
 
-% This loads the statistical tests- these needs to be set in nbt_statisticslog.
-statindex = 1;
-while (~isempty(nbt_statisticslog(statindex)))
-    s = nbt_statisticslog(statindex);
-    statList{statindex} = s.statfuncname;
-    statindex = statindex + 1;
-end
+% This loads the statistical tests- these needs to be set in nbt_Study.getStatisticsTests.
+statList = nbt_Study.getStatisticsTests(0);
+
 hp3 = uipanel(StatSelection,'Title','SELECT TEST','FontSize',10,'Units','pixels','Position',[10 520 360 200],'BackgroundColor','w','fontweight','bold');
 ListStat = uicontrol(hp3,'Units', 'pixels','style','listbox','Max',1,'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',statList,'BackgroundColor','w','Tag','ListStat');
 % biomarkers

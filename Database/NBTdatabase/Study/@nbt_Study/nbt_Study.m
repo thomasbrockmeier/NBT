@@ -9,6 +9,11 @@ classdef nbt_Study
        function StudyObject = nbt_Study
            
        end
+       
+       
+       
    end
-   
+   methods (Static = true)
+        listOfAvailbleTests = getStatisticsTests(index);       
+   end
 end
