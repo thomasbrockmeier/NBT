@@ -104,15 +104,15 @@ g = gcf;
 Col = get(g,'Color');
 
 text_ui1= uicontrol(Chans_RegsSelection,'Style','text','Position',[10 360 120 20],'string','Select Channels','fontsize',10,'fontweight','bold','BackgroundColor',Col);
-badchans = find(SignalInfo.BadChannels);
-chans = SignalInfo.Interface.number_of_channels;
-if isfield(SignalInfo.Interface,'EEG') %% eeg signal;
+badchans = find(SignalInfo.badChannels);
+chans = SignalInfo.interface.number_of_channels;
+if isfield(SignalInfo.interface,'EEG') %% eeg signal;
     for chl = 1:chans
-        chanlocs{chl,1} = ['<HTML><FONT color="black">', SignalInfo.Interface.EEG.chanlocs(chl).labels, '</FONT></HTML>'];
+        chanlocs{chl,1} = ['<HTML><FONT color="black">', SignalInfo.interface.EEG.chanlocs(chl).labels, '</FONT></HTML>'];
     end
     if ~isempty(badchans)
         for i =1:length(badchans)
-            chanlocs{badchans(i),1} = ['<HTML><FONT color="red">', SignalInfo.Interface.EEG.chanlocs(badchans(i)).labels, '</FONT></HTML>'];
+            chanlocs{badchans(i),1} = ['<HTML><FONT color="red">', SignalInfo.interface.EEG.chanlocs(badchans(i)).labels, '</FONT></HTML>'];
         end
     end
     u(1)=uicontrol(Chans_RegsSelection,'Units', 'pixels','style','listbox','string', [chanlocs;{''}],'Max',chans,...
@@ -313,7 +313,7 @@ u(6) = uicontrol(Chans_RegsSelection,'Units', 'pixels','style','text','Position'
         if (get(u(2),'Value') == get(u(2),'Max'))
             data = get(SubmitRegion, 'UserData');
             data.channel_nr = 1:chans;
-            data.chanloc = SignalInfo.Interface.EEG.chanlocs;
+            data.chanloc = SignalInfo.interface.EEG.chanlocs;
             set(SubmitRegion, 'UserData',data);
         end
         data = get(SubmitRegion,'UserData');

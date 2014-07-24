@@ -61,6 +61,7 @@ switch GrpObj.databaseType
             end
         end
     case 'File' %File based database.
+        disp('This part does not work yet')
         [FileInfo, GrpObj] = getFileInfo(GrpObj);
         readconditions = unique(FileInfo(:,2));
         readproject = unique(FileInfo(:,3));
