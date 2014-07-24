@@ -6,8 +6,8 @@ classdef nbt_Stat
         testName
         
         testOptions
-        groupObjects
-        biomarkers
+        groups
+        biomarker
         biomarkerIdentifiers
         
         intermediateData  %== [pool/poolkeys
@@ -22,10 +22,12 @@ classdef nbt_Stat
             
         end
         
-        plot()
-        createReport();
-        calculate();
-        checkPreCondition();
+       % plot()
+       % createReport();
+       function obj = calculate(obj)
+          
+       end
+       % checkPreCondition();
         
     end
     
