@@ -1,3 +1,4 @@
+%This function removes NBTelements with only one level.
 function nbt_pruneElementTree
 
 elements = load('NBTelementBase.mat');

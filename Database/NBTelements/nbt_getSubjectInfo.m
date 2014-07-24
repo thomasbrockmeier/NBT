@@ -15,13 +15,17 @@ if k==0
     try
         evalin('base', 'load(''NBTelementBase.mat'')');
     catch % in the case the NBTelement database does not exist
-        nbt_importGroupInfos(pwd);
-        nbt_pruneElementTree;
+        nbt_importGroupInfos(pwd); %import data to NBTelements
+        nbt_pruneElementTree;      %prune elements with only one level
         evalin('base', 'load(''NBTelementBase.mat'')');
     end
     s = whos('-file','NBTelementBase.mat');
+    m = 1;
     for i = 1:length(s)
-        flds{i} = s(i).name;
+        if(strcmp(s(i).class, 'nbt_NBTelement'))
+        flds{m} = s(i).name;
+        m = m+1;
+        end
     end
 end
 
