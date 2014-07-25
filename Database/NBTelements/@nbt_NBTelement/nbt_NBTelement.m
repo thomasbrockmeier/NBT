@@ -177,10 +177,12 @@ classdef nbt_NBTelement %< handle
                 end
                 
                 %% % update UpPool - strip off until NBTelement.UpLink match
-                for i=1:(TokenStep-1)
-                    [StripOff, UpPool] = strtok(UpPool,'.');
+                if(~UplinkMissing)
+                    for i=1:(TokenStep-1)
+                        [StripOff, UpPool] = strtok(UpPool,'.');
+                    end
+                    UpPool = nbt_TrimCellStr(UpPool);
                 end
-                UpPool = nbt_TrimCellStr(UpPool);
                 
                 %% % Match UpPool
                 [StripOff, NewPoolIDstpup] = strtok(NewPoolID,'.');
@@ -189,9 +191,9 @@ classdef nbt_NBTelement %< handle
                     UplinkSteps = 1;
                     [tmpKey, TreeKey] = strtok(NBTelement.Key, '.');
                     [tmpKey, TreeKey] = strtok(TreeKey,'.');
-                    [tmpKey, TreeKey] = strtok(TreeKey,'.');
-                    while(strcmp(KeepKey, tmpKey))
-                        [tmpKey, TreeKey] = strok(TreeKey);
+                     
+                    while(~strcmp(['.' UpPoolKey], TreeKey))
+                        [tmpKey, TreeKey] = strtok(TreeKey,'.');
                         UplinkSteps = UplinkSteps +1;
                     end
                     for mm = 1:UplinkSteps

@@ -4,7 +4,6 @@ classdef nbt_Stat
     properties
         %Input
         testName
-        
         testOptions
         groups
         biomarker
