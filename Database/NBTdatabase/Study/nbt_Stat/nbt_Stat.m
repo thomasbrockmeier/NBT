@@ -6,7 +6,7 @@ classdef nbt_Stat
         testName
         testOptions
         groups
-        biomarker
+        biomarkers
         biomarkerIdentifiers
         
         intermediateData  %== [pool/poolkeys
