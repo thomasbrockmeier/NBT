@@ -15,13 +15,14 @@ switch GrpObj.databaseType
         %We loop over StatObj.biomarkers and generate a cell
         for bID=1:numBiomarkers
             [biomarker, subBiomarker] = strtok(StatObj.biomarkers{bID,1},'.');
+            subBiomarker = subBiomarker(2:end);
             %then we generate the NBTelement call.
             NBTelementCall = ['nbt_GetData(' biomarker ',{'] ;
             %loop over Group parameters
             groupParameters = fields(GrpObj.parameters);
             for gP = 1:length(groupParameters)
-                NBTelementCall = [NBTelementCall groupParameters(gP) ...
-                    '''' GrpObj.parameters.(groupParameters(gP)) '''' ';'];
+                NBTelementCall = [NBTelementCall groupParameters{gP} ...
+                    ',''' GrpObj.parameters.(groupParameters{gP}){1,1} '''' ';'];
             end
             %then we loop over biomarker identifiers -
             % should be stored as a cell in a cell
@@ -29,11 +30,11 @@ switch GrpObj.databaseType
             if(~isempty(bIdentifiers))
                 % we need to add biomarker identifiers
                 for bIdent = 1:2:length(bIdentifiers)
-                    NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' bIdentifiers{bIdent,2} ';'];
+                    NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' '''' bIdentifiers{bIdent,2} '''' ';'];
                 end
             end
-            NBTelementCall = NBTelementcall(end-1); % to remove ';'
-            NBTelementCall = [NBTelementCall '},'  subBiomarker ');'];
+            NBTelementCall = NBTelementCall(1:end-1); % to remove ';'
+            NBTelementCall = [NBTelementCall '},' ''''  subBiomarker '''' ');'];
             [DataObj.dataStore{bID,1}, DataObj.pool{bID,1},  DataObj.poolKey{bID,1}] = evalin('base', NBTelementCall);
         end
     case 'File'

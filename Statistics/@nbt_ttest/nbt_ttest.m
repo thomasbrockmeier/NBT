@@ -8,8 +8,8 @@ classdef nbt_ttest < nbt_UnPairedStat
         
         function obj = calculate(obj, StudyObj)
             %Get data
-            Data1 = StudyObj.groups{obj.groups(1)}.getData(obj) %with parameters);
-            Data2 = StudyObj.groups{obj.groups(2)}.getData %with parameters);
+            Data1 = StudyObj.groups{obj.groups(1)}.getData(obj); %with parameters);
+            Data2 = StudyObj.groups{obj.groups(2)}.getData(obj); %with parameters);
             %Perform test
             obj.results = ttest2(Data1,Data2);
             
