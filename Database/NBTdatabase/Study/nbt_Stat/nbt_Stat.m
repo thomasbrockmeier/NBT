@@ -8,12 +8,9 @@ classdef nbt_Stat
         groups
         biomarkers
         biomarkerIdentifiers
-        
-        intermediateData  %== [pool/poolkeys
-        
-        results %== pvalues and r values
-        
-        %add statresults..
+        pValues
+        statValues
+        statStruct 
     end
     
     methods

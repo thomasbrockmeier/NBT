@@ -3,7 +3,10 @@ classdef nbt_ttest < nbt_UnPairedStat
     end
     
     methods
-        function obj = nbt_ttest(); end
+        function obj = nbt_ttest(obj)
+            obj.testOptions.tail = 'both';
+            obj.testOptions.vartype = 'equal';
+        end
         
         
         function obj = calculate(obj, StudyObj)
@@ -11,8 +14,9 @@ classdef nbt_ttest < nbt_UnPairedStat
             Data1 = StudyObj.groups{obj.groups(1)}.getData(obj); %with parameters);
             Data2 = StudyObj.groups{obj.groups(2)}.getData(obj); %with parameters);
             %Perform test
-            obj.results = ttest2(Data1,Data2);
-            
+            for bID=1:size(Data1,1)
+                [~, obj.pValues(bID,:), ~, obj.statStruct{bID,1}] = ttest2(Data1{bID,1},Data2{bID,1},'tail',  obj.testOptions.tail,'vartype', obj.testOptions.vartype);
+            end
             %options
             
         end
