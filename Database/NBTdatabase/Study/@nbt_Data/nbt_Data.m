@@ -19,6 +19,24 @@ classdef nbt_Data
        listOfSubjects = getSubjectList(nbt_DataObject, BiomarkerIndex) 
         
        Biomarker = getBiomarker(nbt_DataObject, Parameters, OutputFormat);   
+       
+       function B = subsref(A,S)
+           if(strcmp(S(1).type,'.'))
+               B = eval(['A' S.type S.subs]);    
+           elseif(strcmp(S(1).type,'{}'))
+               B = A.dataStore{S.subs{1,1},S.subs{1,2}};
+               if(iscell(B))
+                   tmp = B{1,1};
+                   for sID = 2:length(B)
+                       tmp = [tmp; B{sID,1}];
+                   end
+                   B = tmp;
+               end
+           end
+           
+       end 
+       
+       
     end
     
     methods (Static = true)
