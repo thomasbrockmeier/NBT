@@ -1,14 +1,20 @@
 function  DataObj = getData(GrpObj,StatObj)
 %Get data loads the data from a Database depending on the settings in the
 %Group Object and the Statistics Object.
+DataObj             = nbt_Data;
+DataObj.biomarkers  = StatObj.biomarkers;
+numBiomarkers       = length(StatObj.biomarkers);
+DataObj.dataStore   = cell(numBiomarkers,1);
+DataObj.pool        = cell(numBiomarkers,1);
+DataObj.poolKey     = cell(numBiomarkers,1);
 
 switch GrpObj.databaseType
     %switch database type
     case 'NBTelement'
         %In this case we load the data directly from the NBTelements in base.
         %We loop over StatObj.biomarkers and generate a cell
-        for bID=1:length(StatObj.biomarkers)
-            [biomarker subBiomarker] = strtok(StatObj.biomarkers{bID,1},'.');
+        for bID=1:numBiomarkers
+            [biomarker, subBiomarker] = strtok(StatObj.biomarkers{bID,1},'.');
             %then we generate the NBTelement call.
             NBTelementCall = ['nbt_GetData(' biomarker ',{'] ;
             %loop over Group parameters
@@ -28,7 +34,7 @@ switch GrpObj.databaseType
             end
             NBTelementCall = NBTelementcall(end-1); % to remove ';'
             NBTelementCall = [NBTelementCall '},'  subBiomarker ');'];
-            DataObj{bID,1} = evalin('base', NBTelementCall);
+            [DataObj.dataStore{bID,1}, DataObj.pool{bID,1},  DataObj.poolKey{bID,1}] = evalin('base', NBTelementCall);
         end
     case 'File'
 end

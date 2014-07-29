@@ -3,10 +3,11 @@ classdef nbt_Data
     %by the getData method of the nbt_Group object
     
     properties
-        dataStore %function handle to nested DataStore (NBTelement based)
-        biomarker
+        dataStore %cell or function handle
+        pool
+        poolKey  
+        biomarkers
         %Further parameters..
-        group %pointer to Group object
         outputFormat %output format - remove nans, etc. cell vs matrix vs struct
     end 
     
@@ -15,7 +16,7 @@ classdef nbt_Data
       end
       
       
-        
+       listOfSubjects = getSubjectList(nbt_DataObject, BiomarkerIndex) 
         
        Biomarker = getBiomarker(nbt_DataObject, Parameters, OutputFormat);   
     end
@@ -25,7 +26,7 @@ classdef nbt_Data
     end
     
      methods (Hidden = true)
-       DataObj = OutputFormating(DataObj) %called by GetData before returning Data 
+       DataObj = outputFormating(DataObj) %called by GetData before returning Data 
     end
     
 end
