@@ -90,7 +90,8 @@ for ii = 1:length(oldIDs)
     end
     oldIDs{ii} = st;
 end
-kys = kys([1:place-2 place+1:end]);
+hck = length(num2str(ID));
+kys = kys([1:place-2 place+hck:end]);
 eval([childName '.Key = kys;']);
 eval([childName '.ID = oldIDs;']);
 

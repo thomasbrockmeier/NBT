@@ -92,7 +92,7 @@ PeakFitObject.PSDOverlap = PSDOverlap;
 
 %Prepare Signal
 NBTSignal = nbt_RemoveIntervals(NBTSignal,InfoObject);
-[NBTSignal] = nbt_filter_firHp(NBTSignal,0.5,InfoObject.converted_sample_frequency,4); %this high-pass is done to get better a PSD
+[NBTSignal] = nbt_filter_firHp(NBTSignal,0.5,InfoObject.converted_sample_frequency,4); %this high-pass is done to get a better PSD
 
 
 for ChId=1:size(NBTSignal(:,:),2)
@@ -248,12 +248,13 @@ for ChId=1:size(NBTSignal(:,:),2)
         %determine frequencyBands
         FrequencyBands=nbt_FindFrequencyBands(PeakFitObject,ChId,p1,f1);
         PeakFitObject.FrequencyBands{ChId,1} = FrequencyBands;
-    end
-    
          try
              PeakFitObject.IAF(ChId,1) = FrequencyBands(10,1);
          catch
          end
+    end
+    
+        
     
     AbsolutePower = nan(size(FrequencyBands,1),1);
     RelativePower = nan(size(FrequencyBands,1),1);

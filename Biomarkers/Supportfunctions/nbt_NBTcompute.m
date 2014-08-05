@@ -131,8 +131,8 @@ for j= startindex:length(d)
                                 try
                                     SignalInfo = eval([SignalName 'Info']);
                                     %backward compatibility 
-                                    if(isempty(SignalInfo.SignalName))
-                                        SignalInfo.SignalName = SignalName;
+                                    if(isempty(SignalInfo.signalName))
+                                        SignalInfo.signalName = SignalName;
                                     end
                                     %end
                                 catch
