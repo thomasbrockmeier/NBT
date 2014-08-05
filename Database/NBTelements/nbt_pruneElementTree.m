@@ -55,6 +55,7 @@ for i = maxLevel:-1:0
                 end
                 id = eval(['elements.' flds{leaf} '.ElementID;']);
                 eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
+                eval([parentName '.Children = [' parentName '.Children; ' childName '.ElementID]']) 
                 elements = rmfield(elements,flds{leaf});
             end
         end
