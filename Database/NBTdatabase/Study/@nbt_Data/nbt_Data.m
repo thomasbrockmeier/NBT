@@ -26,11 +26,11 @@ classdef nbt_Data
            elseif(strcmp(S(1).type,'{}'))
                B = A.dataStore{S.subs{1,1},S.subs{1,2}};
                if(iscell(B))
-                   tmp = B{1,1};
+                   tmp = B{1,1}(:);
                    for sID = 2:length(B)
-                       tmp = [tmp; B{sID,1}];
+                       tmp = [tmp, B{sID,1}(:)];
                    end
-                   B = tmp;
+                   B = tmp';
                end
            end
            

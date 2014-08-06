@@ -29,8 +29,12 @@ switch GrpObj.databaseType
             bIdentifiers = StatObj.biomarkerIdentifiers{bID,1};
             if(~isempty(bIdentifiers))
                 % we need to add biomarker identifiers
-                for bIdent = 1:2:length(bIdentifiers)
-                    NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' '''' bIdentifiers{bIdent,2} '''' ';'];
+                for bIdent = 1:size(bIdentifiers,1)
+                   if(ischar(bIdentifiers{bIdent,2} ))
+                       NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' '''' bIdentifiers{bIdent,2} '''' ';'];
+                   else
+                       NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' num2str(bIdentifiers{bIdent,2}) ';'];
+                   end
                 end
             end
             NBTelementCall = NBTelementCall(1:end-1); % to remove ';'
