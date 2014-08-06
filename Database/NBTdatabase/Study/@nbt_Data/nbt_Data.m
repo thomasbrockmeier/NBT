@@ -4,6 +4,7 @@ classdef nbt_Data
     
     properties
         dataStore %cell or function handle
+        subjectList
         pool
         poolKey  
         biomarkers
@@ -16,7 +17,9 @@ classdef nbt_Data
       end
       
       
-       listOfSubjects = getSubjectList(nbt_DataObject, BiomarkerIndex) 
+      function listOfSubjects = getSubjectList(DataObj, BiomarkerIndex) 
+         listOfSubjects = DataObj.subjectList{BiomarkerIndex,1};
+      end
         
        Biomarker = getBiomarker(nbt_DataObject, Parameters, OutputFormat);   
        
