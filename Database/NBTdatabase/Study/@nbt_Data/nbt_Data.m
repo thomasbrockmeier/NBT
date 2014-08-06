@@ -27,10 +27,11 @@ classdef nbt_Data
                B = A.dataStore{S.subs{1,1},S.subs{1,2}};
                if(iscell(B))
                    tmp = B{1,1}(:);
+                   tmp = [tmp , nan(size(tmp,1),length(B)-1)];
                    for sID = 2:length(B)
-                       tmp = [tmp, B{sID,1}(:)];
+                       tmp(:,sID) =  B{sID,1}(:);
                    end
-                   B = tmp';
+                   B = tmp;
                end
            end
            
