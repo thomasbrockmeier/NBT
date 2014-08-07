@@ -7,7 +7,9 @@ classdef nbt_Stat
         testOptions
         groups
         biomarkers
-        biomarkerIdentifiers
+        biomarkerIdentifiers = cell(1,1);
+        channels
+        channelsRegionsSwitch
         pValues
         statValues
         statStruct 

@@ -26,7 +26,9 @@ switch GrpObj.databaseType
             end
             %then we loop over biomarker identifiers -
             % should be stored as a cell in a cell
+            
             bIdentifiers = StatObj.biomarkerIdentifiers{bID,1};
+            
             if(~isempty(bIdentifiers))
                 % we need to add biomarker identifiers
                 for bIdent = 1:size(bIdentifiers,1)
@@ -34,6 +36,14 @@ switch GrpObj.databaseType
                        NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' '''' bIdentifiers{bIdent,2} '''' ';'];
                    else
                        NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' num2str(bIdentifiers{bIdent,2}) ';'];
+                   end
+                end
+            else %biomarker identifiers were not selected, we generate the list from all available identifieres.
+                disp('break')
+                for ii=1:length(GrpObj.biomarkerList)
+                   if(strcmp(GrpObj.biomarkerList{ii,1}, StatObj.biomarkers{bID,1}))
+                       disp('here the list of biomarker identifiers should be generated')
+                       break %jump out of GrpObj ii for-loop
                    end
                 end
             end
