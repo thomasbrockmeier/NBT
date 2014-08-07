@@ -16,8 +16,13 @@ classdef nbt_permutationtestUnPaired < nbt_UnPairedStat
             
             
             %Perform test
+            
             for bID=1:size(Data1.dataStore,1)   
-                [obj.pValues{bID,1}, obj.statStruct{bID,1}.mean_difference, obj.statStruct{bID,1}.N_s, obj.statStruct{bID,1}.p_low, obj.statStrcut{bID,1}.p_high] = nbt_permutationtest(Data1{bID,1}',Data2{bID,1}',obj.testOptions.numPermutations,0,obj.testOptions.statFunction);
+                D1 = Data1{bID,1};
+                D2 = Data2{bID,1};
+                for chID=1:size(D1,1)
+                    [obj.pValues(chID,bID), obj.statStruct.mean_difference(chID,bID), obj.statStruct.N_s(chID,bID), obj.statStruct.p_low(chID,bID), obj.statStrcut.p_high(chID,bID)] = nbt_permutationtest(D1(chID,:)',D2(chID,:)',obj.testOptions.numPermutations,0,obj.testOptions.statFunction);
+                end
             end
         end
     end
