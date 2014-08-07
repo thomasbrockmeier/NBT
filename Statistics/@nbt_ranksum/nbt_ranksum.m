@@ -17,8 +17,7 @@ classdef nbt_ranksum < nbt_UnPairedStat
             
             %Perform test
             for bID=1:size(Data1.dataStore,1)   
-                  [obj.pValues(chID,bID)] = signrank(D1(chID,:)', D2(chID,:)','tail',  obj.testOptions.tail);
-                
+                  [obj.pValues(chID,bID)] = signrank(Data1{bID,1}', Data2{bID,1}','tail',  obj.testOptions.tail); 
             end
             %options
             
