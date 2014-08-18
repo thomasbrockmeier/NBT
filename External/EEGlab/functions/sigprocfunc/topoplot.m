@@ -1143,11 +1143,13 @@ if ~strcmpi(STYLE,'blank') % if draw interpolated scalp map
   %%%%%%%%%%%%%%%%%%%%%%%% Plot map contours only %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %
   elseif strcmp(STYLE,'contour')                     % plot surface contours only
+   if(~verLessThan('matlab', '8.3.1'))
     %workaround conture function bug (Matlab R2014b)
-    ind=isnan(ZiC);
-    F=scatteredInterpolant(Xi(~ind),Yi(~ind),ZiC(~ind));
+     ind=isnan(ZiC);
+     F=scatteredInterpolant(Xi(~ind),Yi(~ind),ZiC(~ind));
     ZiC(ind)=F(Xi(ind),Yi(ind));
     %workaround end
+   end
     [cls chs] = contour(Xi,Yi,ZiC,CONTOURNUM,'k'); 
     % for h=chs, set(h,'color',CCOLOR); end
   %
@@ -1168,11 +1170,13 @@ if ~strcmpi(STYLE,'blank') % if draw interpolated scalp map
     
     warning off;
     if ~PMASKFLAG
+        if(~verLessThan('matlab', '8.3.1'))
        %workaround conture function bug (Matlab R2014b)
-        ind=isnan(ZiC);
-        F=scatteredInterpolant(Xi(~ind),Yi(~ind),ZiC(~ind));
-        ZiC(ind)=F(Xi(ind),Yi(ind));
+         ind=isnan(ZiC);
+         F=scatteredInterpolant(Xi(~ind),Yi(~ind),ZiC(~ind));
+         ZiC(ind)=F(Xi(ind),Yi(ind));
         %workaround end
+        end
         [cls chs] = contour(Xi,Yi,ZiC,CONTOURNUM,'k'); 
     else
         ZiC(find(ZiC > 0.5 )) = NaN;
