@@ -209,6 +209,8 @@ else
 	cout.cxyt=cxyt;
 	cout.cxxt=cxxt;
 	cout.icyyt=icyyt;
+
+end;    
     
     biomarkerObject.sigma = SIGMA;
     biomarkerObject.omega = OMEGA;
