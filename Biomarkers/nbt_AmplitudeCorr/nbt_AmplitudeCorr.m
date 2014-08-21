@@ -24,6 +24,7 @@
 
 classdef nbt_AmplitudeCorr < nbt_CrossChannelBiomarker
     properties
+        markerValues
         MaxCorr
         MinCorr
         MedianCorr

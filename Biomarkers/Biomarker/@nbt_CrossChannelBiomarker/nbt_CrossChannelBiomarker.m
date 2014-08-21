@@ -43,6 +43,7 @@
 
 classdef (Abstract) nbt_CrossChannelBiomarker < nbt_CoreBiomarker
     properties
+        numChannels
         samplingFrequency   % The sampling frequency
         frequencyRange %Frequency range of processed signal [] means broadband.
         filterSettings
