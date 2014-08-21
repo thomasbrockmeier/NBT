@@ -38,10 +38,20 @@ end
 
 function loaddeletesave(filename)
 load(filename)
-ARSQ = nbt_ARSQ(length(rsq.Answers));
-
-ARSQ.questions = rsq.Questions;
-ARSQ.answers = rsq.Answers;
+try
+if(exist('rsq','var'))
+    ARSQ = nbt_ARSQ(length(rsq.Answers));
+    ARSQ.questions = rsq.Questions;
+    ARSQ.answers = rsq.Answers;
+else %using different ARSQ format
+    ARSQtmp = ARSQ;
+    ARSQ = nbt_ARSQ(length(ARSQtmp.Answers));
+    ARSQ.questions = ARSQtmp.Questions;
+    ARSQ.answers = ARSQtmp.Answers;
+end
 
 save(filename, 'ARSQ');
+catch
+   disp(filename) 
+end
 end
