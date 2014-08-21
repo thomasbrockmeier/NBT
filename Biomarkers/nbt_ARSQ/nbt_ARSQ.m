@@ -23,18 +23,14 @@ classdef nbt_ARSQ < nbt_QBiomarker
     % Implementing new matlab object structure.
     %%
     properties
-        Questions
-        Answers
+        questions
+        answers
     end
     methods
         function ARSQobject = nbt_ARSQ(NumQ)
-            if nargin == 0
-               Questions = [];
-               Answers = [];
-            end
-            ARSQobject.Questions = cell(NumQ,1);
-            ARSQobject.Answers = nan(NumQ,1);
-            ARSQobject.Biomarkers = {'Answers'};
+            ARSQobject.questions = cell(NumQ,1);
+            ARSQobject.answers = nan(NumQ,1);
+            ARSQobject.biomarkers = {'answers'};
         end
     end
 end
