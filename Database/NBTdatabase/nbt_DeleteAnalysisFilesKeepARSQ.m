@@ -38,6 +38,7 @@ end
 
 function loaddeletesave(filename)
 load(filename)
+
 try
 if(exist('rsq','var'))
     ARSQ = nbt_ARSQ(length(rsq.Answers));
@@ -49,9 +50,11 @@ else %using different ARSQ format
     ARSQ.questions = ARSQtmp.Questions;
     ARSQ.answers = ARSQtmp.Answers;
 end
-
-save(filename, 'ARSQ');
 catch
-   disp(filename) 
+end
+if(exist('ARSQ','var'))
+    save(filename, 'ARSQ');
+else
+    delete(filename);
 end
 end
