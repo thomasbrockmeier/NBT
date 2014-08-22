@@ -78,8 +78,8 @@ end
 
 
 %Downsample to 250 Hz
-%[Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, 250);
-%SignalInfo.converted_sample_frequency = 250;
+[Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, 1000);
+SignalInfo.converted_sample_frequency = 1000;
 %Re-reference to Cz
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_ReRef, Signal,SignalInfo,[],0,CzID);
 % 1. Filter Data
