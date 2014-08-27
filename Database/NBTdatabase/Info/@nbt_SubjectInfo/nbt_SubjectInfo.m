@@ -29,15 +29,15 @@
 
 classdef nbt_SubjectInfo
     properties
-        projectInfo
-        subjectID
-        conditionID
-        fileName
-        fileNameFormat
-        lastUpdate
-        listOfBiomarkers
+        projectInfo %pointer to projectInfo.mat files 
+        subjectID   % The subject ID
+        conditionID % The condition ID, e.g., ECR1
+        fileName    % Filename of the Signal file
+        fileNameFormat = '<ProjectID>.S<SubjectID>.<Date in YYYYMMDD>.Condition'; %Filename format, should always be in NBT format (but open for other format)
+        lastUpdate  % time of last of data
+        listOfBiomarkers %List of biomarker in the analysis 'fileName_analysis.mat' file
         
-        info
+        info %struct for additional subject information
         %This should contain all other fields that can you can define groups by.  Please use the names given below where possible
         % dateOfRecording
         % subjectGender

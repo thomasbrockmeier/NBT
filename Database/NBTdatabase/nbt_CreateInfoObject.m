@@ -35,12 +35,11 @@
 % See Readme.txt for additional copyright information.
 %--------------------------------------------------------------------------
 
-function Info = nbt_CreateInfoObject(filename, FileExt, Fs, NBTSignalObject);
-
+function [SignalInfo, SubjectInfo] = nbt_CreateInfoObject(filename, FileExt, Fs, NBTSignalObject)
 error(nargchk(2,4,nargin))
-disp('Creating Info object')
-
-file_name_format= '<ProjectID>.S<SubjectID>.<Date in YYMMDD>.Condition';
+disp('Creating Info objects')
+SubjectInfo = nbt_SubjectInfo;
+SignalInfo  = nbt_SignalInfo;
 
 if(~exist('Fs'))
     Fs = input('Please, specify the sampling frequency? ');
@@ -48,6 +47,9 @@ end
 try
     IDdots = strfind(filename,'.');
     if(~isempty(FileExt))
+        
+        
+        
         Info = nbt_Info(filename(1:(strfind(filename,FileExt)-2)),file_name_format,filename((IDdots(3)+1):(IDdots(4)-1)), ...
             filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
     else

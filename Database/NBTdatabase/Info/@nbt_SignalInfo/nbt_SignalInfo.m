@@ -28,27 +28,27 @@
 
 classdef nbt_SignalInfo
     properties
-        subjectInfo
-        signalName
-        signalID
-        signalSHA256
-        signalOrigin
-        researcherID
-        signalType
-        frequencyRange
-        filterSettings
-        timeOfRecording
-        originalSamplingFrequency
-        notes
-        badChannels
-        nonEEGch
-        eyeCh
-        reference
-        lastUpdate
-        log
-        interface
-        nbtVersion
-        listOfBiomarkers
+        subjectInfo                 %Pointer to SubjectInfo file (typical the same file)
+        signalName                  %The name of the signal
+        signalID                    %A unique ID genearated by nbt_makeNBTDID;
+        signalSHA256                %The SHA256 hash of the Signal
+        signalOrigin                % Filename (path) of the raw signal or previous signal RawSignal> CleanSignal >ICASignal.
+        researcherID                % Researcher ID
+        signalType                  % EEG or other type of Signal
+        frequencyRange              %If the signal has be filtered the frequencyRange in [lp hp] format
+        filterSettings              % Text string with filtersettings.
+        timeOfRecording             % time and date of recording in YYYYMMDD-HHMMSS format.
+        originalSamplingFrequency   %The recorded sampling frequency
+        notes                       %For additional notes about the signal
+        badChannels                 %Logical list of bad channels 1 for bad, 0 for good.
+        nonEEGch                    % List of non EEG channels
+        eyeCh                       % List of Eye channels
+        reference                   % Reference channel
+        lastUpdate                  % When the Signal was saved
+        log                         % For log of changes to the signal
+        interface                   %A struct with info relevant for interfacing with other toolboxes 
+        nbtVersion                  % The NBT version using nbt_getVersion
+        listOfBiomarkers 
     end
     
     properties(Dependent)
@@ -89,7 +89,7 @@ classdef nbt_SignalInfo
         function yesno = checkHash(SignalInfo, Signal)
             yesno = false;
             if(~isempty(SignalInfo.signalSHA256))
-                yesno = strcmp(nbt_getHash(Signal),SignalInfo.signalSHA256)
+                yesno = strcmp(nbt_getHash(Signal),SignalInfo.signalSHA256);
             end
         end
     end

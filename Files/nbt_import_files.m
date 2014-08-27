@@ -60,7 +60,6 @@
 
 function filename = nbt_import_files(sourcedirectory, destinydirectory, LoadHandle, LoadHandleSwitch)
 %% check inputs
-disp('updated')
 error(nargchk(0,4,nargin))
 %% assigning directory and other fields
 persistent allfiles
