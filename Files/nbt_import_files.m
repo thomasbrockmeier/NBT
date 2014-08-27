@@ -1,4 +1,4 @@
-% filename = nbt_import_files(sourcedirectory, destinydirectory,
+% filename = nbt_import_files(sourcedirectory, destdirectory,
 %  LoadHandle, LoadHandleSwitch)
 %
 % Function: will convert all the files into NBT format:
@@ -10,7 +10,7 @@
 %   or
 %   filename = nbt_import_files;
 %   or
-%   nbt_import_files(sourcedirectory, destinydirectory, LoadHandle);
+%   nbt_import_files(sourcedirectory, destdirectory, LoadHandle);
 %
 % Inputs:
 %   sourcedirectory     - Path to the directory that contains the files to be
@@ -58,9 +58,9 @@
 
 
 
-function filename = nbt_import_files(sourcedirectory, destinydirectory, LoadHandle, LoadHandleSwitch)
+function filename = nbt_import_files(sourcedirectory, destdirectory, LoadHandle, LoadHandleSwitch)
 %% check inputs
-error(nargchk(0,4,nargin))
+narginchk(0,4)
 %% assigning directory and other fields
 persistent allfiles
 persistent SegmentOption
@@ -72,15 +72,15 @@ if(~exist('sourcedirectory','var') | isempty(sourcedirectory))
     end
 end
 
-if(~exist('destinydirectory','var')| isempty(destinydirectory))
-    destinydirectory=(uigetdir(sourcedirectory,'Select directory to store NBT files'));
-    if destinydirectory == 0 % cancelled
+if(~exist('destdirectory','var')| isempty(destdirectory))
+    destdirectory=(uigetdir(sourcedirectory,'Select directory to store NBT files'));
+    if destdirectory == 0 % cancelled
         return
     end
 end
 
 
-nbt_writeCommand(['nbt_import_files(',char(39),sourcedirectory,char(39),',',char(39),destinydirectory,char(39),')']);
+nbt_writeCommand(['nbt_import_files(',char(39),sourcedirectory,char(39),',',char(39),destdirectory,char(39),')']);
 
 delete([sourcedirectory '/.DS_Store']) %--- for Mac
 directory=dir(sourcedirectory);
@@ -141,7 +141,7 @@ end
 
 if strcmp(extension,'.txt')
     disp(['Test read in of ',directory(1).name])
-    D=importdata([sourcedirectory,'/',directory(1).name]);
+    D=importdata([sourcedirectory filesep directory(1).name]);
     try
         Signal = D.data;
     catch
@@ -384,37 +384,36 @@ for i=1:length(directory)
             
             %% make Info object
             if(~exist('SignalInfo', 'var'))
-                SignalInfo = nbt_CreateInfoObject(filename, [], Fs);
+                [SignalInfo, SubjectInfo] = nbt_CreateInfoObject(filename, [], Fs, 'RawSignal', Signal); 
             end
             
             if(exist('resample','var'))
                 if strcmpi(resample,'y')
-                    SignalInfo.original_sample_frequency = Fs;
-                    SignalInfo.converted_sample_frequency = resamplefreq;
+                    SignalInfo.originalSamplingFrequency = Fs;
+                    SignalInfo.convertedSamplingFrequency = resamplefreq;
                 end
             end
             
             if (exist('EEG','var'))
                 EEG.data = [];
-                SignalInfo.Interface.EEG = EEG;
+                SignalInfo.interface.EEG = EEG;
             end
             
             if strcmp(NameConvention,'n')
-                SignalInfo.Interface.original_file_name=directory(i).name;
+                SignalInfo.signalOrigin = directory(i).name;
             end
-            
-            SignalInfo.Interface.number_of_channels=size(Signal,2);
-            
+
             %% save NBT Signal and info
             
             RawSignal = Signal;
             RawSignalInfo = SignalInfo;
             clear Signal
             clear SignalInfo
-            save([destinydirectory filesep filename,'.mat'],'RawSignal')
-            save([destinydirectory filesep filename,'_info' '.mat'],'RawSignalInfo')
+            save([destdirectory filesep filename,'.mat'],'RawSignal')
+            save([destdirectory filesep filename,'_info' '.mat'],'RawSignalInfo','SubjectInfo')
             clear RawSignal
             clear RawSignalInfo
+            clear SubjectInfo
         end
     end
 end
