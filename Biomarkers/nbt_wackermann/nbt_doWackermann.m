@@ -24,6 +24,19 @@
 %   utilized the adaptive eigenanalysis method [2].   
 %
 % see also: TDP, BARLOW, HJORTH
+
+
+% OUTPUTS:
+
+% SIGMA measures the total variance of the EEG across the entire time epoch
+% and all electrodes.
+
+% PHI compares the EEG scalp voltages between measurements adjacent in time and relates it to
+% the amplitude of these measurements, which results in an index of central frequency of the EEG.
+
+% OMEGA investigates the spectrum of eigenvalues of the spatial principal components of the
+% data and gives a lower-bound estimate of the number of uncorrelated processes in the analyzed EEG.
+%
 %
 % REFERENCE(S):
 % [1] Jiri Wackermann, Towards a quantitative characterization of
@@ -92,17 +105,17 @@ else
         B = UC;    
 end;
 
-d0 = sum(Signal(:,:).*Signal(:,:),2);
-d1 = sum(diff([zeros(1,K);Signal(:,:)],[],1).^2,2);
+d0 = nansum(Signal(:,:).*Signal(:,:),2);
+d1 = nansum(diff([zeros(1,K);Signal(:,:)],[],1).^2,2);
 
 [k1,k2] = meshgrid(1:size(Signal(:,:),2));
 k1 = k1(:); k2 = k2(:); 
 d2 = Signal(:,k1).*Signal(:,k2);  
 
 if UC==0,
-        m0 = mean(d0);
-        m1 = mean(d1);
-        m2 = mean(d2);
+        m0 = nanmean(d0);
+        m1 = nanmean(d1);
+        m2 = nanmean(d2);
 elseif 0, UC>=1
         m0 = rs(d0,UC,1);
         m1 = rs(d1,UC,1);
@@ -209,6 +222,8 @@ else
 	cout.cxyt=cxyt;
 	cout.cxxt=cxxt;
 	cout.icyyt=icyyt;
+
+end;    
     
     biomarkerObject.sigma = SIGMA;
     biomarkerObject.omega = OMEGA;

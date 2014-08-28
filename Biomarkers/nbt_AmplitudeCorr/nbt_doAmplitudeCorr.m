@@ -35,7 +35,8 @@ for i=1:size(Signal(:,:),2)
     AmplitudeCorrObject.MinCorr(i) = min(VecCorr);
     AmplitudeCorrObject.MedianCorr(i) = nanmedian(VecCorr);
     AmplitudeCorrObject.MeanCorr(i) = nanmean(VecCorr);
-    AmplitudeCorrObject.StdCorr(i) = std(VecCorr);
+    % AmplitudeCorrObject.StdCorr(i) = std(VecCorr);
+    AmplitudeCorrObject.StdCorr(i) = sqrt(nanvar(VecCorr));
     AmplitudeCorrObject.IQRCorr(i) = iqr(VecCorr);
     AmplitudeCorrObject.RangeCorr(i) = range(VecCorr);
 end
