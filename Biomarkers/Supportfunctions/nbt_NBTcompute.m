@@ -114,11 +114,11 @@ for j= startindex:length(d)
                     else % load NBTSignal file
                         clear([SignalName])
                         clear([SignalName 'Info'])
-                        load ([LoadDir,'/',d(j).name],SignalName)
+                        load ([LoadDir filesep d(j).name],SignalName)
                         try
-                            load ([LoadDir,'/',d(j).name(1:end-4),'_info.mat'],[SignalName,'Info'])
+                            load ([LoadDir filesep d(j).name(1:end-4),'_info.mat'],[SignalName,'Info'])
                         catch
-                            load ([LoadDir,'/',d(j).name],[SignalName 'Info'])
+                            load ([LoadDir filesep d(j).name],[SignalName 'Info'])
                         end
                         
                         

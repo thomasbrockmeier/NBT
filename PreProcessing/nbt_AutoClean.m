@@ -6,7 +6,11 @@
 %
 %
 % Inputs:
-%
+% ICAswitch     : -1 for "extended ICA with no pca", 0 for "automatic pca
+%                reduction", any other number = number of pca reduced ICA components
+% NonEEGCh      : list of Non-EEG channels
+% EyeCh         : list of eye-channels (used for cleaning eye artifacts)
+% ResampleFS    : to resample set this to the resampling frequency.
 %
 % Outputs:
 %
@@ -48,7 +52,7 @@
 
 function [Signal, SignalInfo] = nbt_AutoClean(Signal, SignalInfo, SignalPath, ICAswitch, NonEEGCh, EyeCh, ResampleFS)
 narginchk(3,7)
-if(~isempty(NonEEGch))
+if(~isempty(NonEEGCh))
     SignalInfo.NonEEGch = NonEEGCh;
 end
 if(~isempty(EyeCh))
@@ -83,12 +87,11 @@ end
 
 
 %Downsample to 250 Hz
-if(exists(ResampleFS,'var'))
+if(exist('ResampleFS','var'))
     [Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, ResampleFS);
     SignalInfo.converted_sample_frequency = ResampleFS;
 end
-%Re-reference to Cz
-[Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_ReRef, Signal,SignalInfo,[],0,CzID);
+
 % 1. Filter Data
 [Signal] = nbt_filter_fir(Signal,0.5,45,SignalInfo.converted_sample_frequency,2/0.5,1);
 % 2. Mark Bad Channels
@@ -97,6 +100,9 @@ SignalInfo.BadChannels(NonEEGCh) = 1;
 % 3. Reject Transient artifacts
 [Signal, SignalInfo] = nbt_AutoRejectTransient(Signal,SignalInfo,NonEEGCh);
 % 4. Run ICA
+%Re-reference to Cz - because autoreject ICA expects Cz referenced
+%topomaps.
+[Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_ReRef, Signal,SignalInfo,[],0,CzID);
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_filterbeforeICA, Signal, SignalInfo, [], 0, '',4,ICAswitch);
 % 5. Reject ICA compoents
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_AutoRejectICA,Signal, SignalInfo, [],0, EyeCh,0);
