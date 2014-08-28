@@ -6,7 +6,11 @@
 %
 %
 % Inputs:
-%
+% ICAswitch     : -1 for "extended ICA with no pca", 0 for "automatic pca
+%                reduction", any other number = number of pca reduced ICA components
+% NonEEGCh      : list of Non-EEG channels
+% EyeCh         : list of eye-channels (used for cleaning eye artifacts)
+% ResampleFS    : to resample set this to the resampling frequency.
 %
 % Outputs:
 %
