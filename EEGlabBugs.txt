@@ -45,3 +45,26 @@ Fix contour function bug:
     %workaround end
 
 See https://github.com/NeurophysiologicalBiomarkerToolbox/NBT/commit/13d67549fda123dfec5d8e406d16fe9cf54a44a7
+
+%%%%%%%%%%%%%%%%%%%%%
+eeg_eegrej : combine regions should be
+function newregions = combineregions(regions)
+index = size(regions,1);
+newindex = 0;
+while index > 2
+   if regions(index-1,2) >= regions(index,1) 
+      indexEnd = index;
+        while regions(index-1,2) >= regions(index,1) && index > 2 %find nested regions
+              index = index - 1; 
+        end
+      disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
+      newindex = newindex + 1;
+      newregions(newindex,:) = [regions(index+1,1) regions(indexEnd,2) ];
+   else
+       newindex = newindex + 1;
+       newregions(newindex,:) = regions(index,:);
+       index = index - 1;
+   end
+end
+newregions = sort(newregions);
+end

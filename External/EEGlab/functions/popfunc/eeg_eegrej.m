@@ -112,11 +112,22 @@ com = sprintf('%s = eeg_eegrej( %s, %s);', inputname(1), inputname(1), vararg2st
 % bug in eegplot makes that it sometimes is
 % ----------------------------
 function newregions = combineregions(regions)
-newregions = regions;
-for index = size(regions,1):-1:2
-    if regions(index-1,2) >= regions(index,1)
-        disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
-        newregions(index-1,:) = [regions(index-1,1) regions(index,2) ];
-        newregions(index,:)   = [];
-    end;
-end;
+index = size(regions,1);
+newindex = 0;
+while index > 2
+   if regions(index-1,2) >= regions(index,1) 
+      indexEnd = index;
+        while regions(index-1,2) >= regions(index,1) && index > 2 %find nested regions
+              index = index - 1; 
+        end
+      disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
+      newindex = newindex + 1;
+      newregions(newindex,:) = [regions(index+1,1) regions(indexEnd,2) ];
+   else
+       newindex = newindex + 1;
+       newregions(newindex,:) = regions(index,:);
+       index = index - 1;
+   end
+end
+newregions = sort(newregions);
+end
