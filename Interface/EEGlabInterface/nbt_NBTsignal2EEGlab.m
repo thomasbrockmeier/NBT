@@ -70,7 +70,7 @@ if nargs == 3
     %Remove noisy intervals
     if(isfield(SignalInfo.Interface,'noisey_intervals'))
     EEG = eeg_eegrej(EEG,SignalInfo.Interface.noisey_intervals);
-    SignalInfo.Interface.noisey_intervals = [];
+    SignalInfo.interface.noisey_intervals = [];
     eval(['save(' ' ''' SignalPath SignalInfo.file_name '_info.mat'' , ''SignalInfo'')' ])
     end
 
@@ -90,23 +90,23 @@ end
 
 %--- Set EEGlab fields
 try
-    EEG = SignalInfo.Interface.EEG;
+    EEG = SignalInfo.interface.EEG;
 catch
     EEG = eeg_emptyset;
 end
 
-EEG.setname  = SignalInfo.file_name;
+EEG.setname  = SignalInfo.subjectInfo(1:end-9);
 
-if isempty(SignalInfo.converted_sample_frequency);
-    EEG.srate = SignalInfo.original_sample_frequency;
+if isempty(SignalInfo.convertedSamplingFrequency);
+    EEG.srate = SignalInfo.originalSamplingFrequency;
 else
-    EEG.srate = SignalInfo.converted_sample_frequency;
+    EEG.srate = SignalInfo.convertedSamplingFrequency;
 end
 
 EEG.data = Signal';
 
 EEG.pnts = size(EEG.data,2);
-SignalInfo.Interface.EEG=[];
+SignalInfo.interface.EEG=[];
 EEG.NBTinfo = SignalInfo;
 EEG = eeg_checkset(EEG);
 
@@ -116,7 +116,7 @@ if length(varargin)==2
     if varargin{2}==1
         directoryname = uigetdir;
         d = dir(directoryname);
-        save([directoryname,'/',EEG.setname,'.mat'],'EEG')
+        save([directoryname filesep EEG.setname,'.mat'],'EEG')
     end
 end
 end
