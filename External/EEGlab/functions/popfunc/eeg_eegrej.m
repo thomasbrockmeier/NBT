@@ -106,6 +106,7 @@ if ~isempty(boundevents) % boundevent latencies will be recomputed in the functi
 end;
 
 com = sprintf('%s = eeg_eegrej( %s, %s);', inputname(1), inputname(1), vararg2str({ regions })); 
+end
 
 % combine regions if necessary
 % it should not be necessary but a 

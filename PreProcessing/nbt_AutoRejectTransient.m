@@ -104,7 +104,7 @@ posA = union(fasterPosA, posA);
 %build posAtimes 
 posAtimes = zeros(length(posA),2);
 rejlag = (lag+0.5)*EEG.srate;
-rejlagback = (lag+0.5)*EEG.srate;
+rejlagback = (lag+1)*EEG.srate;
 for i=1:length(posA)
     posAtimes(i,1) = posA(i)-rejlagback;
     posAtimes(i,2) = posA(i)+rejlag;
