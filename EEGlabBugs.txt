@@ -49,22 +49,33 @@ See https://github.com/NeurophysiologicalBiomarkerToolbox/NBT/commit/13d67549fda
 %%%%%%%%%%%%%%%%%%%%%
 eeg_eegrej : combine regions should be
 function newregions = combineregions(regions)
-index = size(regions,1);
-newindex = 0;
-while index > 2
-   if regions(index-1,2) >= regions(index,1) 
-      indexEnd = index;
-        while regions(index-1,2) >= regions(index,1) && index > 2 %find nested regions
-              index = index - 1; 
+newregions = combine(combine(regions));
+    function newregions=combine(regions)
+        [regions(:,1),ii]=sort(regions(:,1));
+        regions(:,2) = regions(ii,2);
+        newindex = 0;
+        regions = [regions(1,:); regions];
+        index = size(regions,1);
+        while index >= 2
+            if regions(index-1,2) >= regions(index,1)
+                indexEnd = index;
+                while regions(index-1,2) >= regions(index,1) && index > 2 %find nested regions
+                    index = index - 1;
+                end
+                index =  index - 1;
+                
+                disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
+                newindex = newindex + 1;
+                RegionEnd = max(regions(index+1:indexEnd,2));
+                newregions(newindex,:) = [regions(index+1,1) RegionEnd(1)];
+            else
+                newindex = newindex + 1;
+                newregions(newindex,:) = regions(index,:);
+                index = index - 1;
+            end
         end
-      disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
-      newindex = newindex + 1;
-      newregions(newindex,:) = [regions(index+1,1) regions(indexEnd,2) ];
-   else
-       newindex = newindex + 1;
-       newregions(newindex,:) = regions(index,:);
-       index = index - 1;
-   end
-end
-newregions = sort(newregions);
+        
+        [newregions(:,1),ii]=sort(newregions(:,1));
+        newregions(:,2) = newregions(ii,2);
+    end
 end
