@@ -36,7 +36,8 @@ classdef nbt_SignalInfo
         researcherID                % Researcher ID
         signalType                  % EEG or other type of Signal
         frequencyRange              %If the signal has be filtered the frequencyRange in [lp hp] format
-        filterSettings              % Text string with filtersettings.
+        filterSettings              % Struct with filtersettings.
+        cleaningSettings            % Struct with cleaning settings
         timeOfRecording             % time and date of recording in YYYYMMDD-HHMMSS format.
         originalSamplingFrequency   %The recorded sampling frequency
         notes                       %For additional notes about the signal
