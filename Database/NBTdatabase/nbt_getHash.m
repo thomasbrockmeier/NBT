@@ -269,7 +269,8 @@ switch OutFormat
 end
 
 % return;
-
+clear Engine;
+end
 % ******************************************************************************
 function Engine = CoreHash_(Data, Engine)
 % This mothod uses the faster typecastx version.
@@ -317,7 +318,7 @@ else  % Most likely this is a user-defined object:
 end
 
 % return;
-
+end
 % ******************************************************************************
 function Engine = CoreHash(Data, Engine)
 % This methods uses the slower TYPECAST of Matlab
@@ -359,7 +360,7 @@ else  % Most likely a user-defined object:
          ['Type of variable not considered: ', class(Data)]);
    end
 end
-
+end
 % return;
 
 % ******************************************************************************
@@ -392,6 +393,7 @@ FuncKey = functions(FuncH);
 % handle. Please adjust this conversion to your needs.
 
 % return;
+end
 
 % ******************************************************************************
 function DataBin = ConvertObject(DataObj)
@@ -405,6 +407,7 @@ DataBin = uint8(DataObj);
 % DataBin = struct(DataObj);
 
 % return;
+end
 
 % ******************************************************************************
 function Out = fBase64_enc(In)
@@ -420,3 +423,4 @@ Y   = reshape([X(:); zeros(6 - rem(numel(X), 6), 1)], 6, []);
 Out = char(Pool(1 + v6 * Y));
 
 % return;
+end
