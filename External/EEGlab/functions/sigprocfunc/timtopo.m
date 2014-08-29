@@ -16,7 +16,8 @@
 %  'plottimes' = [vector] latencies (in ms) at which to plot scalp maps 
 %                {default|NaN -> latency of maximum variance}
 % 'title'      = [string] plot title {default|0 -> none}
-% 'plotchans'  = vector of data channel(s) to plot {default|0 -> all}
+% 'plotchans'  = vector of data channel(s) to plot. Note that this does not
+%                affect scalp topographies {default|0 -> all}
 % 'voffsets'   = vector of (plotting-unit) distances vertical lines should extend 
 %                above the data (in special cases) {default -> all = standard}
 %
@@ -88,7 +89,7 @@ end;
 fieldlist = { 'limits'        'real'     []                       0;
               'plottimes'     'real'     []                       [];
               'title'         'string'   []                       '';
-              'plotchans'     'integer'  [1:size(data,1)]         [] ;
+              'plotchans'     'integer'  [1:size(data,1)]         0;
               'voffsets'      'real'     []                       [] ;};
 [g topoargs] = finputcheck(options, fieldlist, 'timtopo', 'ignore');
 
@@ -223,7 +224,7 @@ if plottimes_set == 1
 
   g.plottimes = sort(g.plottimes); % put map latencies in ascending order, 
                                % else map lines would cross.
-  xshift = [x(2:frames) xmax];
+  xshift = [x(2:frames) xmax+1]; % 5/22/2014 Ramon: '+1' was added to avoid errors when time== max(x) in line 231
   plotframes = ones(size(g.plottimes));
   for t = 1:ntopos
     time = g.plottimes(t);

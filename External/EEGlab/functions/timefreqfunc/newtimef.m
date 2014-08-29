@@ -654,6 +654,17 @@ if isfield(g,'timewarp') && ~isempty(g.timewarp)
     end
 end
 
+% Determining source of the call 
+% --------------------------------------% 'guicall'= 1 if newtimef is called 
+callerstr = dbstack(1);                 % from EEGLAB GUI, otherwise 'guicall'= 0
+if isempty(callerstr)                   % 7/3/2014, Ramon
+    guicall = 0;
+elseif strcmp(callerstr(end).name,'pop_newtimef')     
+    guicall = 1;
+else
+    guicall = 0;
+end
+
 % test argument consistency
 % --------------------------
 if g.tlimits(2)-g.tlimits(1) < 30
@@ -862,6 +873,9 @@ end;
 % compare 2 conditions 
 %%%%%%%%%%%%%%%%%%%%%%%
 if iscell(data)
+    if ~guicall && (strcmp(g.basenorm, 'on') || strcmp(g.trialbase, 'on'))  % ------------------------------------- Temporary fix for error when using
+        error('EEGLAB error: basenorm and/or trialbase options cannot be used when processing 2 conditions');     % basenorm or trialbase with two conditions
+    end;
     Pboot = [];
     Rboot = [];
     if ~strcmpi(g.mcorrect, 'none')
@@ -872,15 +886,15 @@ if iscell(data)
     if length(data) ~= 2
         error('newtimef: to compare two conditions, data must be a length-2 cell array');
     end;
-
+    
     % deal with titles
     % ----------------
     for index = 1:2:length(vararginori)
         if index<=length(vararginori) % needed if elements are deleted
-
-          %  if      strcmp(vararginori{index}, 'title') | ... % Added by Jean Hauser
-          %          strcmp(vararginori{index}, 'title2') | ...
-                 if strcmp(vararginori{index}, 'timeStretchMarks') | ...
+            
+            %  if      strcmp(vararginori{index}, 'title') | ... % Added by Jean Hauser
+            %          strcmp(vararginori{index}, 'title2') | ...
+            if strcmp(vararginori{index}, 'timeStretchMarks') | ...
                     strcmp(vararginori{index}, 'timeStretchRefs') | ...
                     strcmp(vararginori{index}, 'timeStretchPlots')
                 vararginori(index:index+1) = [];
@@ -888,47 +902,47 @@ if iscell(data)
         end;
     end;
     if iscell(g.title) && length(g.title) >= 2 % Changed that part because providing titles
-                                              % as cells caused the function to crash (why?) 
-                                              % at line 704 (g.tlimits = tlimits) -Jean
+        % as cells caused the function to crash (why?)
+        % at line 704 (g.tlimits = tlimits) -Jean
         if length(g.title) == 2,
-             g.title{3} = [ g.title{1} ' - '  g.title{2} ];
+            g.title{3} = [ g.title{1} ' - '  g.title{2} ];
         end;
     else
         disp('Warning: title must be a cell array');
         g.title = { 'Condition 1' 'Condition 2' 'Condition 1 minus Condition 2' };
     end;
-
+    
     verboseprintf(g.verbose, '\nRunning newtimef() on Condition 1 **********************\n\n');
-
+    
     verboseprintf(g.verbose, 'Note: If an out-of-memory error occurs, try reducing the\n');
     verboseprintf(g.verbose, '      the number of time points or number of frequencies\n');
     verboseprintf(g.verbose, '(''coher'' options take 3 times the memory of other options)\n\n');
-
+    
     cond_1_epochs = size(data{1},2);
-
+    
     if ~isempty(g.timeStretchMarks)
         [P1,R1,mbase1,timesout,freqs,Pboot1,Rboot1,alltfX1] = ...
-        newtimef( data{1}, frames, tlimits, Fs, g.cycles, 'plotitc', 'off', ...
-          'plotersp', 'off', vararginori{:}, 'lowmem', 'off', ...
-            'timeStretchMarks', g.timeStretchMarks(:,1:cond_1_epochs), ... 
-              'timeStretchRefs', g.timeStretchRefs);
+            newtimef( data{1}, frames, tlimits, Fs, g.cycles, 'plotitc', 'off', ...
+            'plotersp', 'off', vararginori{:}, 'lowmem', 'off', ...
+            'timeStretchMarks', g.timeStretchMarks(:,1:cond_1_epochs), ...
+            'timeStretchRefs', g.timeStretchRefs);
     else
         [P1,R1,mbase1,timesout,freqs,Pboot1,Rboot1,alltfX1] = ...
-        newtimef( data{1}, frames, tlimits, Fs, g.cycles, 'plotitc', 'off', ...
-          'plotersp', 'off', vararginori{:}, 'lowmem', 'off');
+            newtimef( data{1}, frames, tlimits, Fs, g.cycles, 'plotitc', 'off', ...
+            'plotersp', 'off', vararginori{:}, 'lowmem', 'off');
     end
-
+    
     verboseprintf(g.verbose,'\nRunning newtimef() on Condition 2 **********************\n\n');
-
+    
     [P2,R2,mbase2,timesout,freqs,Pboot2,Rboot2,alltfX2] = ...
         newtimef( data{2}, frames, tlimits, Fs, g.cycles, 'plotitc', 'off', ...
-          'plotersp', 'off', vararginori{:}, 'lowmem', 'off', ...
-            'timeStretchMarks', g.timeStretchMarks(:,cond_1_epochs+1:end), ... 
-              'timeStretchRefs', g.timeStretchRefs);
-
+        'plotersp', 'off', vararginori{:}, 'lowmem', 'off', ...
+        'timeStretchMarks', g.timeStretchMarks(:,cond_1_epochs+1:end), ...
+        'timeStretchRefs', g.timeStretchRefs);
+    
     verboseprintf(g.verbose,'\nComputing difference **********************\n\n');
-
-    % recompute power baselines 
+    
+    % recompute power baselines
     % -------------------------
     if ~isnan( g.baseline(1) ) && ~isnan( mbase1(1) ) && isnan(g.powbase(1)) && strcmpi(g.commonbase, 'on')
         disp('Recomputing baseline power: using the grand mean of both conditions ...');
@@ -948,17 +962,17 @@ if iscell(data)
         mbase = { mbase mbase };
     elseif strcmpi(g.commonbase, 'on')
         mbase = { NaN NaN };
-    else 
+    else
         meanmbase = (mbase1 + mbase2)/2;
         mbase = { mbase1 mbase2 };
     end;
-
+    
     % plotting
     % --------
     if strcmpi(g.plotersp, 'on') | strcmpi(g.plotitc, 'on')
         g.titleall = g.title;
         if strcmpi(g.newfig, 'on'), figure; end; % declare a new figure
-
+        
         % using same color scale
         % ----------------------
         if ~isfield(g, 'erspmax')
@@ -967,20 +981,20 @@ if iscell(data)
         if ~isfield(g, 'itcmax')
             g.itcmax  = max( max(max(abs(Rboot1))), max(max(abs(Rboot2))) );
         end;
-
+        
         subplot(1,3,1); % plot Condition 1
         g.title = g.titleall{1};
         g = plottimef(P1, R1, Pboot1, Rboot1, mean(data{1},2), freqs, timesout, mbase{1}, [], [], g);
         g.itcavglim = [];
-
+        
         subplot(1,3,2); % plot Condition 2
         g.title = g.titleall{2};
         plottimef(P2, R2, Pboot2, Rboot2, mean(data{2},2), freqs, timesout, mbase{2}, [], [], g);
-
+        
         subplot(1,3,3); % plot Condition 1 - Condition 2
         g.title =  g.titleall{3};
     end;
-
+    
     if isnan(g.alpha)
         switch(g.condboot)
             case 'abs',  Rdiff = abs(R1)-abs(R2);
@@ -995,7 +1009,7 @@ if iscell(data)
         % -------------------------------------------
         alltfX1power = alltfX1.*conj(alltfX1);
         alltfX2power = alltfX2.*conj(alltfX2);
-
+        
         if ~isnan(mbase{1}(1))
             mbase1 = 10.^(mbase{1}(1:size(alltfX1,1))'/20);
             mbase2 = 10.^(mbase{2}(1:size(alltfX1,1))'/20);
@@ -1007,7 +1021,7 @@ if iscell(data)
         
         %formula = {'log10(mean(arg1,3))'};              % toby 10.02.2006
         %formula = {'log10(mean(arg1(:,:,data),3))'};
-
+        
         formula = {'log10(mean(arg1(:,:,X),3))'};
         switch g.type
             case 'coher', % take the square of alltfx and alltfy first to speed up
@@ -1030,10 +1044,10 @@ if iscell(data)
                     [resdiff resimages res1 res2] = condstat(formula, g.naccu, g.alpha, {'both' 'upper'}, { '' g.condboot}, alltfXpower, alltfX, alltfXabs);
                 end;
             case 'phasecoher2', % normalize first to speed up
-
-                %formula = { formula{1} ['sum(arg2(:,:,data),3)./sum(arg3(:,:,data),3)'] }; 
+                
+                %formula = { formula{1} ['sum(arg2(:,:,data),3)./sum(arg3(:,:,data),3)'] };
                 % toby 10/3/2006
-
+                
                 formula = { formula{1} ['sum(arg2(:,:,X),3)./sum(arg3(:,:,X),3)'] };
                 alltfX1abs = sqrt(alltfX1power); % these 2 lines can be suppressed
                 alltfX2abs = sqrt(alltfX2power); % by inserting sqrt(arg1(:,:,data)) instead of arg3(:,:,data))
@@ -1056,10 +1070,10 @@ if iscell(data)
                     [resdiff resimages res1 res2] = condstat(formula, g.naccu, g.alpha, {'both' 'upper'}, { '' g.condboot}, alltfXpower, alltfX, alltfXabs);
                 end;
             case 'phasecoher',
-
+                
                 %formula = { formula{1} ['mean(arg2,3)'] };              % toby 10.02.2006
                 %formula = { formula{1} ['mean(arg2(:,:,data),3)'] };
-
+                
                 formula = { formula{1} ['mean(arg2(:,:,X),3)'] };
                 if strcmpi(g.lowmem, 'on')
                     for ind = 1:2:size(alltfX1,1)
@@ -1083,9 +1097,9 @@ if iscell(data)
                     alltfXnorm  = { alltfX1norm alltfX2norm };
                     [resdiff resimages res1 res2] = condstat(formula, g.naccu, g.alpha, {'both' 'both'}, { '' g.condboot}, ...
                         alltfXpower, alltfXnorm);
-		end;
+                end;
         end;
-
+        
         % same as below: plottimef(P1-P2, R2-R1, 10*resimages{1}, resimages{2}, mean(data{1},2)-mean(data{2},2), freqs, times, mbase, g);
         if strcmpi(g.plotersp, 'on') | strcmpi(g.plotitc, 'on')
             g.erspmax = []; % auto scale
@@ -1101,9 +1115,9 @@ if iscell(data)
     end;
     P = { P1 P2 P1-P2 };
     R = { R1 R2 Rdiff };
-
+    
     if nargout >= 8, alltfX = { alltfX1 alltfX2 }; end;
-
+    
     return; % ********************************** END FOR MULTIPLE CONDITIONS
 end;
 
@@ -1315,7 +1329,7 @@ if ~isnan(g.alpha) | ~isempty(find(~isnan(g.pboot))) | ~isempty(find(~isnan(g.rb
         else
             baselntmp = [];
             for index = 1:size(g.baseboot,1)
-                tmptime   = find(timesout >= g.baseboot(index,1) && timesout <= g.baseboot(index,2));
+                tmptime   = find(timesout >= g.baseboot(index,1) & timesout <= g.baseboot(index,2));
                 if isempty(tmptime),
                     fprintf('Warning: empty baseline interval [%3.2f %3.2f]\n', g.baseboot(index,1), g.baseboot(index,2));
                 end;
