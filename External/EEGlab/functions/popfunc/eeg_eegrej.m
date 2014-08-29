@@ -124,8 +124,7 @@ end
 function newregions = combineregions(regions)
 newregions = combine(combine(regions));
     function newregions=combine(regions)
-        [regions(:,1),ii]=sort(regions(:,1));
-        regions(:,2) = regions(ii,2);
+        regions = sortrows(regions,1);
         newindex = 0;
         regions = [regions(1,:); regions];
         index = size(regions,1);
@@ -147,9 +146,7 @@ newregions = combine(combine(regions));
                 index = index - 1;
             end
         end
-        
-        [newregions(:,1),ii]=sort(newregions(:,1));
-        newregions(:,2) = newregions(ii,2);
+        newregions = sortrows(newregions,1);
     end
 end
 
