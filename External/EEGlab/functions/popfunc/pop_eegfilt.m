@@ -24,7 +24,9 @@
 %   revfilt   - [0|1] Reverse filter polarity (from bandpass to notch filter). 
 %                     Default is 0 (bandpass).
 %   usefft    - [0|1] 1 uses FFT filtering instead of FIR. Default is 0.
+%   plotfreqz - [0|1] plot frequency response of filter. Default is 0.
 %   firtype   - ['firls'|'fir1'] filter design method, default is 'firls'
+%               from the command line
 %   causal    - [0|1] 1 uses causal filtering. Default is 0.
 %
 % Outputs:
@@ -179,7 +181,7 @@ if EEG.trials == 1
             if ~usefft
                 [EEG.data, b] = eegfilt( EEG.data, options{:});
             else
-                EEG.data = eegfiltfft( EEG.data, options{:});
+                EEG.data = eegfiltfft( EEG.data, options{1:6});            % 7/30/2014 Ramon: {:} to {1:6}; 
             end;
         else
             options{4} = 0;
@@ -198,7 +200,7 @@ if EEG.trials == 1
                                 eegfilt(EEG.data(:,boundaries(n)+1:boundaries(n+1)), options{:});
                         else
                             EEG.data(:,boundaries(n)+1:boundaries(n+1)) = ...
-                                eegfiltfft(EEG.data(:,boundaries(n)+1:boundaries(n+1)), options{:});
+                                eegfiltfft(EEG.data(:,boundaries(n)+1:boundaries(n+1)), options{1:6});  % 7/30/2014 Ramon: {:} to {1:6}; 
                         end;
                     catch
                         fprintf('\nFilter error: continuous data portion too narrow (DC removed if highpass only)\n');
@@ -217,7 +219,7 @@ if EEG.trials == 1
         if ~usefft
             [EEG.data, b] = eegfilt( EEG.data, options{:});
         else
-            EEG.data = eegfiltfft( EEG.data, options{:});
+            EEG.data = eegfiltfft( EEG.data, options{1:6});                % 7/30/2014 Ramon: {:} to {1:6}; 
         end;
     end;
 else
@@ -226,7 +228,7 @@ else
     if ~usefft
         [EEG.data, b] = eegfilt( EEG.data, options{:});
     else
-        EEG.data = eegfiltfft( EEG.data, options{:});
+        EEG.data = eegfiltfft( EEG.data, options{1:6});                    % 7/30/2014 Ramon: {:} to {1:6}; 
     end;
     % Note: reshape does not reserve new memory while EEG.data(:,:) does
 end;

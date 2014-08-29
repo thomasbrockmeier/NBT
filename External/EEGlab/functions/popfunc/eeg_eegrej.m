@@ -49,6 +49,15 @@ if isempty(regions)
 	return;
 end;
 
+% regions = sortrows(regions,3); % Arno and Ramon on 5/13/2014 for bug 1605
+
+% Ramon on 5/29/2014 for bug 1619
+if size(regions,2) > 2
+    regions = sortrows(regions,3);
+else
+    regions = sortrows(regions,1);
+end;
+
 try
     % For AMICA probabilities...Temporarily add model probabilities as channels
     %-----------------------------------------------------
@@ -115,8 +124,7 @@ end
 function newregions = combineregions(regions)
 newregions = combine(combine(regions));
     function newregions=combine(regions)
-        [regions(:,1),ii]=sort(regions(:,1));
-        regions(:,2) = regions(ii,2);
+        regions = sortrows(regions,1);
         newindex = 0;
         regions = [regions(1,:); regions];
         index = size(regions,1);
@@ -138,9 +146,7 @@ newregions = combine(combine(regions));
                 index = index - 1;
             end
         end
-        
-        [newregions(:,1),ii]=sort(newregions(:,1));
-        newregions(:,2) = newregions(ii,2);
+        newregions = sortrows(newregions,1);
     end
 end
 

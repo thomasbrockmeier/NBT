@@ -85,13 +85,10 @@ end
 
 if isfield(dat, 'Label') & ~isempty(dat.Label)
     if isstr(dat.Label)
-        EEG.chanlocs = struct('labels', cellstr(char(dat.Label)));
+        EEG.chanlocs = struct('labels', cellstr(char(dat.Label(dat.InChanSelect)))); % 5/8/2104 insert (dat.InChanSelect) Ramon
     else
         % EEG.chanlocs = struct('labels', dat.Label(1:min(length(dat.Label), size(EEG.data,1))));
-        EEG.chanlocs = struct('labels', dat.Label); % sjo added 120907 to avoid error below
-    end;
-    if ~isempty(channels)
-        EEG.chanlocs = EEG.chanlocs(channels);
+        EEG.chanlocs = struct('labels', dat.Label(dat.InChanSelect)); % sjo added 120907 to avoid error below % 5/8/2104 insert (dat.InChanSelect) Ramon
     end;
     if length(EEG.chanlocs) > EEG.nbchan, EEG.chanlocs = EEG.chanlocs(1:EEG.nbchan); end;
 end
@@ -155,7 +152,7 @@ if importevent
         %Modifieded by Andrey (Aug.5,2008) to detect all non-zero codes: 
         if length(unique(EEG.data(end, 1:100))) > 20
             disp('Warning: event extraction failure, the last channel contains data');
-        elseif length(unique(EEG.data(end, :))) > 5000
+        elseif length(unique(EEG.data(end, :))) > 1000
             disp('Warning: event extraction failure, the last channel contains data');
         else
             thiscode = 0;
