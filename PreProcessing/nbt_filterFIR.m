@@ -105,7 +105,7 @@ if hp == 0
     b = fir1(floor(fir_order*SignalInfo.convertedSamplingFrequency),[lp]/(SignalInfo.convertedSamplingFrequency/2));
 else
     
-b = fir1(floor(fir_order*SignalInfo.convertedSampingFrequency),[hp lp]/(SignalInfo.convertedSamplingFrequency/2));
+b = fir1(floor(fir_order*SignalInfo.convertedSamplingFrequency),[hp lp]/(SignalInfo.convertedSamplingFrequency/2));
 end
 
 % [b,a] = butter(fir_order*fs/10,[hp lp]/(fs/2));

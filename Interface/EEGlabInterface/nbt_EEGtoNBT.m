@@ -57,5 +57,5 @@ else
     SignalInfo=nbt_CreateInfoObject(filename, FileExt, EEG.srate);
 end
 
-SignalInfo.Interface.EEG = EEG;
+SignalInfo.interface.EEG = EEG;
 end

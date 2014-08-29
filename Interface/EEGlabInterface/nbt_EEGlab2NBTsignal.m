@@ -57,7 +57,7 @@ else
     SignalInfo = nbt_CreateInfoObject(EEG.setname, [], EEG.srate);
 end
 
-SignalInfo.converted_sample_frequency = EEG.srate;
+SignalInfo.convertedSamplingFrequency = EEG.srate;
 
 
 %--- make NBTSignal files only if there are changes in the Signal
@@ -73,7 +73,7 @@ if (strcmpi(input('Do you want to save this signal? ([Y]es/[N]o)','s'),'y'))
     SignalInfo.Interface.EEG = EEG;
 
     eval(['[',name,'Info]=SignalInfo;']);
-    fn=SignalInfo.file_name;
+    fn=SignalInfo.subjectInfo;
     
     %--- save NBT files if the saveflag = 1
     if(exist('saveflag','var'))
@@ -91,22 +91,22 @@ if (strcmpi(input('Do you want to save this signal? ([Y]es/[N]o)','s'),'y'))
             disp('saving...')
             if present
                 try
-                    save([directoryname '/' fn '_info.mat'],[name 'Info'],'-append')
+                    save([directoryname filesep fn ],[name 'Info'],'-append')
                 catch
-                    save([directoryname '/' fn '_info.mat'],[name 'Info'])
+                    save([directoryname filesep fn ],[name 'Info'])
                 end
                 
                 try
-                    save([directoryname '/' fn '.mat'],name,'-append')
+                    save([directoryname filesep fn(1:end-9) '.mat'],name,'-append')
                 catch
-                    save([directoryname '/' fn '.mat'],name)
+                    save([directoryname filesep fn(1:end-9) '.mat'],name)
                 end
                 
             else
-                OptionSave = input(['A file named ' fn '.mat does not exist in this directory. Do you want create a new file? [[Y]es [N]o]'],'s'); % e.g. RawSignal, CleanSigna
+                OptionSave = input(['A file named ' fn(1:-9) '.mat does not exist in this directory. Do you want create a new file? [[Y]es [N]o]'],'s'); % e.g. RawSignal, CleanSigna
                 if strcmp(OptionSave(1),'Y') || strcmp(OptionSave(1),'y')
-                    save([directoryname '/' fn '_info.mat'],[name 'Info'])
-                    save([directoryname '/' fn '.mat'],name)
+                    save([directoryname filesep fn ],[name 'Info'])
+                    save([directoryname filesep fn(1:end-9) '.mat'],name)
                 end
             end
             
@@ -117,5 +117,5 @@ end
 EEG.data=[];
 EEG.history = [];
 EEG.icaact = [];
-SignalInfo.Interface.EEG = EEG;
+SignalInfo.interface.EEG = EEG;
 end

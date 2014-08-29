@@ -89,8 +89,10 @@ end
 
 %Downsample to 250 Hz
 if(exist('ResampleFS','var'))
-    [Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, ResampleFS);
-    SignalInfo.convertedSamplingFrequency = ResampleFS;
+    if(~isempty(ResampleFS))
+       [Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, ResampleFS);
+       SignalInfo.convertedSamplingFrequency = ResampleFS;
+    end
 end
 
 % 1. Filter Data
