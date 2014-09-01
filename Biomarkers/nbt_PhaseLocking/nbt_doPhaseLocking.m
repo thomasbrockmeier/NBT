@@ -91,7 +91,7 @@ disp('Command window code:')
 disp(['PhaseLockingObject = nbt_doPhaseLocking(Signal,SignalInfo,FrequencyBand,interval,filterorder)'])
 disp(' ')
 
-disp(['Computing Phase Locking for ',SignalInfo.file_name])
+disp(['Computing Phase Locking for ',SignalInfo.subjectInfo(1:end-9)])
 
 %% remove artifact intervals	
 

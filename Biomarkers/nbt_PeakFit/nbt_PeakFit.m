@@ -169,7 +169,7 @@ classdef nbt_PeakFit < nbt_SignalBiomarker
 
             BiomarkerObject.f = [];
             BiomarkerObject.p = cell(NumChannels,1);
-            BiomarkerObject.dateLastUpdate = datestr(now);
+            BiomarkerObject.lastUpdate = datestr(now);
             BiomarkerObject.primaryBiomarker = 'AlphaFreq';
    %         BiomarkerObject.Biomarkers = {'AlphaFreq','BetaFreq','AlphaFreq1','AlphaFreq2',...
     %            'BetaFreq1','BetaFreq2','Bandwidth_Delta',...
