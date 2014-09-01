@@ -57,7 +57,7 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
         
         function biomarkerObject=nbt_UpdateBiomarkerInfo(biomarkerObject, SignalInfo)
             biomarkerObject.lastUpdate = datestr(now);
-            [~, biomarkerObject.NBTversion] = nbt_getVersion;
+            [~, biomarkerObject.nbtVersion] = nbt_getVersion;
             biomarkerObject.signalID = SignalInfo.signalID;
             biomarkerObject.signalName =  SignalInfo.signalName;
             %biomarkerObject.frequencyRange = SignalInfo.frequencyRange;

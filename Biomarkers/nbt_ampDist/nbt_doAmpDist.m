@@ -54,7 +54,7 @@ disp(' ')
 disp('Command window code:')
 disp(['CoherenceObject = nbt_doCoher(Signal,SignalInfo,FrequencyBand)'])
 disp(' ')
-disp(['Computing Coherence for ',InfoObject.file_name])
+disp(['Computing Coherence for ',InfoObject.subjectInfo(1:end-9)])
 
 %% remove artifact intervals	
 

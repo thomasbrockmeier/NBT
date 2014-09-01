@@ -39,12 +39,12 @@
 % ---------------------------------------------------------------------------------------
 
 function nbt_SaveClearObject(ObjectName, SignalInfo, SaveDir, ReloadSwitch)
-error(nargchk(3,4,nargin));
+narginchk(3,4);
 %first we get the object to save
 eval([ObjectName '= evalin(''caller'', ObjectName );']);
 
 %Then we save it
-an_file = [SaveDir,'/',SignalInfo.file_name,'_analysis.mat'];
+an_file = [SaveDir filesep SignalInfo.subjectInfo(1:end-9),'_analysis.mat'];
 if(exist(an_file,'file') == 2)
   %  NBTanalysisFile = matfile(an_file,'Writable', true);
  %   eval(['NBTanalysisFile.' ObjectName '= ' ObjectName ';'])
