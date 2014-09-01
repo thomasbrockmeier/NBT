@@ -52,9 +52,9 @@ function AmpDistObject= nbt_doAmpDist(Signal,InfoObject)
 %%   give information to the user	
 disp(' ')
 disp('Command window code:')
-disp(['CoherenceObject = nbt_doCoher(Signal,SignalInfo,FrequencyBand)'])
+disp(['AmpDistObject = nbt_doAmpDist(Signal,SignalInfo,FrequencyBand)'])
 disp(' ')
-disp(['Computing Coherence for ',InfoObject.subjectInfo(1:end-9)])
+disp(['Computing Amplitude distribution for ',InfoObject.subjectInfo(1:end-9)])
 
 %% remove artifact intervals	
 
@@ -67,8 +67,7 @@ AmpDistObject = nbt_ampDist(size(Signal,2));
 AmpDistObject = nbt_UpdateBiomarkerInfo(AmpDistObject, InfoObject);
 %% Compute markervalues. Add here your algorithm to compute the biomarker
 
-for ChannelID = 1:(size(Signal,2)) % loop over channels
-    ChId = GetChannelID;
+for ChId = 1:(size(Signal,2)) % loop over channels
     AmpDistObject.Kurtosis(ChId) = kurtosis(Signal(:,ChId));
     AmpDistObject.Skewness(ChId) = skewness(Signal(:,ChId));
     AmpDistObject.Iqr(ChId) = iqr(Signal(:,ChId));
@@ -76,15 +75,4 @@ for ChannelID = 1:(size(Signal,2)) % loop over channels
     AmpDistObject.Range(ChId) = range(Signal(:,ChId));
     AmpDistObject.Cov(ChId) = std(Signal(:,ChId))/median(Signal(:,ChId));
 end
-
-
-%% Nested functions part
-    function ChID = GetChannelID
-        % function finds the current ChannelID
-        if ( InfoObject.channelID ~= 0)
-            ChID = InfoObject.channelID;
-        else
-            ChID = ChannelID;
-        end
-    end
 end

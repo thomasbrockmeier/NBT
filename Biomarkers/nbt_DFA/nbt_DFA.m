@@ -66,15 +66,15 @@ classdef nbt_DFA < nbt_SignalBiomarker
             DFAobject.DFA_y  = cell(NumChannels, 1);
             DFAobject.DFA_x  = [];
             %% Define DFA exponent field
-            DFAobject.MarkerValues = nan(NumChannels, 1);
+            DFAobject.markerValues = nan(NumChannels, 1);
             %% Define fields for additional information
-            DFAobject.PrimaryBiomarker = 'markerValues';
-            DFAobject.Biomarkers = {'markerValues'};
+            DFAobject.primaryBiomarker = 'markerValues';
+            DFAobject.biomarkers = {'markerValues'};
             DFAobject.FitInterval = nan(2,1);
             DFAobject.CalcInterval = nan(2,1);
             DFAobject.Overlap = NaN;
             DFAobject.Condition = NaN;
-            DFAobject.DateLastUpdate = NaN;
+            DFAobject.dateLastUpdate = NaN;
             DFAobject.Fs = NaN;
             DFAobject.res_logbin = 10;
             DFAobject = setUniqueIdentifiers(DFAobject);

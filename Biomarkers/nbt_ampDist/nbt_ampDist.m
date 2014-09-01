@@ -73,8 +73,8 @@ classdef nbt_ampDist < nbt_SignalBiomarker
             BiomarkerObject.Range = nan(NumChannels, 1);
             BiomarkerObject.Cov = nan(NumChannels, 1);
             
-            BiomarkerObject.PrimaryBiomarker = 'Range';
-            BiomarkerObject.Biomarkers = {'Kurtosis','Skewness','Iqr', 'Median','Range','Cov'};
+            BiomarkerObject.primaryBiomarker = 'Range';
+            BiomarkerObject.biomarkers = {'Kurtosis','Skewness','Iqr', 'Median','Range','Cov'};
         end
     end
 end

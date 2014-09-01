@@ -91,8 +91,8 @@ classdef nbt_OscBursts < nbt_SignalBiomarker
             OscBobject.WindowSwitch = 0;
             OscBobject.WindowSize = NaN;
             OscBobject.Fs = NaN;
-            OscBobject.PrimaryBiomarker = 'CumulativeLifetime';
-            OscBobject.Biomarkers = {'CumulativeLifetime', 'ShapeMarker', 'CumulativeSize', 'IntraBurstsCorr'};
+            OscBobject.primaryBiomarker = 'CumulativeLifetime';
+            OscBobject.biomarkers = {'CumulativeLifetime', 'ShapeMarker', 'CumulativeSize', 'IntraBurstsCorr'};
         end
     end
 end

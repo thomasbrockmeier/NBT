@@ -82,7 +82,7 @@
 function PhaseLockingObject = nbt_doPhaseLocking(Signal,SignalInfo,FrequencyBand,interval,filterorder,windowleng,overlap,indexPhase)
 
 %--- Input checks
-error(nargchk(7,8,nargin))
+narginchk(7,8)
 
 %% assigning fields:
 
@@ -100,7 +100,7 @@ Signal = nbt_RemoveIntervals(Signal,SignalInfo);
 %--- Compute markervalues. Add here your algorithm to compute the biomarker
 
 %% Signal in the selected interval
-Fs = SignalInfo.converted_sample_frequency;
+Fs = SignalInfo.convertedSamplingFrequency;
 if ~isempty(interval)   
 if interval(1) == 0
     Signal = Signal(1:interval(2)*Fs,:);

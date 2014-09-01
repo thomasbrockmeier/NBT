@@ -57,8 +57,8 @@ classdef nbt_barlow < nbt_SignalBiomarker
            BiomarkerObject.amplitude = nan(NumChannels,1);
            BiomarkerObject.frequency = nan(NumChannels,1);
            BiomarkerObject.spi = nan(NumChannels,1);
-           BiomarkerObject.PrimaryBiomarker =  'amplitude';
-           BiomarkerObject.Biomarkers ={'amplitude', 'frequency', 'spi'};
+           BiomarkerObject.primaryBiomarker =  'amplitude';
+           BiomarkerObject.biomarkers ={'amplitude', 'frequency', 'spi'};
        end
        
    end

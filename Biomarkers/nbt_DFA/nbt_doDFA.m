@@ -77,18 +77,13 @@ else
 end
 
 % get parameters from Signalobject
-Fs = InfoObject.converted_sample_frequency;
+Fs = InfoObject.convertedSamplingFrequency;
 DFAobject.Condition = InfoObject.condition;
 % set parameters in DFAobject
 DFAobject.FitInterval = FitInterval;
 DFAobject.CalcInterval = CalcInterval;
 DFAobject.Overlap = DFA_Overlap;
 
-%Set information from InfoObject
-DFAobject.ReseacherID = InfoObject.researcherID;
-DFAobject.ProjectID = InfoObject.projectID;
-DFAobject.SubjectID = InfoObject.subjectID;
-DFAobject.Condition = InfoObject.condition;
 
 
 %******************************************************************************************************************
@@ -151,7 +146,7 @@ for ChannelID = 1:(size(Signal,2)) % loop over channels
     Y = log10(DFA_y(DFA_SmallTimeFit_LogSample:DFA_LargeTimeFit_LogSample));
     DFA_exp = X\Y; %least-square fit
     DFA_exp = DFA_exp(2);
-    DFAobject.MarkerValues(GetChannelID,1) = DFA_exp;
+    DFAobject.markerValues(GetChannelID,1) = DFA_exp;
 end
 
 DFAobject = nbt_UpdateBiomarkerInfo(DFAobject, InfoObject);

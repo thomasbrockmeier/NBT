@@ -57,6 +57,6 @@
 % 
 
 function [Signal, SignalInfo] = nbt_GetAmplitudeEnvelope(Signal, SignalInfo, hp, lp, filter_order)
- Signal = abs(hilbert(nbt_filter_fir(Signal(:,:),hp,lp,SignalInfo.converted_sample_frequency,filter_order)));
+ Signal = abs(hilbert(nbt_filter_fir(Signal(:,:),hp,lp,SignalInfo.convertedSamplingFrequency,filter_order)));
  SignalInfo.frequencyRange = [hp lp];
 end
