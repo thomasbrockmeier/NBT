@@ -152,6 +152,30 @@ switch index
         s.statfunc = @friedman;
         s.statfuncname = 'Friedman test';
         s.statname = 'Friedman test';
+    case 21
+        s.statistic = @nanmedian;
+        s.statfunc = 'logit';
+        s.statfuncname = 'Classification: Logistic regression';
+        s.statname = 'Classification: Logistic regression'; 
+        s.statType = 'Classification';
+    case 22 
+        s.statistic = @nanmedian;
+        s.statfunc = 'lssvm';
+        s.statfuncname = 'Classification: Least-Square Support Vector Machine';
+        s.statname = 'Classification: Least-Square Support Vector Machine';
+        s.statType = 'Classification';
+    case 23
+        s.statistic = @nanmedian;
+        s.statfunc = 'elasticlogit';
+        s.statfuncname = 'Classification: Elastic Net Logistic regression';
+        s.statname = 'Classification: Elastic Net Logistic regression'; 
+        s.statType = 'Classification'; 
+    case 24
+        s.statistic = @nanmedian;
+        s.statfunc = 'neuralnet';
+        s.statfuncname = 'Classification: Neural Network';
+        s.statname = 'Classification: Neural Network'; 
+        s.statType = 'Classification'; 
     otherwise
         s = [];
 end
