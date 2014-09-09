@@ -179,7 +179,7 @@ else
         end
       erpimageframes = floor(size(EEG.data,2)/ERPIMAGELINES);
       erpimageframestot = erpimageframes*ERPIMAGELINES;
-      eegtimes = linspace(0, erpimageframes-1, EEG.srate/1000);
+      eegtimes = linspace(0, erpimageframes-1, length(erpimageframes)); % 05/27/2014 Ramon: length(erpimageframes) by EEG.srate/1000  in eegtimes = linspace(0, erpimageframes-1, EEG.srate/1000);
       if typecomp == 1 % plot channel
            offset = nan_mean(EEG.data(chanorcomp,:));
            % Note: we don't need to worry about ERP limits, since ERPs
@@ -234,10 +234,11 @@ try
 	set( get(gca, 'ylabel'), 'string', 'Power 10*log_{10}(\muV^{2}/Hz)', 'fontsize', 14); 
 	set( get(gca, 'xlabel'), 'string', 'Frequency (Hz)', 'fontsize', 14); 
 	title('Activity power spectrum', 'fontsize', 14); 
-catch
+catch err
 	axis off;
-    lasterror
-	text(0.1, 0.3, [ 'Error: no spectrum plotted' 10 ' make sure you have the ' 10 'signal processing toolbox']);
+    text(0.1, 0.3, [ 'Error: no spectrum plotted' 10 err.message 10]);
+%     lasterror
+% 	text(0.1, 0.3, [ 'Error: no spectrum plotted' 10 ' make sure you have the ' 10 'signal processing toolbox']);
 end;	
 	
 % display buttons

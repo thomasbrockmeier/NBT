@@ -496,6 +496,7 @@ end;
 try
     g.chanind = find(ALLEEG.NBTinfo.BadChannels~=1); %set bad channels
 catch
+    error('Could not find BadChannel index')
 end
 if isstr(g), error(g); end;
 if isempty(g.options), g.options = options; end;

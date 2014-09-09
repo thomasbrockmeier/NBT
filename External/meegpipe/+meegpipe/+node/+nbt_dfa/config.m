@@ -53,7 +53,7 @@ classdef config < meegpipe.node.abstract_config
             end
             if ~isnumeric(value) || numel(value) ~= 1 || value < 0,
                 throw(InvalidPropValue('FilterOrder', ...
-                    'Muste be a positive scalar'));
+                    'Must be a positive scalar'));
             end
             obj.FilterOrder = value;
             if ~from_constructor(obj),
@@ -88,7 +88,8 @@ classdef config < meegpipe.node.abstract_config
                 obj.FitInterval = @(data) [5 0.1*(size(data,2)/data.SamplingRate)];
                 return;
             end
-            if ~isnumeric(value) || numel(value) ~= 1 || value < 0,
+            if ~isa(value, 'function_handle') && ...
+                    (~isnumeric(value) || numel(value) ~= 1 || value < 0),
                 throw(InvalidPropValue('FitInterval', ...
                     'Muste be a 1x2 positive vector'));
             end
@@ -106,9 +107,10 @@ classdef config < meegpipe.node.abstract_config
                 obj.CalcInterval = @(data) [0.1 0.1*(size(data,2)/data.SamplingRate)];
                 return;
             end
-            if ~isnumeric(value) || numel(value) ~= 1 || value < 0,
+            if ~isa(value, 'function_handle') && ...
+                    (~isnumeric(value) || numel(value) ~= 1 || value < 0)
                 throw(InvalidPropValue('CalcInterval', ...
-                    'Muste be a 1x2 positive vector'));
+                    'Must be a 1x2 positive vector'));
             end
             obj.CalcInterval = value;
             if ~from_constructor(obj),

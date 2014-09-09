@@ -49,6 +49,15 @@ if isempty(regions)
 	return;
 end;
 
+% regions = sortrows(regions,3); % Arno and Ramon on 5/13/2014 for bug 1605
+
+% Ramon on 5/29/2014 for bug 1619
+if size(regions,2) > 2
+    regions = sortrows(regions,3);
+else
+    regions = sortrows(regions,1);
+end;
+
 try
     % For AMICA probabilities...Temporarily add model probabilities as channels
     %-----------------------------------------------------
@@ -106,17 +115,39 @@ if ~isempty(boundevents) % boundevent latencies will be recomputed in the functi
 end;
 
 com = sprintf('%s = eeg_eegrej( %s, %s);', inputname(1), inputname(1), vararg2str({ regions })); 
+end
 
 % combine regions if necessary
 % it should not be necessary but a 
 % bug in eegplot makes that it sometimes is
 % ----------------------------
 function newregions = combineregions(regions)
-newregions = regions;
-for index = size(regions,1):-1:2
-    if regions(index-1,2) >= regions(index,1)
-        disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
-        newregions(index-1,:) = [regions(index-1,1) regions(index,2) ];
-        newregions(index,:)   = [];
-    end;
-end;
+newregions = combine(combine(regions));
+    function newregions=combine(regions)
+        regions = sortrows(regions,1);
+        newindex = 0;
+        regions = [regions(1,:); regions];
+        index = size(regions,1);
+        while index >= 2
+            if regions(index-1,2) >= regions(index,1)
+                indexEnd = index;
+                while regions(index-1,2) >= regions(index,1) && index > 2 %find nested regions
+                    index = index - 1;
+                end
+                index =  index - 1;
+                
+                disp('Warning: overlapping regions detected and fixed in eeg_eegrej');
+                newindex = newindex + 1;
+                RegionEnd = max(regions(index+1:indexEnd,2));
+                newregions(newindex,:) = [regions(index+1,1) RegionEnd(1)];
+            else
+                newindex = newindex + 1;
+                newregions(newindex,:) = regions(index,:);
+                index = index - 1;
+            end
+        end
+        newregions = sortrows(newregions,1);
+    end
+end
+
+

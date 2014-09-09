@@ -39,7 +39,7 @@ if ~isfield(EEG,'icaact') || isempty(EEG.icaact)
 end
 
 for u = 1:size(EEG.icaact,1)
-    [spectra(u,:) freqs] = pwelch(EEG.icaact(u,:),[],[],(EEG.srate),EEG.srate);
+    [spectra(u,:) freqs] = pwelch(EEG.icaact(u,:),[],[],[],EEG.srate);
 end
 
 list_properties = zeros(size(EEG.icaact,1),5); %This 5 corresponds to number of measurements made.

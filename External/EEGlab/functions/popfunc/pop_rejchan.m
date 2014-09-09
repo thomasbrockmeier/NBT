@@ -128,11 +128,11 @@ elseif strcmpi(opt.measure, 'kurt')
     [ measure indelec ] = rejkurt( reshape(EEG.data(opt.elec,:,:), length(opt.elec), size(EEG.data,2)*size(EEG.data,3)), opt.threshold, opt.precomp, normval);
 else
     fprintf('Computing spectrum for channels...\n');
-    measure = pop_spectopo(EEG, 1, [0  EEG.xmax*EEG.srate], 'EEG' , 'freqrange', opt.freqrange, 'plot','off');
+    measure = pop_spectopo(EEG, 1, [], 'EEG' , 'freqrange', opt.freqrange, 'plot','off');
 
     % consider that data below 20 db has been filtered and remove it
     indFiltered = find(mean(measure) < -20);
-    if ~isempty(indFiltered), measure = measure(:,1:indFiltered-10); disp('Removing spectrum data below -20dB (most likelly filtered out)'); end;
+    if ~isempty(indFiltered) && indFiltered(1) > 11, measure = measure(:,1:indFiltered(1)-10); disp('Removing spectrum data below -20dB (most likelly filtered out)'); end;
     meanSpec = mean(measure);
     stdSpec  = std( measure);
     
@@ -170,7 +170,7 @@ fprintf('%d electrodes labeled for rejection\n', length(find(indelec)));
 indelec = find(indelec)';
 tmpchanlocs = EEG.chanlocs;
 if ~isempty(EEG.chanlocs), tmplocs = EEG.chanlocs(opt.elec); tmpelec = { tmpchanlocs(opt.elec).labels }';
-else                       tmplocs = []; tmpelec = mattocell([1:EEG.nbchan]');
+else                       tmplocs = []; tmpelec = mattocell([opt.elec]'); % tmpelec = mattocell([1:EEG.nbchan]');%Ramon on 8/7/2014
 end;
 if exist('measure2', 'var')
      fprintf('#\tElec.\t[min]\t[max]\n');
@@ -184,7 +184,10 @@ tmpelec(:,1) = mattocell([1:length(measure)]');
 for index = 1:size(tmpelec,1)
     if exist('measure2', 'var')
          fprintf('%d\t%s\t%3.2f\t%3.2f', tmpelec{index,1}, tmpelec{index,2}, tmpelec{index,3}, tmpelec{index,4});
-    else fprintf('%d\t%s\t%3.2f'       , tmpelec{index,1}, tmpelec{index,2}, tmpelec{index,3});
+    elseif  ~isempty(EEG.chanlocs)
+        fprintf('%d\t%s\t%3.2f'       , tmpelec{index,1}, tmpelec{index,2}, tmpelec{index,3});
+    else % Ramon on 8/7/2014
+        fprintf('%d\t%d\t%3.2f'       , tmpelec{index,1}, tmpelec{index,2}, tmpelec{index,3});
     end;
     if any(indelec == index), fprintf('\t*Bad*\n');
     else                      fprintf('\n');

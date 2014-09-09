@@ -3,7 +3,7 @@
 %                 the updated EEG datasets are also saved to disk. Called by 
 %                 pop_precomp(). Follow with pop_plotstudy(). See Example below.
 % Usage:    
-% >> [ALLEEG,STUDY] = std_precomp(STUDY, ALLEEG, chanorcomp, 'key', 'val', ...);
+% >> [STUDY ALLEEG customRes] = std_precomp(STUDY, ALLEEG, chanorcomp, 'key', 'val', ...);
 %
 % Required inputs:
 %   STUDY        - an EEGLAB STUDY set of loaded EEG structures
@@ -81,6 +81,9 @@
 %                  for use by pop_clust()
 %   customRes    - cell array of custom results (one cell for each pair of
 %                  independent variables as defined in the STUDY design).
+%                  If a custom file extension is specified, this variable
+%                  is empty as the function assumes that the result is too
+%                  large to hold in memory.
 %
 % Example:
 %   >> [STUDY ALLEEG customRes] = std_precomp(STUDY, ALLEEG, { 'cz' 'oz' }, 'interp', ...
@@ -94,14 +97,14 @@
 %
 % Example of custom call:
 %   The function below computes the ERP of the EEG data for each channel and plots it.
-%   >> [STUDY ALLEEG customres] = std_precomp(STUDY, ALLEEG, 'channels', 'customfunc', @(EEG,varargin)(mean(EEG.data,3)));
-%   >> std_plotcurve([1:size(customres{1})], customres, 'chanlocs', ALLEEG(1).chanlocs); % plot data
+%   >> [STUDY ALLEEG customres] = std_precomp(STUDY, ALLEEG, 'channels', 'customfunc', @(EEG,varargin)(mean(EEG.data,3)'));
+%   >> std_plotcurve([1:size(customres{1},1)], customres, 'chanlocs', eeg_mergelocs(ALLEEG.chanlocs)); % plot data
 %
 %   The function below uses a data file to store the information then read
 %   the data and eventyally plot it
 %   >> [STUDY ALLEEG customres] = std_precomp(STUDY, ALLEEG, 'channels', 'customfunc', @(EEG,varargin)(mean(EEG.data,3)), 'customfileext', 'tmperp');
 %   >> erpdata = std_readcustom(STUDY, ALLEEG, 'tmperp');
-%   >> std_plotcurve([1:size(erpdata{1})], erpdata, 'chanlocs', ALLEEG(1).chanlocs); % plot data
+%   >> std_plotcurve([1:size(erpdata{1})], erpdata, 'chanlocs', eeg_mergelocs(ALLEEG.chanlocs)); % plot data
 %
 % Authors: Arnaud Delorme, SCCN, INC, UCSD, 2006-
 

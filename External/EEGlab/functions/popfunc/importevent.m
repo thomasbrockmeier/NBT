@@ -39,6 +39,9 @@
 %               A negative value can also be used; then event number (-num) 
 %               is aligned to the first pre-existing event.  Default is 0. 
 %               (NaN-> no alignment).
+%  'optimmeas' - ['median'|'mean'] Uses either the median of the mean
+%               distance to align events. Default is 'mean'. Median is
+%               preferable if events are missing in the event file.
 %  'optimalign' - ['on'|'off'] Optimize the sampling rate of the new events so 
 %               they best align with old events. Default is 'on'.
 %
@@ -99,6 +102,7 @@ g = finputcheck( varargin, { 'fields'    'cell'     []         {};
                          'event'     { 'cell';'real';'string' }     []    [];
                          'align'     'integer'  []         NaN;
                          'optimalign' 'string'  { 'on';'off' }         'on';
+                         'optimmeas'  'string'  { 'median';'mean' }         'mean';
                          'delim'     {'integer';'string'}   []         char([9 32 44])}, 'importevent');
 if isstr(g), error(g); end;
 if ~isempty(g.indices), g.append = 'yes'; end;
@@ -110,6 +114,16 @@ if ~isempty(g.event)
     event = g.event;
     if ~isstr(event)
         if size(event,2) > size(event,1), event = event'; end;
+        if iscell(event)
+            eventStr = cellfun(@ischar, event);
+            eventNum = cellfun(@isnumeric, event);
+            if all(eventStr(1,:)) && ~all(eventStr(:,1))
+                event = event';
+            end;
+            if all(eventNum(1,:)) && ~all(eventNum(:,1))
+                event = event';
+            end;
+        end;
     end;
 end;
 g.event = event;
@@ -127,9 +141,7 @@ if ~isnan(g.align.val)
         error('Setevent: pre-existing events do not have a latency field for re-alignment');
     end;    
     switch g.append
-        % What is the reasoning behind this warning? It seems misleading. TobyF
-        % 3/28/2007
-        case {'yes' '''yes'''}, disp('Setevent warning: using align, events should not be appended but erased');
+        case {'yes' '''yes'''}, disp('Setevent warning: cannot align and append events at the same time; disabling event alignment');
     end;
     if g.align.val < 0
         g.align.event = oldevent(1).latency;
@@ -170,7 +182,7 @@ for curfield = tmpfields'
                           end;
                       end;
                       event = recomputelatency( event, 1:length(event), srate, ...
-                                                    g.timeunit, g.align, g.oldevents, g.optimalign);
+                                                    g.timeunit, g.align, g.oldevents, g.optimalign, g.optimmeas);
                 case { '''yes''' 'yes' }
                       % match existing fields
                       % ---------------------
@@ -198,7 +210,7 @@ for curfield = tmpfields'
                           event(index+offset).init_time  = event(index+offset).latency*g.timeunit;
                       end;
                       event = recomputelatency( event, g.indices, srate, g.timeunit, ...
-                                                    g.align, g.oldevents, g.optimalign);
+                                                    g.align, g.oldevents, g.optimalign, g.optimmeas);
             end;
       end;
 end;
@@ -239,7 +251,7 @@ return;
 
 %% update latency values
 % ---------------------
-function event = recomputelatency( event, indices, srate, timeunit, align, oldevents, optimalign);
+function event = recomputelatency( event, indices, srate, timeunit, align, oldevents, optimalign, optimmeas)
 
     % update time unit 
     % ----------------
@@ -289,17 +301,17 @@ function event = recomputelatency( event, indices, srate, timeunit, align, oldev
         end;
         
         try
-            newfactor = fminsearch('eventalign',1,[],newlat, oldlat);
+            newfactor = fminsearch('eventalign',1,[],newlat, oldlat, optimmeas);
         catch 
-            newfactor = fminsearch('eventalign',1,[],[],newlat, oldlat); % Octave
+            newfactor = fminsearch('eventalign',1,[],[],newlat, oldlat, optimmeas); % Octave
         end;
         fprintf('Best sampling rate ratio found is %1.7f. Below latencies after adjustment\n', newfactor);
         if newfactor > 1.01 | newfactor < 0.99
             disp('Difference is more than 1%, something is wrong; ignoring ratio');
             newfactor = 1;
         else
-            difference1 = eventalign(1        ,newlat,oldlat);
-            difference2 = eventalign(newfactor,newlat,oldlat);
+            difference1 = eventalign( 1        , newlat, oldlat, optimmeas);
+            difference2 = eventalign( newfactor, newlat, oldlat, optimmeas);
             fprintf('The average difference before correction was %f sample points\n', difference1);
             fprintf('The average difference after correction is %f sample points\n', difference2);
         end;

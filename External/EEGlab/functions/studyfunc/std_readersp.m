@@ -16,6 +16,8 @@
 %                the parent cluster (1) and any 'NotClust' clusters}
 %  'singletrials' - ['on'|'off'] load single trials spectral data (if 
 %                available). Default is 'off'.
+%  'forceread' - ['on'|'off'] Force rereading data from disk.
+%                Default is 'off'.
 %  'subject'   - [string] select a specific subject {default:all}
 %  'component' - [integer] select a specific component in a cluster
 %                 {default:all}
@@ -111,6 +113,7 @@ STUDY = pop_erpimparams(STUDY, 'default');
     'freqrange'     'real'    []             STUDY.etc.erspparams.freqrange;
     'timerange'     'real'    []             NaN;
     'singletrials'  'string'  { 'on','off' } 'off';
+    'forceread'     'string'  { 'on','off' } 'off';
     'concatenate'   'string'  { 'on','off' } STUDY.etc.erpimparams.concatenate;
     'subbaseline'   'string'  { 'on','off' } STUDY.etc.erspparams.subbaseline;
     'component'     'integer' []             [];
@@ -185,10 +188,15 @@ for ind = 1:length(finalinds)
         end;
     end;
     
-    if ~dataread
+    if dataread && strcmpi(opt.forceread, 'off')
+        disp('Using pre-loaded data. To force rereading data from disk use the ''forceread'' flag');
+    else
         
         if strcmpi(dtype, 'erpim') % ERP images
             
+            if strcmpi(opt.singletrials, 'on')
+                error( [ 'Single trial loading option not supported with STUDY ERP-image' 10 '(there is no such thing as a single-trial ERPimage)' ]);
+            end;
             % read the data and select channels
             % ---------------------------------
             setinfo = STUDY.design(opt.design).cell;
@@ -401,8 +409,8 @@ end;
 % output unit
 % -----------
 if exist('tmpparams') ~= 1
-    if ~isempty(opt.channels), [tmpersp tmpparams] = std_readfile(STUDY.design(opt.design).cell(1), 'channels', {STUDY.changrp(1).name});
-    else                       [tmpersp tmpparams] = std_readfile(STUDY.design(opt.design).cell(1), 'components', STUDY.cluster(finalinds(end)).allinds{1,1}(1));
+    if ~isempty(opt.channels), [tmpersp tmpparams] = std_readfile(STUDY.design(opt.design).cell(1), 'channels', {STUDY.changrp(1).name}, 'measure', opt.datatype);
+    else                       [tmpersp tmpparams] = std_readfile(STUDY.design(opt.design).cell(1), 'components', STUDY.cluster(finalinds(end)).allinds{1,1}(1), 'measure', opt.datatype);
     end;
 end;
 if ~isfield(tmpparams, 'baseline'), tmpparams.baseline = 0;     end;
@@ -428,6 +436,9 @@ end;
 
 % return structure
 % ----------------
+if nargout <2
+    return
+end
 allinds   = finalinds;
 if ~isempty(opt.channels)
     structdat = STUDY.changrp;
