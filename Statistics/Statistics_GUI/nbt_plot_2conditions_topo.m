@@ -94,7 +94,7 @@ if isempty(regions)
     vmin=min([meanc1,meanc2]);
     cmax = max(vmax);
     cmin = min(vmin);
-  %  cmin = 0; %change here for lower limit
+    cmin = 0; %change here for lower limit
     
     xa=-2.5;
     ya = 0.25;
@@ -267,11 +267,11 @@ if isempty(regions)
     %--- Zoom on statistics
     s.test = statfuncname;
     
-    %     if strcmp(char(statfunc),'ttest') || strcmp(char(statfunc),'signrank')
-    %         nbt_plot_stat(diffC2C1,s,biomarker,condition2,condition1);
-    %     else
-    %         nbt_plot_stat(diffC2C1_2,s,biomarker,condition2,condition1);
-    %     end
+         if strcmp(char(statfunc),'ttest') || strcmp(char(statfunc),'signrank')
+             nbt_plot_stat(diffC2C1,s,biomarker,condition2,condition1);
+         else
+             nbt_plot_stat(diffC2C1_2,s,biomarker,condition2,condition1);
+         end
     
 else % when Regions are specified
     fontsize = 10;
