@@ -519,10 +519,6 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                         end
                     end
                     regs = regions;
-                    if(strcmp(s.statType,'Classification'))
-                        Bcell{1,1} = B_gebruik1;
-                        Bcell{2,1} = B_gebruik2;
-                    end
                 elseif strcmp(regs_or_chans_name,'Match channels');
                     ChannelsToUse = Group1.chansregs.channel_nr;
                     B_gebruik1(:,:,:) = B_values1(ChannelsToUse,:,:);
@@ -534,6 +530,11 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     B_gebruik2(:,:,:) = NewValuesB2(ChannelsToUse,:,:);
                     regs =[];
                 end
+                if(strcmp(s.statType,'Classification'))
+                    Bcell{1,1} = B_gebruik1;
+                    Bcell{2,1} = B_gebruik2;
+                end
+                
                 clear B1 B_values1 B2 B_values2
                 
                 
