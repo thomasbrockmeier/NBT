@@ -482,7 +482,10 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             % compute statistics and plot biomarkers which have values for all the channels
             if ~isempty(biomPerChans)
                 B_values1 = nbt_extractBiomPerChans(biomPerChans,B_values1_cell);
+                B_values1(:,:,1) = nbt_FindAbnormalData(B_values1(:,:,1));
                 B_values2 = nbt_extractBiomPerChans(biomPerChans,B_values2_cell);
+                B_values2(:,:,1) = nbt_FindAbnormalData(B_values2(:,:,1));
+                warning('Abnormal data removed')
                 % select channels or regions
                 if strcmp(regs_or_chans_name,'Channels')
                     ChannelsToUse = Group1.chansregs.channel_nr;
@@ -838,7 +841,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 ylabel('Channels')
             elseif strcmp(regs_or_chans_name,'Regions')
                 for i = 1:length(bioms_name)
-                    umenu = text(i,-2.5,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
+                    umenu = text(i,-0.3,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
                     set(umenu,'uicontextmenu',hh);
                 end
                 for i= 1:size(x,1)
@@ -1210,7 +1213,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         for biomindex = 1:length(G(gindex).biomarkerslist)
             biomName= G(gindex).biomarkerslist{biomindex};
             
-            fid = fopen([savedir '/' biomName '.txt'], 'w');
+            fid = fopen([savedir filesep biomName '.txt'], 'w');
             firstraw = {'SubID' 'GroupName' 'BiomarkerName'};
             for gindex = 1:length(G)
                 for subindex = 1:length(G(gindex).fileslist)

@@ -5,12 +5,12 @@ function Data=nbt_FindAbnormalData(Data)
 
 %high/low channel IQR across subjects
 chIQR = iqr(Data);
-Data(:,(chIQR > (iqr(chIQR)*2.5+nanmedian(chIQR)))) = nan;
-Data(:,(chIQR < (nanmedian(chIQR)-iqr(chIQR)*2.5))) = nan;
+% Data(:,(chIQR > (iqr(chIQR)*2.5+nanmedian(chIQR)))) = nan;
+% Data(:,(chIQR < (nanmedian(chIQR)-iqr(chIQR)*2.5))) = nan;
 
 %larger than 1.5 IQR across subjects
 %larger than 1.5 IQR across channels
-subjIQR = iqr(Data,1);
+subjIQR = iqr(Data,2);
 for i=1:size(Data,2)
     disp(i)
     for chId =1:size(Data,1)

@@ -37,10 +37,12 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-        DataMatrix = abs(DataMatrix);
-        DataMatrix = zscore(DataMatrix);
+    %    DataMatrix = abs(DataMatrix);
+     %   DataMatrix = zscore(DataMatrix);
+     if length(ChannelsToUse)>1  % using channels, not regions
          [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsToUse, size(BCell{1},3));
-
+     end
+         
         % For this type we randomly
         TestLimit = floor(size(DataMatrix,1)*1/3); %a potential parameter!
       tic
@@ -58,6 +60,11 @@ switch lower(Type)
             [pp, s ] = nbt_UseClassifier(TestMatrix, s);
             [FPt, TPt, FNt, TNt, SEt, SPt, PPt, NNt, LPt, LNt, MMt, AUCt,H2] = ...
                 nbt_evalOutcome(pp, TestOutcome);
+
+% training and testing on the same data
+%             [pp, s ] = nbt_UseClassifier(TrainMatrix, s);
+%             [FPt, TPt, FNt, TNt, SEt, SPt, PPt, NNt, LPt, LNt, MMt, AUCt,H2] = ...
+%                 nbt_evalOutcome(pp, TrainOutcome);
             
             ModelVars{i}=s.ModelVar;
             if(iscell(FPt))
@@ -88,9 +95,9 @@ switch lower(Type)
                 MM(i) =  MMt;
                 AUC(i) = AUCt;
                 H_measure(i)=H2;
-                
+                accuracy(i) = (TP(i)+TN(i))./(TN(i)+TP(i)+FN(i)+FP(i))*100;
             end
-           accuracy = (TP+TN)./(TN+TP+FN+FP)*100;
+           
         end
         disp('CrossValidate:done')
         toc
@@ -102,7 +109,7 @@ switch lower(Type)
             nbt_RandomSubsampler( DataMatrix,Outcome,TestLimit,'stratified');
         %We use a stratified sample to preserve the class balance.
         %% Feature selction - we first prune the biomarkers given to the classsification algorithm
-        [TrainMatrix, BiomsToUse] = nbt_RemoveFeatures( TrainMatrix,TrainOutcome,'ttest2',ChannelsToUse, size(BCell{1},3));
+       % [TrainMatrix, BiomsToUse] = nbt_RemoveFeatures( TrainMatrix,TrainOutcome,'ttest2',ChannelsToUse, size(BCell{1},3));
         
         
         % call nbt_TrainClassifier
@@ -186,6 +193,18 @@ plot(FPR,TPR)
 xlabel('False positive rate'); ylabel('True positive rate')
 title('ROC')
 
+figure
+boxplot(accuracy)
+title('Accuracy')
+figure
+boxplot(SE)
+title('SE')
+figure
+boxplot(SP)
+title('SP')
+figure
+boxplot(PP)
+title('Precision (PP)')
 
 
 %% nested function part

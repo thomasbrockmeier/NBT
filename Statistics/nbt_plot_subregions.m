@@ -22,6 +22,7 @@ ind{6}=[71  76 70 75 83 69 74 82 89 73 81 88];
 
 
 load('nbt_CoolWarm.mat')
+
 values=varargin{1};
 
 if length(values)~=6
@@ -43,11 +44,11 @@ if varargin{2} % plotting
         cmax=m;
     end
     
-    step=(cmax-cmin)/256;
+    step=(cmax-cmin)/length(coolWarm);
     for i=1:6
         temp(i)=round((c(i)-cmin)/step)+1;
     end
-    temp(temp>256)=256;
+    temp(temp>length(coolWarm))=length(coolWarm);
     temp(temp<1)=1;
     NOP=1000;
     draw_circle([0,0],1,NOP,':',0.25*pi,0.75*pi,coolWarm(temp(1),:))
