@@ -841,7 +841,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 ylabel('Channels')
             elseif strcmp(regs_or_chans_name,'Regions')
                 for i = 1:length(bioms_name)
-                    umenu = text(i,-0.5,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
+                    umenu = text(i,-0.3,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
                     set(umenu,'uicontextmenu',hh);
                 end
                 for i= 1:size(x,1)
@@ -1213,7 +1213,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         for biomindex = 1:length(G(gindex).biomarkerslist)
             biomName= G(gindex).biomarkerslist{biomindex};
             
-            fid = fopen([savedir '/' biomName '.txt'], 'w');
+            fid = fopen([savedir filesep biomName '.txt'], 'w');
             firstraw = {'SubID' 'GroupName' 'BiomarkerName'};
             for gindex = 1:length(G)
                 for subindex = 1:length(G(gindex).fileslist)

@@ -292,6 +292,7 @@ else % when Regions are specified
     coolWarm = coolWarm.coolWarm;
     colormap(coolWarm);
     
+
     
     %---plot grand average condition 1 per regions
     subplot(4,2,3)
@@ -533,7 +534,7 @@ end
             if(ConditionNr == 1)
                 topoplot(meanc1',chanloc,'headrad','rim','numcontour',6,'electrodes','off');
             else
-                topoplot(meanc2',chanloc,'headrad','rim','numcontour',3 ,'electrodes','off');
+                topoplot(meanc2',chanloc,'headrad','rim','numcontour',6 ,'electrodes','off');
             end
              caxis([cmin,cmax])
             if strcmp(char(statfunc),'ttest') || strcmp(char(statfunc),'signrank')
