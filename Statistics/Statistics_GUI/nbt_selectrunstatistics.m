@@ -168,6 +168,15 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         group_name = get(ListGroup,'String');
         group_name = group_name(group_ind);
         
+        %% ---- adding grand average hack in here - let's structure better in the new format
+        if(statTest == 25) % Grand average PSD
+            figure; hold on;
+            nbt_plotGrandAveragePSD(G(group_ind(1)).fileslist,G(group_ind(1)).chansregs.channel_nr,'b');
+            nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
+            
+            return %just breaking here..
+        end
+        %% --------------
         %% ----------------------
         % within a group
         %----------------------
@@ -474,6 +483,9 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             
             % load statistical test
             s = nbt_statisticslog(statTest);
+            
+            
+            
             %----------------------
             % biomarkers for channels or regions
             %----------------------

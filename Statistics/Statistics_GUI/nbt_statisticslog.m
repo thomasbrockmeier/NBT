@@ -176,6 +176,9 @@ switch index
         s.statfuncname = 'Classification: Neural Network';
         s.statname = 'Classification: Neural Network'; 
         s.statType = 'Classification'; 
+    case 25
+        s.statname = 'Grand average PSD';
+        s.statfuncname = 'Grand average PSD';
     otherwise
         s = [];
 end
