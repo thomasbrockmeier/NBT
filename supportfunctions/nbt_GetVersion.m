@@ -1,4 +1,5 @@
 function [NBT_version,id] = nbt_GetVersion()
+id = '';
     try
         filepath = fileparts(which('NBT.m'));
         filename = fullfile(filepath, 'Contents.m');
@@ -30,7 +31,6 @@ fileName = catfile(dirName, FILE_NAME);
     else
         id = NBT_version;
     end
-
 
 
 NBT_version = [NBT_version ' - www.nbtwiki.net'];
