@@ -208,6 +208,23 @@ elseif strcmp(char(statfunc),'zscore')
     s.mu=mu;
     s.sigma=sigma;
     s.vals=z;
+    s.mu1 = nanmean(B1,dim);
+
+% alternative: compute z scores using the mean and std of the whole set {1st group union 2nd group}    
+%     dim = 2;
+%     B = [B1 B2];
+%     sigma = nanstd(B,1,dim);
+%     mu = nanmean(B,dim);
+%     sigma(sigma==0) = 1;
+%     z1 = bsxfun(@minus,B1, mu);
+%     z1 = bsxfun(@rdivide, z1, sigma);
+%     z2 = bsxfun(@minus,B2, mu);
+%     z2 = bsxfun(@rdivide, z2, sigma);    
+%     s.mu=mu;
+%     s.sigma=sigma;
+%     s.vals1=z1;
+%     s.vals2=z2;
+      
 end
 
     function[d]=median_diff(M,N)
