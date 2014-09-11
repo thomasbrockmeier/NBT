@@ -81,39 +81,36 @@ elseif strcmp(char(statfunc),'lillietest')
 elseif strcmp(char(statfunc),'swtest')
     warning('This test is not design for multiple groups');
 elseif strcmp(char(statfunc),'ttest')
-   try
-        % make sure the subjects are really paired in the two groups
-
-        n_subjects1 = size(Group1.fileslist,2);
-        n_subjects2 = size(Group2.fileslist,2);
+    
+    % make sure the subjects are really paired in the two groups
+    
+    n_subjects1 = size(Group1.fileslist,2);
+    n_subjects2 = size(Group2.fileslist,2);
         
-        if n_subjects1~=n_subjects2
-             warning('The two groups do not have the same number of subjects')
+    if n_subjects1~=n_subjects2
+        warning('The two groups do not have the same number of subjects')
         
-        else
-            for sub = 1:n_subjects1
-                dots1 = strfind(Group1.fileslist(1,sub).name,'.');
-                dots2 = strfind(Group2.fileslist(1,sub).name,'.');
-                subID1 = str2num(Group1.fileslist(1,sub).name(dots1(1)+2:dots1(2)-1));
-                subID2 = str2num(Group2.fileslist(1,sub).name(dots2(1)+2:dots2(2)-1));
-                if subID1~=subID2 not_matched=1; break
-                end
-            end
-            
-            if not_matched
-                warning('The subjects are not paired')
-            else
-                
-                for i = 1:nchans_o_nregs
-                    [h,p(i),C(i,:),stats] = ttest(B1(i,:),B2(i,:));
-                    statvalues(i) = stats.tstat;
-                end
-                s = plot_group(Group1,Group2,B1,B2,C,p,s,biom,regions,unit);
+    else
+        for sub = 1:n_subjects1
+            dots1 = strfind(Group1.fileslist(1,sub).name,'.');
+            dots2 = strfind(Group2.fileslist(1,sub).name,'.');
+            subID1 = str2num(Group1.fileslist(1,sub).name(dots1(1)+2:dots1(2)-1));
+            subID2 = str2num(Group2.fileslist(1,sub).name(dots2(1)+2:dots2(2)-1));
+            if subID1~=subID2 not_matched=1; break
             end
         end
-    catch
-       
+        
+        if not_matched
+            warning('The subjects are not paired')
+        end
+        
+        for i = 1:nchans_o_nregs
+            [h,p(i),C(i,:),stats] = ttest(B1(i,:),B2(i,:));
+            statvalues(i) = stats.tstat;
+        end
+        s = plot_group(Group1,Group2,B1,B2,C,p,s,biom,regions,unit);
     end
+
 
 elseif strcmp(char(statfunc),'signrank')
     try
