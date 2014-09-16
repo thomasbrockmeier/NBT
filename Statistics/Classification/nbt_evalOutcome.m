@@ -57,14 +57,17 @@
 % See Readme.txt for additional copyright information.
 % ---------------------------------------------------------------------------------------
 
-function [FP, TP, FN, TN, SE, SP, PP, NN, LP, LN, MM, AUC,H]=nbt_evalOutcome(pp, outcome)
+function [FP, TP, FN, TN, SE, SP, PP, NN, LP, LN, MM, AUC,H]=nbt_evalOutcome(pp, outcome, Threshold)
 error(nargchk(2, 3, nargin))
+if(~exist('Threshold','var'))
+    Threshold = 0.5;
+end
 GrpID = unique(outcome);
 if(length(GrpID) <= 2)
-        FP = length(find(pp(outcome==0)>=0.5));
-        TP = length(find(pp(outcome==1)>=0.5));
-        FN = length(find(pp(outcome==1)<0.5));
-        TN = length(find(pp(outcome==0)<0.5));
+        FP = length(find(pp(outcome==0)>=Threshold));
+        TP = length(find(pp(outcome==1)>=Threshold));
+        FN = length(find(pp(outcome==1)<Threshold));
+        TN = length(find(pp(outcome==0)<Threshold));
         SE = TP/(TP+FN);
         SP = TN/(TN+FP);
         PP = TP /(TP + FP);
@@ -72,7 +75,7 @@ if(length(GrpID) <= 2)
         LP = SE/(1-SP);
         LN = (1 - SE)/SP;
         MM = (TP*TN - FP*FN)/sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN +FN));
-        [~,~,~,AUC] = perfcurve(outcome,pp,1);
+        [FPR,TPR,T,AUC,TOP] = perfcurve(outcome,pp,1);
        % [results,~,~,~,~] = hmeasure(outcome,pp);
         H=NaN;%results.H;
 else
