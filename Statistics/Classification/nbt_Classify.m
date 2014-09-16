@@ -37,10 +37,12 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-        DataMatrix = abs(DataMatrix);
-        DataMatrix = zscore(DataMatrix);
+    %    DataMatrix = abs(DataMatrix);
+     %   DataMatrix = zscore(DataMatrix);
+     if length(ChannelsToUse)>1  % using channels, not regions
          [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsToUse, size(BCell{1},3));
-
+     end
+         
         % For this type we randomly
         TestLimit = floor(size(DataMatrix,1)*1/3); %a potential parameter!
       tic
@@ -58,6 +60,11 @@ switch lower(Type)
             [pp, s ] = nbt_UseClassifier(TestMatrix, s);
             [FPt, TPt, FNt, TNt, SEt, SPt, PPt, NNt, LPt, LNt, MMt, AUCt,H2] = ...
                 nbt_evalOutcome(pp, TestOutcome);
+
+% training and testing on the same data
+%             [pp, s ] = nbt_UseClassifier(TrainMatrix, s);
+%             [FPt, TPt, FNt, TNt, SEt, SPt, PPt, NNt, LPt, LNt, MMt, AUCt,H2] = ...
+%                 nbt_evalOutcome(pp, TrainOutcome);
             
             ModelVars{i}=s.ModelVar;
             if(iscell(FPt))
@@ -88,9 +95,9 @@ switch lower(Type)
                 MM(i) =  MMt;
                 AUC(i) = AUCt;
                 H_measure(i)=H2;
-                
+                accuracy(i) = (TP(i)+TN(i))./(TN(i)+TP(i)+FN(i)+FP(i))*100;
             end
-           accuracy = (TP+TN)./(TN+TP+FN+FP)*100;
+           
         end
         disp('CrossValidate:done')
         toc
@@ -102,7 +109,7 @@ switch lower(Type)
             nbt_RandomSubsampler( DataMatrix,Outcome,TestLimit,'stratified');
         %We use a stratified sample to preserve the class balance.
         %% Feature selction - we first prune the biomarkers given to the classsification algorithm
-        [TrainMatrix, BiomsToUse] = nbt_RemoveFeatures( TrainMatrix,TrainOutcome,'ttest2',ChannelsToUse, size(BCell{1},3));
+       % [TrainMatrix, BiomsToUse] = nbt_RemoveFeatures( TrainMatrix,TrainOutcome,'ttest2',ChannelsToUse, size(BCell{1},3));
         
         
         % call nbt_TrainClassifier
@@ -172,20 +179,42 @@ DataReal2 = DataMatrix(:, Outcome == 1);
 DataPred1 = DataMatrix(:, pp < 0.5);
 DataPred2 = DataMatrix(:, pp >= 0.5);
 
+figure('Name','Classification performance')
+
 % plot dot plot of pp values for the full Data matrix
-nbt_DotPlot(figure,0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Probability'},'',pp1',1:length(pp1),1,pp2',1:length(pp2),1);
+nbt_DotPlot(subplot(2,4,1),0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Probability'},'',pp1',1:length(pp1),1,pp2',1:length(pp2),1);
+set(gca,'YLim',[0 1])
 % plot dot plot of Data values - real and classified
 %first real
-nbt_DotPlot(figure,0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Biomarker values'},'',DataReal1,1:size(DataReal1,2),1:size(DataReal1,1),DataReal2,1:size(DataReal2,2),1:size(DataReal2,1));
+nbt_DotPlot(subplot(2,4,2),0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Biomarker values'},'',DataReal1,1:size(DataReal1,2),1:size(DataReal1,1),DataReal2,1:size(DataReal2,2),1:size(DataReal2,1));
 % then predicted
-nbt_DotPlot(figure,0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Predicted groups: Biomarker values'},'',DataPred1,1:size(DataPred1,2),1:size(DataPred1,1),DataPred2,1:size(DataPred2,2),1:size(DataPred2,1));
+nbt_DotPlot(subplot(2,4,3),0.1,0.025,0,@median,{'Group 1';'Group 2'; 'Predicted groups: Biomarker values'},'',DataPred1,1:size(DataPred1,2),1:size(DataPred1,1),DataPred2,1:size(DataPred2,2),1:size(DataPred2,1));
 % Plot ROC
-figure; 
+subplot(2,4,4)
 [FPR,TPR] = perfcurve(Outcome,pp,1);
 plot(FPR,TPR)
 xlabel('False positive rate'); ylabel('True positive rate')
 title('ROC')
 
+subplot(2,4,5)
+boxplot(accuracy/100)
+set(gca,'YLim',[0.5 1])
+title('Accuracy')
+
+subplot(2,4,6)
+boxplot(SE)
+set(gca,'YLim',[0.5 1])
+title('Sensitivity (SE)')
+
+subplot(2,4,7)
+boxplot(SP)
+set(gca,'YLim',[0.5 1])
+title('Specificity (SP)')
+
+subplot(2,4,8)
+boxplot(PP)
+set(gca,'YLim',[0.5 1])
+title('Precision (PP)')
 
 
 %% nested function part

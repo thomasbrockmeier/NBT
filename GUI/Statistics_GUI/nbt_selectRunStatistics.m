@@ -159,6 +159,15 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         group_name = get(ListGroup,'String');
         group_name = group_name(group_ind);
         
+        %% ---- adding grand average hack in here - let's structure better in the new format
+        if(statTest == 25) % Grand average PSD
+            figure; hold on;
+            nbt_plotGrandAveragePSD(G(group_ind(1)).fileslist,G(group_ind(1)).chansregs.channel_nr,'b');
+            nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
+            
+            return %just breaking here..
+        end
+        %% --------------
         %% ----------------------
         % within a group
         %----------------------
@@ -465,6 +474,9 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             
             % load statistical test
             s = nbt_statisticslog(statTest);
+            
+            
+            
             %----------------------
             % biomarkers for channels or regions
             %----------------------
@@ -473,7 +485,10 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             % compute statistics and plot biomarkers which have values for all the channels
             if ~isempty(biomPerChans)
                 B_values1 = nbt_extractBiomPerChans(biomPerChans,B_values1_cell);
+                B_values1(:,:,1) = nbt_FindAbnormalData(B_values1(:,:,1));
                 B_values2 = nbt_extractBiomPerChans(biomPerChans,B_values2_cell);
+                B_values2(:,:,1) = nbt_FindAbnormalData(B_values2(:,:,1));
+                warning('Abnormal data removed')
                 % select channels or regions
                 if strcmp(regs_or_chans_name,'Channels')
                     ChannelsToUse = Group1.chansregs.channel_nr;
@@ -495,10 +510,6 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                         end
                     end
                     regs = regions;
-                    if(strcmp(s.statType,'Classification'))
-                        Bcell{1,1} = B_gebruik1;
-                        Bcell{2,1} = B_gebruik2;
-                    end
                 elseif strcmp(regs_or_chans_name,'Match channels');
                     ChannelsToUse = Group1.chansregs.channel_nr;
                     B_gebruik1(:,:,:) = B_values1(ChannelsToUse,:,:);
@@ -510,6 +521,11 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     B_gebruik2(:,:,:) = NewValuesB2(ChannelsToUse,:,:);
                     regs =[];
                 end
+                if(strcmp(s.statType,'Classification'))
+                    Bcell{1,1} = B_gebruik1;
+                    Bcell{2,1} = B_gebruik2;
+                end
+                
                 clear B1 B_values1 B2 B_values2
                 
                 
@@ -829,7 +845,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 ylabel('Channels')
             elseif strcmp(regs_or_chans_name,'Regions')
                 for i = 1:length(bioms_name)
-                    umenu = text(i,-2.5,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
+                    umenu = text(i,-0.3,regexprep(bioms_name{i},'_',' '),'horizontalalignment','left','fontsize',10,'fontweight','bold');
                     set(umenu,'uicontextmenu',hh);
                 end
                 for i= 1:size(x,1)
@@ -1201,7 +1217,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         for biomindex = 1:length(G(gindex).biomarkerslist)
             biomName= G(gindex).biomarkerslist{biomindex};
             
-            fid = fopen([savedir '/' biomName '.txt'], 'w');
+            fid = fopen([savedir filesep biomName '.txt'], 'w');
             firstraw = {'SubID' 'GroupName' 'BiomarkerName'};
             for gindex = 1:length(G)
                 for subindex = 1:length(G(gindex).fileslist)
