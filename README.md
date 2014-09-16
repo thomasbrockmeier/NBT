@@ -7,7 +7,7 @@ The Neurophysiological Biomarker Toolbox (NBT) is an open source Matlab toolbox 
 The Neurophysiological Biomarker Toolbox is developed by the Neuronal Oscillations and Cognition Group at the CNCR with partial funding from the Neuroscience Campus Amsterdam, VU University Amsterdam.
 Main development team: Simon-Shlomo Poil, Rick Jansen, Giuseppina Schiavone, Klaus Linkenkaer-Hansen. 
 
-Please see our webpage at http://www.nbtwiki.net , which includes tutorial on how to use NBT.
+Please see our webpage at http://www.nbtwiki.net , which includes tutorials on how to use NBT.
 
 
 If you want to contribute to NBT then please see here: http://www.nbtwiki.net/doku.php?id=nbtdev:start#develop_contribute_code_to_the_nbt_toolbox
