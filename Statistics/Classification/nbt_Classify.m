@@ -41,29 +41,6 @@ NCrossVals=100;
 %% create DataMatrix from BCell:
 DataMatrix = extract_BCell(BCell);
 
-% n_group1=size(BCell{1},2); % no of subjects in the first group
-% n_group2=size(BCell{2},2); % no of subjects in the second group
-
-% Outcome = [zeros(1,n_group1) ones(1,n_group2)]'; % n x 1
-
-%% Set up parameters && remove NaN biomarkers
-% It's possible to treat the NaN's in another way; interpolate them with EM
-% algorithms, set them to 0, etc. Now, we remove ...
-% the entire biomarker if it contains any missing data.
-%[~,Y]=find(isnan(DataMatrix)==1);
-%Y=unique(Y);
-%DataMatrix=DataMatrix(:,setdiff(1:size(DataMatrix,2),Y));
-%DataMatrix(1:92,:) = DataMatrix(1:92,:)-DataMatrix(93:end,:);
-%DataMatrix(93:end,:) = -1.*DataMatrix(1:92,:);
-%DataMatrix = sign(DataMatrix).*log10(abs(DataMatrix));
-
-
-% [c, Sample, l] = princomp(DataMatrix);
-% tmp=cumsum(l);
-% nr = find(tmp/tmp(end)>0.999,1)
-% DataMatrix = Sample(:,1:nr);
-% ChannelsToUse =[];
-
 Outcome = Outcome-1;
 Outcome = Outcome.';
 
@@ -75,8 +52,6 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-    %    DataMatrix = abs(DataMatrix);
-     %   DataMatrix = zscore(DataMatrix);
      if length(ChannelsToUse)>1  % using channels, not regions
          [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsToUse, size(BCell{1},3));
      end
@@ -85,7 +60,6 @@ switch lower(Type)
         TestLimit = floor(size(DataMatrix,1)*1/3); %a potential parameter!
       tic
       
-  %     BiomsToUse{1,1} = [1:1:length(ChannelsToUse)]'; % use all channels
       
         for i=1:NCrossVals % also potential parametere!
             disp(i)
@@ -195,14 +169,6 @@ s.MatthewCorr =  MM;
 s.AUC=AUC;
 s.H_measure=H_measure;
 
-%                 s.BaselineSE=BaselineSE;
-%                 s.BaselineSP=BaselineSP;
-%                 s.BaselineAUC=BaselineAUC;
-%                 s.ESE=ESE;
-%                 s.ESP=ESP;
-%                 s.EAUC=EAUC;
-%                 s.HAE=HAE;
-%                 s.HE=HE;
 
 %% plotting 
 %first calculate pp for the full matrix
