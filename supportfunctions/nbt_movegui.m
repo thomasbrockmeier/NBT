@@ -31,10 +31,13 @@
 % ---------------------------------------------------------------------------------------
 
 function h=nbt_movegui(h)
+try
     set(h,'CreateFcn','movegui')
     figName = tempname;
     hgsave(h,figName)
     close(h)
     h = hgload(figName);
     delete([figName '.fig']);  
+catch
+end
 end
