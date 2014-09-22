@@ -94,7 +94,7 @@ if isempty(regions)
     vmin=min([meanc1,meanc2]);
     cmax = max(vmax);
     cmin = min(vmin);
-    cmin = 0; %change here for lower limit
+   % cmin = 0; %change here for lower limit
     
     xa=-2.5;
     ya = 0.25;
