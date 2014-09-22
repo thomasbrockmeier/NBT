@@ -169,7 +169,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         group_name = group_name(group_ind);
         
         %% ---- adding grand average hack in here - let's structure better in the new format
-        if(statTest == 25) % Grand average PSD
+        if(statTest == 1) % Grand average PSD
             figure; hold on;
             nbt_plotGrandAveragePSD(G(group_ind(1)).fileslist,G(group_ind(1)).chansregs.channel_nr,'b');
             nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
