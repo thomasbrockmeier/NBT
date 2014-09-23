@@ -18,7 +18,7 @@ If you want to contribute to NBT then please see here: http://www.nbtwiki.net/do
 NBT is developed on three core branches:
  * release - the stable branch (use this branch if you are not an expert user). 
  * master  - the next major release 
- * nextmater - the development branch 
+ * nextmaster - the development branch, please target your contributions to this branch. 
  
  
  
