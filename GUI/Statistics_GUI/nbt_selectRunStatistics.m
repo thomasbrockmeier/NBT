@@ -1,4 +1,4 @@
-% nbt_selectrunstatistics - this function is part of the statistics GUI, it allows
+% nbt_selectRunStatistics - this function is part of the statistics GUI, it allows
 % to select specific statistical test and run the test for
 % biomarkers/groups/channels or regions
 %
@@ -57,21 +57,17 @@
 % --------------
 
 
-function nbt_selectrunstatistics
-global questions
-global G
+function nbt_selectRunStatistics
+global NBTstudy
 try
-    G = evalin('base','G');
+    NBTstudy = evalin('base','NBTstudy');
 catch
-    G = [];
+   evalin('base','global NBTstudy');
+   evalin('base','NBTstudy = nbt_Study;');
 end
-if (isempty(G))
+if (isempty(NBTstudy.groups))
     nbt_definegroups;
 end
-nbt_selectbiomarkers;
-
-
-G = evalin('base','G');
 
 %----------------------
 % First we build the Interface
@@ -93,7 +89,7 @@ ListStat = uicontrol(hp3,'Units', 'pixels','style','listbox','Max',1,'Units', 'p
 % biomarkers
 hp2 = uipanel(StatSelection,'Title','SELECT BIOMARKER(S)','FontSize',10,'Units','pixels','Position',[10 300 360 200],'BackgroundColor','w','fontweight','bold');
 
-ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(G(1).biomarkerslist),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',G(1).biomarkerslist,'BackgroundColor','w');
+ListBiom = uicontrol(hp2,'Units', 'pixels','style','listbox','Max',length(NBTstudy.groups{1}.biomarker),'Units', 'pixels','Position',[5 5 350 180],'fontsize',10,'String',NBTstudy.groups{1}.biomarker,'BackgroundColor','w');
 
 % regions or channels
 reglist{1} = 'Channels';
@@ -108,14 +104,9 @@ ChannelsButton = uicontrol(StatSelection,'Style','pushbutton','String','Select C
 set(ChannelsButton,'callback','nbt_selectchansregs;');
 
 % select Group
-NBTelementState = nbt_determineNBTelementState;
-for i = 1:length(G)
-    if(NBTelementState)
-        gname = G(i).selection.group_name;
-    else
-        gname = G(i).fileslist(1).group_name;
-    end
-    groupList{i} = ['Group ' num2str(i) ' : ' gname];
+
+for i = 1:length(NBTstudy.groups)
+    groupList{i} = ['Group ' num2str(i) ' : ' NBTstudy.groups{i}.groupName];
 end
 
 hp4 = uipanel(StatSelection,'Title','SELECT GROUP(S)','FontSize',10,'Units','pixels','Position',[10 110 360 100],'BackgroundColor','w','fontweight','bold');

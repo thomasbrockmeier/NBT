@@ -52,7 +52,7 @@ function [amplitude_1_4_Hz amplitude_4_8_Hz amplitude_8_13_Hz amplitude_13_30_Hz
 % error(nargchk(4,4,nargin))
 
 %%   give information to the user
-disp(['Computing Amplitudes for ',Info.file_name])
+%disp(['Computing Amplitudes for ',Info.file_name])
 
 %%    assigning fields
 coolWarm = load('nbt_CoolWarm','coolWarm');
@@ -68,7 +68,7 @@ Signal = nbt_RemoveIntervals(Signal,Info);
 
 %% determine intervals at which power is calculated
 
-FS=Info.converted_sample_frequency;
+FS=Info.convertedSamplingFrequency;
 
 interval_Hz(1,:)=[1 4];
 interval_Hz(2,:)=[4 8];

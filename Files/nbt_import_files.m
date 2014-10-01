@@ -1,4 +1,4 @@
-% filename = nbt_import_files(sourcedirectory, destinydirectory,
+% filename = nbt_import_files(sourcedirectory, destdirectory,
 %  LoadHandle, LoadHandleSwitch)
 %
 % Function: will convert all the files into NBT format:
@@ -10,7 +10,7 @@
 %   or
 %   filename = nbt_import_files;
 %   or
-%   nbt_import_files(sourcedirectory, destinydirectory, LoadHandle);
+%   nbt_import_files(sourcedirectory, destdirectory, LoadHandle);
 %
 % Inputs:
 %   sourcedirectory     - Path to the directory that contains the files to be
@@ -58,10 +58,9 @@
 
 
 
-function filename = nbt_import_files(sourcedirectory, destinydirectory, LoadHandle, LoadHandleSwitch)
+function filename = nbt_import_files(sourcedirectory, destdirectory, LoadHandle, LoadHandleSwitch)
 %% check inputs
-disp('updated')
-error(nargchk(0,4,nargin))
+narginchk(0,4)
 %% assigning directory and other fields
 persistent allfiles
 persistent SegmentOption
@@ -73,15 +72,15 @@ if(~exist('sourcedirectory','var') | isempty(sourcedirectory))
     end
 end
 
-if(~exist('destinydirectory','var')| isempty(destinydirectory))
-    destinydirectory=(uigetdir(sourcedirectory,'Select directory to store NBT files'));
-    if destinydirectory == 0 % cancelled
+if(~exist('destdirectory','var')| isempty(destdirectory))
+    destdirectory=(uigetdir(sourcedirectory,'Select directory to store NBT files'));
+    if destdirectory == 0 % cancelled
         return
     end
 end
 
 
-nbt_writeCommand(['nbt_import_files(',char(39),sourcedirectory,char(39),',',char(39),destinydirectory,char(39),')']);
+nbt_writeCommand(['nbt_import_files(',char(39),sourcedirectory,char(39),',',char(39),destdirectory,char(39),')']);
 
 delete([sourcedirectory '/.DS_Store']) %--- for Mac
 directory=dir(sourcedirectory);
@@ -142,7 +141,7 @@ end
 
 if strcmp(extension,'.txt')
     disp(['Test read in of ',directory(1).name])
-    D=importdata([sourcedirectory,'/',directory(1).name]);
+    D=importdata([sourcedirectory filesep directory(1).name]);
     try
         Signal = D.data;
     catch
@@ -203,9 +202,9 @@ for i=1:length(directory)
                         disp(['Converting ',directory(i).name])
                         disp('')
                         if strcmp(OK,'y')
-                            D=importdata([sourcedirectory,'/',directory(i).name]);
+                            D=importdata([sourcedirectory filesep directory(i).name]);
                         else
-                            D=uiimport([sourcedirectory,'/',directory(i).name]);
+                            D=uiimport([sourcedirectory filesep directory(i).name]);
                         end
                         try
                             Signal = D.data;
@@ -224,7 +223,7 @@ for i=1:length(directory)
                         disp(['Converting ',directory(i).name])
                         disp('')
                         if(exist('LoadHandle','var'))
-                            EEG = LoadHandle([sourcedirectory,'/',directory(i).name]);
+                            EEG = LoadHandle([sourcedirectory filesep directory(i).name]);
                             EEG = eeg_checkset(EEG);
                             Fs = EEG.srate;
                             
@@ -238,7 +237,7 @@ for i=1:length(directory)
                                 Signal = double(EEG.data)';
                             end
                         else
-                            D=load([sourcedirectory,'/',directory(i).name]);
+                            D=load([sourcedirectory filesep directory(i).name]);
                             fields=fieldnames(D);
                             Signal=eval(['D.',fields{1}]);
                             if strcmp(Columns,'r')
@@ -266,25 +265,25 @@ for i=1:length(directory)
                         disp(['Converting ',directory(i).name])
                         disp('')
                         %--- allows to select proper chan loc
-                        fid = fopen([sourcedirectory,'/',directory(i).name], 'rb', 'b');
+                        fid = fopen([sourcedirectory filesep directory(i).name], 'rb', 'b');
                         if fid == -1, error('Cannot open file'); end
                         head = readegihdr(fid); % read EGI file header
                         nr_ch = head.nchan;
                         fileloc =  ['GSN-HydroCel-' num2str(nr_ch) '.sfp'];
                         %---
                         if SegmentOption == 1
-                            EEG = pop_readegi([sourcedirectory,'/',directory(i).name],[1:10]);
+                            EEG = pop_readegi([sourcedirectory filesep directory(i).name],[1:10]);
                             ReadSegment = input('Specify the segment interval as [Start:End] (in seconds): ');
                             if(~isempty(ReadSegment))
                                 ReadSegment = [(ReadSegment(1)*EEG.srate+1):(ReadSegment(end)*EEG.srate+1)];
                                 disp('Reading file.... Please Wait')
-                                EEG = pop_readegi([sourcedirectory,'/',directory(i).name], ReadSegment,[],fileloc);
+                                EEG = pop_readegi([sourcedirectory filesep directory(i).name], ReadSegment,[],fileloc);
                                 
                             else
-                                EEG = pop_readegi([sourcedirectory,'/',directory(i).name],[],[],fileloc);
+                                EEG = pop_readegi([sourcedirectory filesep directory(i).name],[],[],fileloc);
                             end
                         else
-                            EEG = pop_readegi([sourcedirectory,'/',directory(i).name],[],[],fileloc);
+                            EEG = pop_readegi([sourcedirectory,filesep,directory(i).name],[],[],fileloc);
                             allfiles = 0;
                             SegmentOption = 0;
                         end
@@ -309,7 +308,7 @@ for i=1:length(directory)
                     case '.set' % .set files
                         disp(['Converting ',directory(i).name])
                         disp('')
-                        EEG=pop_loadset('filepath',[sourcedirectory,'/',directory(i).name]);
+                        EEG=pop_loadset('filepath',[sourcedirectory,filesep,directory(i).name]);
                         EEG.setname = filename;
                         EEG = eeg_checkset(EEG);
                         try
@@ -324,7 +323,7 @@ for i=1:length(directory)
                         disp('Importing BCI2000 .dat files')
                         disp(['Converting ',directory(i).name])
                         disp('')
-                        EEG = nbt_BCI2000import([sourcedirectory,'/',directory(i).name]);
+                        EEG = nbt_BCI2000import([sourcedirectory,filesep,directory(i).name]);
                         EEG.setname = filename;
                         EEG = eeg_checkset(EEG);
                         Signal=EEG.data';
@@ -354,7 +353,7 @@ for i=1:length(directory)
             else % a LoadHandle has been defined.
                 %for backward comp. we assume an EEGlab loadhandle
                 if(~exist('LoadHandleSwitch','var'))
-                    EEG = LoadHandle([sourcedirectory,'/',directory(i).name]);
+                    EEG = LoadHandle([sourcedirectory,filesep,directory(i).name]);
                     EEG = eeg_checkset(EEG);
                     Fs = EEG.srate;
                     
@@ -370,7 +369,7 @@ for i=1:length(directory)
                 else
                     if(LoadHandleSwitch)
                         %Using an NBT loadhandle
-                        [Signal, SignalInfo] = LoadHandle(filename, [sourcedirectory,'/',directory(i).name]);
+                        [Signal, SignalInfo] = LoadHandle(filename, [sourcedirectory,filesep,directory(i).name]);
                         if(strcmpi(doReadLoc,'y'))
                             EEG = eeg_emptyset;
                             EEG.chanlocs = readlocs(ReadLocFilename);
@@ -385,37 +384,36 @@ for i=1:length(directory)
             
             %% make Info object
             if(~exist('SignalInfo', 'var'))
-                SignalInfo = nbt_CreateInfoObject(filename, [], Fs);
+                [SignalInfo, SubjectInfo] = nbt_CreateInfoObject(filename, [], Fs, 'RawSignal', Signal); 
             end
             
             if(exist('resample','var'))
                 if strcmpi(resample,'y')
-                    SignalInfo.original_sample_frequency = Fs;
-                    SignalInfo.converted_sample_frequency = resamplefreq;
+                    SignalInfo.originalSamplingFrequency = Fs;
+                    SignalInfo.convertedSamplingFrequency = resamplefreq;
                 end
             end
             
             if (exist('EEG','var'))
                 EEG.data = [];
-                SignalInfo.Interface.EEG = EEG;
+                SignalInfo.interface.EEG = EEG;
             end
             
             if strcmp(NameConvention,'n')
-                SignalInfo.Interface.original_file_name=directory(i).name;
+                SignalInfo.signalOrigin = directory(i).name;
             end
-            
-            SignalInfo.Interface.number_of_channels=size(Signal,2);
-            
+
             %% save NBT Signal and info
             
             RawSignal = Signal;
             RawSignalInfo = SignalInfo;
             clear Signal
             clear SignalInfo
-            save([destinydirectory,'/',filename,'.mat'],'RawSignal')
-            save([destinydirectory,'/',filename,'_info','.mat'],'RawSignalInfo')
+            save([destdirectory filesep filename,'.mat'],'RawSignal')
+            save([destdirectory filesep filename,'_info' '.mat'],'RawSignalInfo','SubjectInfo')
             clear RawSignal
             clear RawSignalInfo
+            clear SubjectInfo
         end
     end
 end

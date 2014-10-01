@@ -50,33 +50,34 @@
 % See Readme.txt for additional copyright information.
 % ---------------------------------------------------------------------------------------
 
-function [Signal, SignalInfo] = nbt_AutoClean(Signal, SignalInfo, SignalPath, ICAswitch, NonEEGCh, EyeCh, ResampleFS)
-narginchk(3,7)
+function [Signal, SignalInfo] = nbt_AutoClean(Signal, SignalInfo, SignalPath, ICAswitch, NonEEGCh, EyeCh, ResampleFS,AutoRunSwitch)
+narginchk(3,8)
 if(~isempty(NonEEGCh))
-    SignalInfo.NonEEGch = NonEEGCh;
+    SignalInfo.nonEEGch = NonEEGCh;
 end
 if(~isempty(EyeCh))
-    SignalInfo.EyeCh    = EyeCh;
+    SignalInfo.eyeCh    = EyeCh;
 end
 
-if(isempty(SignalInfo.NonEEGch))
-    SignalInfo.NonEEGch = input('Please specify Non-EEG channels: ');
+if(~AutoRunSwitch)
+    if(isempty(SignalInfo.nonEEGch))
+        SignalInfo.nonEEGch = input('Please specify Non-EEG channels: ');
+    end
+    
+    if(isempty(SignalInfo.eyeCh))
+        SignalInfo.eyeCh = input('Please specify eye channels: ');
+    end
 end
-
-if(isempty(SignalInfo.EyeCh))
-    SignalInfo.EyeCh = input('Please specify eye channels: ');
-end
-
-NonEEGCh = SignalInfo.NonEEGch;
-EyeCh = SignalInfo.EyeCh;
+NonEEGCh = SignalInfo.nonEEGch;
+EyeCh = SignalInfo.eyeCh;
 
 
 % Protocol
 %. 0. Ref-ref to Cz
 %first we find Cz
 cznotfound = true;
-for CzID = 1:SignalInfo.Interface.number_of_channels
-    if(strcmpi(SignalInfo.Interface.EEG.chanlocs(CzID).labels,'Cz'))
+for CzID = 1:size(SignalInfo.interface.EEG.chanlocs,2)
+    if(strcmpi(SignalInfo.interface.EEG.chanlocs(CzID).labels,'Cz'))
         cznotfound = false;
         break;
     end
@@ -88,15 +89,17 @@ end
 
 %Downsample to 250 Hz
 if(exist('ResampleFS','var'))
-    [Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, ResampleFS);
-    SignalInfo.converted_sample_frequency = ResampleFS;
+    if(~isempty(ResampleFS))
+       [Signal, SignalInfo] = nbt_EEGLABwrp(@pop_resample, Signal, SignalInfo, [], 0, ResampleFS);
+       SignalInfo.convertedSamplingFrequency = ResampleFS;
+    end
 end
 
 % 1. Filter Data
-[Signal] = nbt_filter_fir(Signal,0.5,45,SignalInfo.converted_sample_frequency,2/0.5,1);
+[Signal, SignalInfo] = nbt_filterFIR(Signal, SignalInfo,0.5,45,2/0.5,1);
 % 2. Mark Bad Channels
 [Signal, SignalInfo] = nbt_EEGLABwrp(@nbt_FindBadChannels, Signal, SignalInfo, [] , 0, 's', NonEEGCh);
-SignalInfo.BadChannels(NonEEGCh) = 1;
+SignalInfo.badChannels(NonEEGCh) = 1;
 % 3. Reject Transient artifacts
 [Signal, SignalInfo] = nbt_AutoRejectTransient(Signal,SignalInfo,NonEEGCh);
 % 4. Run ICA

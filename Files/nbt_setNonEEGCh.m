@@ -7,6 +7,6 @@ nbt_NBTcompute(@nbt_setNonEEGChInner,SignalName,pwd,pwd,[],[],NonEEGch,SignalNam
 end
 
 function nbt_setNonEEGChInner(Signal, SignalInfo, SignalPath,NonEEGch, SignalName)
-SignalInfo.NonEEGch = NonEEGch;
+SignalInfo.nonEEGch = NonEEGch;
 nbt_SaveSignal(Signal, SignalInfo, SignalPath,1,SignalName)
 end

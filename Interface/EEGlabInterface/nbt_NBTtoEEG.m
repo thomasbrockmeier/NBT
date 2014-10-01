@@ -44,8 +44,8 @@
 function EEG=nbt_NBTtoEEG(Signal, SignalInfo, SignalPath)
 
 try
-    if(~isempty(SignalInfo.Interface.EEG))
-        EEG = SignalInfo.Interface.EEG;
+    if(~isempty(SignalInfo.interface.EEG))
+        EEG = SignalInfo.interface.EEG;
     else
         EEG = eeg_emptyset;
     end
@@ -53,17 +53,17 @@ catch
     EEG = eeg_emptyset;
 end
 EEG.data = Signal(:,:)';
-EEG.srate = SignalInfo.converted_sample_frequency;
-EEG.setname = SignalInfo.file_name;
+EEG.srate = SignalInfo.convertedSamplingFrequency;
+EEG.setname = SignalInfo.subjectInfo(1:end-9);
 
 EEG.pnts = size(EEG.data,2);
-SignalInfo.Interface.EEG=[];
+SignalInfo.interface.EEG=[];
 EEG.NBTinfo = SignalInfo;
 
 %Remove noisy intervals
-if(isfield(SignalInfo.Interface,'noisey_intervals'))
-    EEG = eeg_eegrej(EEG,SignalInfo.Interface.noisey_intervals);
-    SignalInfo.Interface.noisey_intervals = [];
+if(isfield(SignalInfo.interface,'noisey_intervals'))
+    EEG = eeg_eegrej(EEG,SignalInfo.interface.noisey_intervals);
+    SignalInfo.interface.noisey_intervals = [];
     %eval(['save(' ' ''' SignalPath SignalInfo.file_name '_info.mat'' , ''SignalInfo'')' ])
 end
 

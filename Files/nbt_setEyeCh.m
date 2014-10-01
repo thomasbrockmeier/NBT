@@ -7,6 +7,6 @@ nbt_NBTcompute(@nbt_setEyeChInner,SignalName,pwd,pwd,[],[],EyeCh,SignalName)
 end
 
 function nbt_setEyeChInner(Signal, SignalInfo, SignalPath,EyeCh, SignalName)
-SignalInfo.EyeCh = EyeCh;
+SignalInfo.eyeCh = EyeCh;
 nbt_SaveSignal(Signal, SignalInfo, SignalPath,1,SignalName)
 end

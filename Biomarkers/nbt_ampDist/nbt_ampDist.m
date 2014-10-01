@@ -47,7 +47,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_ampDist < nbt_Biomarker
+classdef nbt_ampDist < nbt_SignalBiomarker
     %% Copyright (c) 2009,  Simon-Shlomo Poil (Center for Neurogenomics and Cognitive Research (CNCR), VU University Amsterdam)
     %% ChangeLog - remember to set NBTversion property
     %$ Version 0 - 
@@ -73,8 +73,8 @@ classdef nbt_ampDist < nbt_Biomarker
             BiomarkerObject.Range = nan(NumChannels, 1);
             BiomarkerObject.Cov = nan(NumChannels, 1);
             
-            BiomarkerObject.PrimaryBiomarker = 'Range';
-            BiomarkerObject.Biomarkers = {'Kurtosis','Skewness','Iqr', 'Median','Range','Cov'};
+            BiomarkerObject.primaryBiomarker = 'Range';
+            BiomarkerObject.biomarkers = {'Kurtosis','Skewness','Iqr', 'Median','Range','Cov'};
         end
     end
 end

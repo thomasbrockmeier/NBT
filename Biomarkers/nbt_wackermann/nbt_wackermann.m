@@ -1,4 +1,4 @@
-classdef nbt_wackermann < nbt_Biomarker
+classdef nbt_wackermann < nbt_SignalBiomarker
 
     properties
     sigma

@@ -22,8 +22,9 @@
 % ChangeLog - see version control log for details
 % <date> - Version <#> - <text>
 
-classdef nbt_AmplitudeCorr < nbt_Biomarker
+classdef nbt_AmplitudeCorr < nbt_CrossChannelBiomarker
     properties
+        markerValues
         MaxCorr
         MinCorr
         MedianCorr
@@ -46,9 +47,9 @@ classdef nbt_AmplitudeCorr < nbt_Biomarker
             BiomarkerObject.IQRCorr = nan(NumChannels,1);
             BiomarkerObject.RangeCorr = nan(NumChannels,1);
             
-            BiomarkerObject.DateLastUpdate = datestr(now);
-            BiomarkerObject.PrimaryBiomarker = 'MarkerValues';
-            BiomarkerObject.Biomarkers ={'MarkerValues','MaxCorr', 'MinCorr','MedianCorr','MeanCorr','StdCorr','IQRCorr','RangeCorr'};
+            BiomarkerObject.lastUpdate = datestr(now);
+            BiomarkerObject.primaryBiomarker = 'MarkerValues';
+            BiomarkerObject.biomarkers ={'MarkerValues','MaxCorr', 'MinCorr','MedianCorr','MeanCorr','StdCorr','IQRCorr','RangeCorr'};
         end
         
         function Output=nbt_GetAmplitudeCorr(AmpCorrObject,SubjectRange, ChId1, ChId2)

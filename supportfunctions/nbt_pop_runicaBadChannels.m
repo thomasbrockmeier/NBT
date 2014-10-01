@@ -494,7 +494,7 @@ end;
     'chanind'        'integer' []        [];}, ...
     'pop_runica', 'ignore');
 try
-    g.chanind = find(ALLEEG.NBTinfo.BadChannels~=1); %set bad channels
+    g.chanind = find(ALLEEG.NBTinfo.badChannels~=1); %set bad channels
 catch
     error('Could not find BadChannel index')
 end

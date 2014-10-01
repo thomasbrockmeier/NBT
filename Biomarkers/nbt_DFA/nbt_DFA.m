@@ -47,8 +47,9 @@
 % See Readme.txt for additional copyright information.
 % -
 
-classdef nbt_DFA < nbt_Biomarker
+classdef nbt_DFA < nbt_SignalBiomarker
     properties
+        markerValues
         DFA_y
         DFA_x
         FitInterval
@@ -65,24 +66,29 @@ classdef nbt_DFA < nbt_Biomarker
             DFAobject.DFA_y  = cell(NumChannels, 1);
             DFAobject.DFA_x  = [];
             %% Define DFA exponent field
-            DFAobject.MarkerValues = nan(NumChannels, 1);
+            DFAobject.markerValues = nan(NumChannels, 1);
             %% Define fields for additional information
-            DFAobject.PrimaryBiomarker = 'MarkerValues';
-            DFAobject.Biomarkers = {'MarkerValues'};
+            DFAobject.primaryBiomarker = 'markerValues';
+            DFAobject.biomarkers = {'markerValues'};
             DFAobject.FitInterval = nan(2,1);
             DFAobject.CalcInterval = nan(2,1);
             DFAobject.Overlap = NaN;
             DFAobject.Condition = NaN;
-            DFAobject.DateLastUpdate = NaN;
+            DFAobject.lastUpdate = NaN;
             DFAobject.Fs = NaN;
             DFAobject.res_logbin = 10;
+            DFAobject = setUniqueIdentifiers(DFAobject);
         end
         
         function LastUpdate=GetLog(DFAobject)
             
-            LastUpdate = DFAobject.LastUpdate;
+            LastUpdate = DFAobject.lastUpdate;
             disp('The DFAobject was last updated')
             disp(LastUpdate)
+        end
+        
+        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
+            BiomarkerObject.uniqueIdentifiers = {'frequencyRange','FitInterval','CalcInterval','Overlap'};
         end
         
         function plot(DFAobject, ChannelID, DFA_Plot)

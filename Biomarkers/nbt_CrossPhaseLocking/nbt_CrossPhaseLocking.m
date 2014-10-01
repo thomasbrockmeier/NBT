@@ -48,7 +48,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_CrossPhaseLocking < nbt_Biomarker  
+classdef nbt_CrossPhaseLocking < nbt_SignalBiomarker  
     properties 
         
         crossplf

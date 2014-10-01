@@ -73,20 +73,20 @@ addlegend=0;
 addcolors='1';
 distance= 50;
 nr_channels=size(Signal,2);
-fs=SignalInfo.converted_sample_frequency;
-I_file = [Save_dir,'/',SignalInfo.file_name,'_info.mat'];
+fs=SignalInfo.convertedSamplingFrequency;
+I_file = [Save_dir filesep SignalInfo.subjectInfo];
 channels=1:nr_channels;
 interval=1:size(Signal,1);
-if ~isfield(SignalInfo.Interface,'noisey_intervals');
-    SignalInfo.Interface.noisey_intervals=[];
+if ~isfield(SignalInfo.interface,'noisey_intervals');
+    SignalInfo.interface.noisey_intervals=[];
 end
-if~isempty(SignalInfo.BadChannels)
+if~isempty(SignalInfo.badChannels)
     tmp = zeros(size(Signal(1,:)));
-    tmp(find(SignalInfo.BadChannels)) = 1;
-    SignalInfo.BadChannels = tmp;
-    disp(['previously identified bad channels: ',num2str(find(SignalInfo.BadChannels')')])
+    tmp(find(SignalInfo.badChannels)) = 1;
+    SignalInfo.badChannels = tmp;
+    disp(['previously identified bad channels: ',num2str(find(SignalInfo.badChannels')')])
 else
-    SignalInfo.BadChannels =zeros(size(Signal(1,:)));
+    SignalInfo.badChannels =zeros(size(Signal(1,:)));
     disp('No previously identified bad channels')
 end
 disp(' ')
@@ -193,7 +193,7 @@ function plotting
     end
 
     %--- plot existing noisy channels black
-    tmpBadChannels = find(SignalInfo.BadChannels);
+    tmpBadChannels = find(SignalInfo.badChannels);
     for j = 1:length(tmpBadChannels)
         findbadchannel = find(channels == tmpBadChannels(j));
         if ~isempty(findbadchannel)
@@ -206,7 +206,7 @@ function plotting
     clear tmpBadChannels
 
     %--- plot existing noisy intervals
-    noisey_intervals=SignalInfo.Interface.noisey_intervals;
+    noisey_intervals=SignalInfo.interface.noisey_intervals;
     ax=axis;
     if strcmp(timescale,'minutes')
         intervalplot=noisey_intervals/(fs*60);

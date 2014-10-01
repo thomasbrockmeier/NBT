@@ -1,5 +1,5 @@
 
-classdef nbt_DTW < nbt_Biomarker  
+classdef nbt_DTW < nbt_SignalBiomarker  
     properties
         d
         window

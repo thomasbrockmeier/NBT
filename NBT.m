@@ -11,5 +11,5 @@
 function NBT()
 nbt_gui
 help NBT
-disp(nbt_GetVersion);
+disp(nbt_getVersion);
 end

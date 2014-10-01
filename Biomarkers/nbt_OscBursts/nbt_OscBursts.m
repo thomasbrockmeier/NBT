@@ -46,7 +46,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_OscBursts < nbt_Biomarker
+classdef nbt_OscBursts < nbt_SignalBiomarker
     %% OscBobject class constructor
     % nbt_OscBursts(NumSubjects, NumChannels) - Creates a Oscillation Bursts object for 'NumSubjects' number of
     % subjects, and 'NumChannels' numbers of channels
@@ -91,8 +91,8 @@ classdef nbt_OscBursts < nbt_Biomarker
             OscBobject.WindowSwitch = 0;
             OscBobject.WindowSize = NaN;
             OscBobject.Fs = NaN;
-            OscBobject.PrimaryBiomarker = 'CumulativeLifetime';
-            OscBobject.Biomarkers = {'CumulativeLifetime', 'ShapeMarker', 'CumulativeSize', 'IntraBurstsCorr'};
+            OscBobject.primaryBiomarker = 'CumulativeLifetime';
+            OscBobject.biomarkers = {'CumulativeLifetime', 'ShapeMarker', 'CumulativeSize', 'IntraBurstsCorr'};
         end
     end
 end
