@@ -72,7 +72,7 @@ Info=P{2};
 nr_channels=size(Signal,2);
 channels=1:nr_channels;
 interval=1:size(Signal,1);
-fs=Info.converted_sample_frequency;
+fs=Info.convertedSamplingFrequency;
 
 if (nargs<3 || isempty(P{3})); timescale='seconds'; else timescale = P{3}; end;
 if (nargs<4 || isempty(P{4})); frequencyinterval = [1 45]; else frequencyinterval = P{4};end
@@ -173,17 +173,17 @@ function plotting
         %         if isfield(Info.Interface,'EEG')
         %         text(index(1),Signal(1,i),[num2str(channels(i)) '(' Info.Interface.EEG.chanlocs(i).labels ')'],'fontsize',8)% 'BackgroundColor','w',
         %         end
-        if isfield(Info.Interface,'EEG') && ~isempty(Info.Interface.EEG.chanlocs)
-            uimenu(hh(i), 'Label', ['Channel ' num2str(channels(i)) '(' Info.Interface.EEG.chanlocs(i).labels ')']);
+        if isfield(Info.interface,'EEG') && ~isempty(Info.interface.EEG.chanlocs)
+            uimenu(hh(i), 'Label', ['Channel ' num2str(channels(i)) '(' Info.interface.EEG.chanlocs(i).labels ')']);
         else
             uimenu(hh(i), 'Label', ['Channel ' num2str(channels(i))])
         end
         hold on
     end
     
-    if isfield(Info.Interface,'EEG') && ~isempty(Info.Interface.EEG.chanlocs)
+    if isfield(Info.interface,'EEG') && ~isempty(Info.interface.EEG.chanlocs)
         for i=1:size(Signal,2)
-            label{i}=[num2str(channels(i)) '(' Info.Interface.EEG.chanlocs(i).labels ')'];
+            label{i}=[num2str(channels(i)) '(' Info.interface.EEG.chanlocs(i).labels ')'];
         end      
         set(gca,'YTick', temp(1,:), 'YTickLabel',label)
 
@@ -241,7 +241,7 @@ function plotting
     uicontrol('Units', 'normalized', ...
         'callback',{@set_para},'position',[ 0.7900    0.9524    0.2107    0.0476],'string','Edit plot parameters')
 
-    if isfield(Info.Interface,'EEG')
+    if isfield(Info.interface,'EEG')
         uicontrol('Units', 'normalized', ...
             'callback',{@select_channel},'position',[ 0.5799    0.9524    0.2107    0.0476],'string','Select channel(s) to plot')
     end
@@ -380,7 +380,7 @@ end
 function[] = select_channel(d1,d2)
 
     %%load locations
-    [inty,intx]=nbt_loadintxinty(Info.Interface.EEG.chanlocs);
+    [inty,intx]=nbt_loadintxinty(Info.interface.EEG.chanlocs);
 
     %% make figure
     figure()
@@ -407,7 +407,7 @@ function[] = select_channel(d1,d2)
 end
 
 function get_channels(d1,d2)
-    [inty,intx]=nbt_loadintxinty(Info.Interface.EEG.chanlocs);
+    [inty,intx]=nbt_loadintxinty(Info.interface.EEG.chanlocs);
     ax=axis;
     channels=[];
     for i=1:length(intx)
