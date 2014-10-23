@@ -68,7 +68,7 @@ if(isempty(varargin))
     
     %% Make menu
     if(standalone)
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  88.5000], ...
+    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  91], ...
         'MenuBar','none','NextPlot','new','Resize','off');
    
    %make sure the GUI is onscreen
@@ -94,7 +94,7 @@ if (standalone)
     %%  NBT standalone GUI
     %define "use NBTelements" check box
     tmpG = nbt_Group;
-    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.databaseType],'Position',[0 15 150 12])
+    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.databaseType],'Position',[0 15 200 14])
     
     %define menu
     FileSub = uimenu(NBTMenu,'label', ' &File ');
