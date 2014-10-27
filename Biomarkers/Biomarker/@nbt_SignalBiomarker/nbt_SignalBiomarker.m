@@ -63,6 +63,8 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             %biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.subjectInfo = SignalInfo.subjectInfo;
             biomarkerObject.samplingFrequency = SignalInfo.convertedSamplingFrequency;
+            biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
+            biomarkerObject.filterSettings = SignalInfo.filterSettings;
             
             %set Badchannels to NaN
             if(~isempty(SignalInfo.badChannels))
