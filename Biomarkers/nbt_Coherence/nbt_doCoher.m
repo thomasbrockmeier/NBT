@@ -65,14 +65,14 @@ disp(' ')
 disp('Command window code:')
 disp(['CoherenceObject = nbt_doCoher(Signal,SignalInfo,FrequencyBand)'])
 disp(' ')
-disp(['Computing Coherence for ',SignalInfo.file_name])
+disp(['Computing Coherence for ',SignalInfo.subjectInfo])
 
 %% remove artifact intervals	
 
 Signal = nbt_RemoveIntervals(Signal,SignalInfo);
 
 %% Signal in the selected interval
-Fs = SignalInfo.converted_sample_frequency;
+Fs = SignalInfo.convertedSamplingFrequency;
 if interval(1) == 0
     Signal = Signal(1:interval(2)*Fs,:);
 else
