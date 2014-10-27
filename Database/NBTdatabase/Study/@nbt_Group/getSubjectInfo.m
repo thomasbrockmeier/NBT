@@ -17,6 +17,7 @@ switch GrpObj.databaseType
             try
                 evalin('base', 'load(''NBTelementBase.mat'')');
             catch % in the case the NBTelement database does not exist
+                warning('NBT: Assuming your data is in current directory: importing from current directory')
                 nbt_importGroupInfos(pwd); %import data to NBTelements
                 nbt_pruneElementTree;      %prune elements with only one level
                 evalin('base', 'load(''NBTelementBase.mat'')');

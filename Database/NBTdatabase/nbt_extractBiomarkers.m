@@ -37,8 +37,10 @@ else
             end
         catch
         end
-    end
-    in = 1;
+    end 
+end
+
+ in = 1;
     for i = 1:length(BiomarkerObjects)
         for m = 1:length(Biomarkers{1,i})
             BiomarkersFullList{in,1} = strcat(BiomarkerObjects{i}, strcat( '.', Biomarkers{1,i}{m}));
@@ -49,8 +51,4 @@ else
             in = in + 1;
         end
     end
-    
-end
-
-
 end
