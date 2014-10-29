@@ -60,9 +60,21 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             [~, biomarkerObject.nbtVersion] = nbt_getVersion;
             biomarkerObject.signalID = SignalInfo.signalID;
             biomarkerObject.signalName =  SignalInfo.signalName;
-            %biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.subjectInfo = SignalInfo.subjectInfo;
             biomarkerObject.samplingFrequency = SignalInfo.convertedSamplingFrequency;
+            biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
+            biomarkerObject.filterSettings = SignalInfo.filterSettings;
+            
+            %Refresh listOfBiomarkers
+            try
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            catch
+                biomarkerObject.subjectInfo = [biomarkerObject.subjectInfo '_info.mat'];
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            end
+            eval([biomarkerObjectName '= evalin(''caller'', biomarkerObject );']);
+            SubjectInfo.listOfBiomarker = [SubjectInfo.listOfBiomakers; biomarkerObjectName];
+            save(biomarkerObject.subjectInfo,'SubjectInfo');
             
             %set Badchannels to NaN
             if(~isempty(SignalInfo.badChannels))

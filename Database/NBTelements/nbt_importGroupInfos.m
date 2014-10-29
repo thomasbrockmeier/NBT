@@ -35,6 +35,8 @@ for i=1:length(FileList)
     
     signalFields = nbt_extractSignals([ FileList{1,i}(1:end-12) 'info.mat']);
     subjectFields = fields(SubjectInfo.info);
+    BiomarkerObjects=nbt_extractBiomarkers;
+    SubjectInfo.listOfBiomarkers = BiomarkerObjects';
     subjectBiomarkerFields = SubjectInfo.listOfBiomarkers;
     
     for m=1:length(subjectFields)
