@@ -1,6 +1,5 @@
 
-% eegplugin_adjust() - Plugin for filtering/removing gross
-% artifacts/running ICA/running ADJUST algorithm on EEG data
+% eegplugin_adjust() - Plugin for running ADJUST algorithm on EEG data.
 %
 % Usage:
 %   >> eegplugin_adjust( fig, try_strings, catch_strings);
@@ -12,8 +11,9 @@
 %   catch_strings  - [struct] "catch" strings for menu callbacks.
 %
 %
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 
 function eegplugin_adjust( fig, try_strings, catch_strings)
 plotmenu = findobj(fig, 'tag', 'tools');
-uimenu(plotmenu, 'label', 'ADJUST', 'callback', ...
+uimenu(plotmenu, 'label', 'ADJUST1.1', 'callback', ...
     [try_strings.no_check '[ALLEEG,EEG,CURRENTSET,LASTCOM]= pop_ADJUST_interface( ALLEEG,EEG,CURRENTSET );eeglab redraw;' catch_strings.add_to_hist  ]);
 
 

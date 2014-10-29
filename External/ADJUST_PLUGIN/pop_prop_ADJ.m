@@ -5,9 +5,9 @@
 %
 % Usage:
 %   >> com = pop_prop_ADJ(EEG, typecomp, numcompo, winhandle, is_H, is_V, is_B, is_D,...
-%           soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED,...
-%           soglia_SAD, SAD, soglia_TDR, topog_DR, soglia_V, maxvar, soglia_D, maxdin);
-%
+%     soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+%         soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin)
+% 
 % Inputs:
 %   EEG        - current dataset structure or structure array 
 %   typecomp   - [0|1] compute electrode property (1) or component 
@@ -57,8 +57,9 @@
 %                      function.
 % 
 
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -73,11 +74,17 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+% 
+%
+%
+% VERSIONS LOG
+% 
+% 26/03/14:
+% 
 
 function com = pop_prop_ADJ(EEG, typecomp, numcompo, winhandle, is_H, is_V, is_B, is_D,...
-    soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED,...
-            soglia_SAD, SAD, soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin) %,spec_opt)
+    soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin) %,spec_opt)
 
 com = '';
 if nargin < 1
@@ -331,7 +338,9 @@ end
 %     '); SDR ' num2str(topog_DR) '(' num2str(soglia_TDR) ')'],'FontSize',8);
 
 % compute bar graph entries
-E=[ SAD/soglia_SAD SED/soglia_SED GDSF/soglia_GDSF maxvar/soglia_V meanK/soglia_K];
+% E=[ SAD/soglia_SAD SED/soglia_SED GDSF/soglia_GDSF maxvar/soglia_V meanK/soglia_K];
+E=[(SAD-med2_SAD)/(soglia_SAD-med2_SAD) (SED-med2_SED)/(soglia_SED-med2_SED) (GDSF-med2_GDSF)/(soglia_GDSF-med2_GDSF) (maxvar-med2_V)/(soglia_V-med2_V) (meanK-med2_K)/(soglia_K-med2_K)];
+
 % set bar colors
 C={[1 0 0],[.6 0 .2],[1 1 0],[0 1 0], [0 1 1]};
 % horizontal line
@@ -438,15 +447,15 @@ if ~isnan(winhandle)
 	%com = sprintf('pop_prop( %s, %d, %d, 0, %s);', inputname(1), typecomp, numcompo, vararg2str( { spec_opt } ) );
     	com = sprintf('pop_prop_ADJ( %s, %d, %d, 0, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s);',...
             inputname(1), typecomp, numcompo, is_H, is_V, is_B, is_D,...
-            soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED,...
-            soglia_SAD, SAD, soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin );
+            soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin );
 
 else
 	%com = sprintf('pop_prop( %s, %d, %d, NaN, %s);', inputname(1), typecomp, numcompo, vararg2str( { spec_opt } ) );
     	com = sprintf('pop_prop_ADJ( %s, %d, %d, NaN, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %s);',...
             inputname(1), typecomp, numcompo, is_H, is_V, is_B, is_D,...
-            soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED,...
-            soglia_SAD, SAD, soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin );
+            soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin );
 
 end;
 

@@ -1,6 +1,4 @@
-
-% pop_ADJUST_interface() - Spectral filtering/removing gross
-% artifacts/running ICA/running ADJUST algorithm on EEG data
+% pop_ADJUST_interface() - running ADJUST algorithm on EEG data
 %
 % Usage:
 %   >> [ALLEEG,EEG,CURRENTSET,com] = pop_ADJUST_interface (
@@ -12,8 +10,9 @@
 %   CURRENTSET - index(s) of the current EEG dataset(s) in ALLEEG
 %
 %
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -28,6 +27,10 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+%
+%
+% REVISION HISTORY:
+% 09/04/14: Filter/Gross Artifact Rejection/ICA have been removed (MB).
 
 
 function [ALLEEG,EEG,CURRENTSET,com] = pop_ADJUST_interface ( ALLEEG,EEG,CURRENTSET )
@@ -45,226 +48,24 @@ if nargin < 1
 	return;
 end;	
 
-
-
 %% select operations to be done: display list
 
-messages={'Filter the data';'Remove Gross Artifacts and Perform ICA'; 'Run ADJUST'};
+% messages={'Filter the data';'Remove Gross Artifacts and Perform ICA'; 'Run ADJUST'};
+% 
+% [Selection,ok] = listdlg('ListString',messages,'Name','ADJUST User Interface',...
+%     'PromptString','Select operations to be done:',...
+%     'OKString','Start Processing','SelectionMode','multiple','ListSize',[300 100]);
 
-[Selection,ok] = listdlg('ListString',messages,'Name','ADJUST User Interface',...
-    'PromptString','Select operations to be done:',...
-    'OKString','Start Processing','SelectionMode','multiple','ListSize',[300 100]);
+disp(' ')
+disp (['Running ADJUST on dataset ' strrep(EEG.filename, '.set', '') '.set'])
+promptstr    = { 'Enter Report file name (in quote): '};
+inistr       = { '''report.txt''' };
+result       = inputdlg2( promptstr, 'ADJUST User Interface', 1,  inistr, 'pop_ADJUST_interface');
+if length( result ) == 0 return; end;
 
+report   	 = eval( [ '[' result{1} ']' ] );
 
-%% do operations
-
-if ok
-    
-    switch num2str(Selection)
-
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        case '1' %only perform lpf 
-                         
-            if ~isempty( EEG.data )
-
-                EEG = pop_eegfilt(EEG);
-                  
-                [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-                
-                eeglab redraw
-                disp (['New low pass filtered dataset saved: ' EEG.setname ])
-            else
-                error('No loaded data');
-            end
-
-
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      
-            
-        case '2' % only perform ICA
-            
-            [EEG]=interface_GA (EEG);
-            
-            msgbox('Gross artifacts removed from data.','ADJUST User Interface','help') 
-            
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-            
-            EEG = pop_runica(EEG,  'icatype', 'runica', 'dataset',1, 'options',{ 'extended',1});
-            EEG = eeg_checkset(EEG);
-     
-            msgbox('ICA performed on data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-    
-            disp(' ')
-            disp('ICA performed and saved. DONE')
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        case '3' % only run ADJUST
-            
-            disp(' ')
-            disp (['Running ADJUST on dataset ' strrep(EEG.filename, '.set', '') '.set'])
-            promptstr    = { 'Enter Report file name (in quote): '};
-            inistr       = { '''report.txt''' };
-            result       = inputdlg2( promptstr, 'ADJUST User Interface', 1,  inistr, 'pop_AADJUST_interface');
-            if length( result ) == 0 return; end;
-
-            report   	 = eval( [ '[' result{1} ']' ] );
-            
-            [EEG] = interface_ADJ (EEG,report);
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        case '1  2' % lpf, GA and ICA
-            
-            if ~isempty( EEG.data )
-
-                EEG = pop_eegfilt(EEG);
-                
-                [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-                
-                eeglab redraw
-                disp (['New low pass filtered dataset saved: ' EEG.filename])
-            else
-                error('No loaded data');
-            end
-            
-            [EEG]=interface_GA (EEG);
-            
-            msgbox('Gross artifacts removed from data.','ADJUST User Interface','help') 
-            
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-            
-            EEG = pop_runica(EEG,  'icatype', 'runica', 'dataset',1, 'options',{ 'extended',1});
-            EEG = eeg_checkset(EEG);
-        
-
-            msgbox('ICA performed on data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-    
-            disp(' ')
-            disp('ICA performed and saved. DONE')
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        case '1  3' %lpf and ADJUST
-             
-
-            promptstr    = { 'Enter Report file name (in quote): '};
-            inistr       = { '''report.txt''' };
-            result       = inputdlg2( promptstr, 'ADJUST User Interface', 1,  inistr, 'pop_AADJUST_interface');
-            if length( result ) == 0 return; end;
-
-            report   	 = eval( [ '[' result{1} ']' ] );
-            
-            if ~isempty( EEG.data )
-
-                EEG = pop_eegfilt(EEG);
-                [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-                eeglab redraw
-                disp (['New low pass filtered dataset saved: ' EEG.filename])
-            else
-                error('No loaded data');
-            end
-           
-            [EEG] = interface_ADJ (EEG,report);
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        case '2  3' %GA, ICA and ADJUST
-            
-            [EEG]=interface_GA (EEG);
-            msgbox('Gross artifacts removed from data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-            
-            EEG = pop_runica(EEG,  'icatype', 'runica', 'dataset',1, 'options',{ 'extended',1});
-            EEG = eeg_checkset(EEG);
-        
-
-            msgbox('ICA performed on data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-    
-            disp(' ')
-            disp('ICA performed and saved. DONE')
-            
-            disp(' ')
-            disp (['Running ADJUST on dataset ' strrep(EEG.filename, '.set', '') '.set'])
-            promptstr    = { 'Enter Report file name (in quote): '};
-            inistr       = { '''report.txt''' };
-            result       = inputdlg2( promptstr, 'ADJUST User Interface', 1,  inistr, 'pop_AADJUST_interface');
-            if length( result ) == 0 return; end;
-
-            report   	 = eval( [ '[' result{1} ']' ] );
-            
-                       
-            [EEG] = interface_ADJ (EEG,report);
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-            
-        case '1  2  3' % entire processing
-            
-                         
-            promptstr    = { 'Enter Report file name (in quote): '};
-            inistr       = { '''report.txt''' };
-            result       = inputdlg2( promptstr, 'ADJUST User Interface', 1,  inistr, 'pop_AADJUST_interface');
-            if length( result ) == 0 return; end;
-
-            report   	 = eval( [ '[' result{1} ']' ] );
-           
-            if ~isempty( EEG.data )
-
-                EEG = pop_eegfilt(EEG);
-                [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-                eeglab redraw
-                disp (['New low pass filtered dataset saved: ' EEG.filename])
-            else
-                error('No loaded data');
-            end
-            
-            [EEG]=interface_GA (EEG);
-            msgbox('Gross artifacts removed from data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-            
-            EEG = pop_runica(EEG,  'icatype', 'runica', 'dataset',1, 'options',{ 'extended',1});
-            EEG = eeg_checkset(EEG);
-        
-
-            msgbox('ICA performed on data.','ADJUST User Interface','help')    
-            [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);
-            eeglab redraw
-    
-            disp(' ')
-            disp('ICA performed and saved. DONE')
-            
-            [EEG] = interface_ADJ (EEG,report);
-            
-            
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
-    end
-else disp('No processing selected.'); return;
-    
-end       
- 
-  
+[EEG] = interface_ADJ (EEG,report);
 
 % return the string command
 % -------------------------
