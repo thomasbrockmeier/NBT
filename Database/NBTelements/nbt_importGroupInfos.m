@@ -68,7 +68,7 @@ for i=1:length(FileList)
         
         
         eval(['NBTelementName = class(' subjectBiomarkerFields{m} ');']);
-        NBTelementName = NBTelementName(5:end);  
+         
         
         addflag = ~exist(NBTelementName,'var');
         if addflag
@@ -165,7 +165,7 @@ clear s
 clear ii
 
 
-save NBTelementBase.mat
+save NBTelementBase.mat -v7.3
 disp('NBTelements imported')
 disp('NBTelementBase.mat saved in')
 disp(pwd)

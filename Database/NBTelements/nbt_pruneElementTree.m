@@ -62,7 +62,7 @@ for i = maxLevel:-1:0
     end
 end
 
-save('NBTelementBase.mat','-struct','elements');
+save('NBTelementBase.mat','-struct','elements','-v7.3');
 
 end
 function elements = removeID(elements,ids, flds, childName, ID)
