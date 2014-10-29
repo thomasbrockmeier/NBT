@@ -67,7 +67,12 @@ classdef (Abstract) nbt_CrossChannelBiomarker < nbt_CoreBiomarker
             biomarkerObject.filterSettings = SignalInfo.filterSettings;
             
             %Refresh listOfBiomarkers
-            load(biomarkerObject.subjectInfo,'SubjectInfo');
+            try
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            catch
+                biomarkerObject.subjectInfo = [biomarkerObject.subjectInfo '_info.mat'];
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            end
             eval([biomarkerObjectName '= evalin(''caller'', biomarkerObject );']);
             SubjectInfo.listOfBiomarker = [SubjectInfo.listOfBiomakers; biomarkerObjectName];
             save(biomarkerObject.subjectInfo,'SubjectInfo');

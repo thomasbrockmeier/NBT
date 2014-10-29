@@ -42,6 +42,18 @@ classdef nbt_QBiomarker < nbt_CoreBiomarker
             biomarkerObject.lastUpdate = datestr(now);
             [~, biomarkerObject.nbtVersion] = nbt_getVersion;
             biomarkerObject.subjectInfo = subjectInfo;
+            
+            %Refresh listOfBiomarkers
+            try
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            catch
+                biomarkerObject.subjectInfo = [biomarkerObject.subjectInfo '_info.mat'];
+                load(biomarkerObject.subjectInfo,'SubjectInfo');
+            end
+            eval([biomarkerObjectName '= evalin(''caller'', biomarkerObject );']);
+            SubjectInfo.listOfBiomarker = [SubjectInfo.listOfBiomakers; biomarkerObjectName];
+            save(biomarkerObject.subjectInfo,'SubjectInfo');          
+            
         end
         
         function BiomarkerObject = convertBiomarker(BiomarkerObject,subjectInfo)
