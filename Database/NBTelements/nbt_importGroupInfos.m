@@ -29,8 +29,17 @@ FileList = nbt_ExtractTree(startpath,'mat','analysis');
 disp('Importing files');
 for i=1:length(FileList)
     disp(FileList{1,i})
+    
+    %we first clear everything from the old file.
+    s = whos;
+    for ii=1:length(s)
+        if(~strcmp(s(ii).class,'nbt_NBTelement') && ~strcmp(s(ii).name,'s') && ~strcmp(s(ii).name,'FileList') && ~strcmp(s(ii).name,'i') && ~strcmp(s(ii).name,'NextID'))
+            clear([s(ii).name])
+        end
+    end
+    
+    
     load(FileList{1,i}) %load analysis file
-    clear SubjectInfo;
     load([ FileList{1,i}(1:end-12) 'info.mat']) % load info file
     
     signalFields = nbt_extractSignals([ FileList{1,i}(1:end-12) 'info.mat']);
@@ -41,9 +50,9 @@ for i=1:length(FileList)
     
     for m=1:length(subjectFields)
         % create NBTelement, unless it exists
-        NBTelementName = subjectFields{m};
-        eval(['NBTelementClass = class(SubjectInfo.info.' NBTelementName ');']);
-        eval(['NBTelementData = SubjectInfo.info.' NBTelementName ';']);
+        NBTelementName = ['NBTe_' subjectFields{m}];
+        eval(['NBTelementClass = class(SubjectInfo.info.' NBTelementName(6:end) ');']);
+        eval(['NBTelementData = SubjectInfo.info.' NBTelementName(6:end) ';']);
         
         
         addflag = ~exist(NBTelementName,'var');
@@ -65,9 +74,13 @@ for i=1:length(FileList)
     end
     
     for m = 1:length(subjectBiomarkerFields)
+        %importing biomarkers not related to signals
+        eval(['QB = ~isa(' subjectBiomarkerFields{m} ',' ''' nbt_QBiomarker' ''');']);
+        if(QB)
+            continue;
+        end
         
-        
-        eval(['NBTelementName = class(' subjectBiomarkerFields{m} ');']);
+        eval(['NBTelementName = [''NBTe_'' class(' subjectBiomarkerFields{m} ')];']);
          
         
         addflag = ~exist(NBTelementName,'var');
@@ -93,11 +106,14 @@ for i=1:length(FileList)
     
     for mm = 1:length(signalFields)
         Signals = nbt_SetData(Signals,{signalFields{mm}},{Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID; Project, SubjectInfo.projectInfo(1:end-4)});
-        BiomarkerList = eval([signalFields{mm} 'Info.listOfBiomarkers']);
+        BiomarkerList = SubjectInfo.listOfBiomarkers;
         for m = 1:length(BiomarkerList)
+        eval(['QB = isa(' BiomarkerList{m} ',' ''' nbt_QBiomarker' ''');']);
+        if(QB)
+            continue;
+        end
             % create NBTelement, unless it exists
-            eval(['NBTelementName = class(' BiomarkerList{m} ');']);
-            NBTelementName = NBTelementName(5:end);  
+            eval(['NBTelementName = [''NBTe_'' class(' BiomarkerList{m} ')];']);
         
             NumIdentifiers  = eval([BiomarkerList{m} '.uniqueIdentifiers;']);
             
@@ -129,12 +145,15 @@ for i=1:length(FileList)
             end
             
             
+            ky = eval([connector '.Key']);
+            kid = eval([connector '.ElementID']); 
             addflag = ~exist(NBTelementName,'var');
             if(addflag)
-                ky = eval([connector '.Key']);
-                kid = eval([connector '.ElementID']); 
                 eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
                 NextID = NextID + 1;
+            else  % then we just update the Key and Uplink
+                eval([NBTelementName '.Key =' '[num2str(' NBTelementName '.ElementID' ') ''' '.' ky '''' '];' ])
+                eval([NBTelementName '.Uplink = ' num2str(kid) ';'])
             end
             
             %Create the Data cell
