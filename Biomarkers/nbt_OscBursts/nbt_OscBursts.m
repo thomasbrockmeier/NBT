@@ -94,5 +94,8 @@ classdef nbt_OscBursts < nbt_SignalBiomarker
             OscBobject.primaryBiomarker = 'CumulativeLifetime';
             OscBobject.biomarkers = {'CumulativeLifetime', 'ShapeMarker', 'CumulativeSize', 'IntraBurstsCorr'};
         end
+
+        
+        
     end
 end

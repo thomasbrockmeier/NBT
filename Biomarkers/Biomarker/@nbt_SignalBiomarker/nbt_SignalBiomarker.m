@@ -87,6 +87,12 @@ classdef (Abstract) nbt_SignalBiomarker < nbt_CoreBiomarker
             end
         end
         
+        
+        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
+            BiomarkerObject.uniqueIdentifiers = {'frequencyRange'}; %This is the default for Signal biomarkers
+        end
+        
+        
         function BiomarkerObject = convertBiomarker(BiomarkerObject,subjectInfo)
             try
                 BiomarkerObject.markerValues = BiomarkerObject.MarkerValues; % the biomarker values

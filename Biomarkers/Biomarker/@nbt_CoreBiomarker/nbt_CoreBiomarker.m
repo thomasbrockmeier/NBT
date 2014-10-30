@@ -68,11 +68,10 @@ classdef nbt_CoreBiomarker
     methods
         function BiomarkerObject = nbt_CoreBiomarker()
             BiomarkerObject.nbtVersion = nbt_getVersion;
+            BiomarkerObject = setUniqueIdentifiers(BiomarkerObject);
         end
-        
-        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
-            
-        end
+
+
 
     end
 end
