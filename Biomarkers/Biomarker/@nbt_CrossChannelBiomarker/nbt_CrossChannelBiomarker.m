@@ -65,7 +65,7 @@ classdef (Abstract) nbt_CrossChannelBiomarker < nbt_CoreBiomarker
             biomarkerObject.samplingFrequency = SignalInfo.convertedSamplingFrequency;
             biomarkerObject.frequencyRange = SignalInfo.frequencyRange;
             biomarkerObject.filterSettings = SignalInfo.filterSettings;
-           
+            
             %set Badchannels to NaN
             if(~isempty(SignalInfo.badChannels))
                 for i=1:length(biomarkerObject.biomarkers)
@@ -87,6 +87,11 @@ classdef (Abstract) nbt_CrossChannelBiomarker < nbt_CoreBiomarker
                 end
             end
         end
+        
+        function BiomarkerObject = setUniqueIdentifiers(BiomarkerObject)
+            BiomarkerObject.uniqueIdentifiers = {'frequencyRange'}; %This is the default for Signal biomarkers
+        end
+        
         function BiomarkerObject = convertBiomarker(BiomarkerObject,subjectInfo)
             try
                 BiomarkerObject.markerValues = BiomarkerObject.MarkerValues; % the biomarker values
