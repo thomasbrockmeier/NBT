@@ -44,7 +44,17 @@ if(~exist('Fs'))
 end
 try
     IDdots = strfind(filename,'.');
+<<<<<<< HEAD
+    if(~isempty(FileExt))
+        Info = nbt_Info(filename(1:(strfind(filename,FileExt)-1)),file_name_format,filename((IDdots(3)+1):(IDdots(4)-1)), ...
+            filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
+    else
+        Info = nbt_Info(filename,file_name_format,filename((IDdots(3)+1):end), ...
+            filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
+    end
+=======
     [SignalInfo, SubjectInfo] = generateObjects;
+>>>>>>> d940d42694c83d1148b3be8a652abb67974e3a9a
 catch
     filename = input('Please write filename in correct format, <ProjectID>.S<SubjectID>.<Date in YYMMDD>.Condition ','s');
     IDdots = strfind(filename,'.'); 
