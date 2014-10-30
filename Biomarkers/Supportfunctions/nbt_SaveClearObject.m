@@ -44,10 +44,14 @@ narginchk(3,4);
 eval([ObjectName '= evalin(''caller'', ObjectName );']);
 
 %Then we save it
-an_file = [SaveDir filesep SignalInfo.subjectInfo(1:end-9),'_analysis.mat'];
+if(length(strfind(SignalInfo.subjectInfo,'.')) > 3)
+    an_file = [SaveDir filesep SignalInfo.subjectInfo(1:end-9) '_analysis.mat'];
+else
+    an_file = [SaveDir filesep SignalInfo.subjectInfo '_analysis.mat'];
+end
 if(exist(an_file,'file') == 2)
-  %  NBTanalysisFile = matfile(an_file,'Writable', true);
- %   eval(['NBTanalysisFile.' ObjectName '= ' ObjectName ';'])
+   % NBTanalysisFile = matfile(an_file,'Writable', true);
+   % eval(['NBTanalysisFile.' ObjectName '= ' ObjectName ';'])
  save(an_file, ObjectName, '-append');
     disp('NBT: Analysis File already exists. Appending to existing file!');
 elseif(exist(an_file,'file') == 0)
