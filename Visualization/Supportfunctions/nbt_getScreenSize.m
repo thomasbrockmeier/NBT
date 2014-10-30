@@ -1,6 +1,6 @@
 
-function [width, height] =nbt_getScreenSize()
+function [ScreenWidth, ScreenHeight] = nbt_getScreenSize()
 hh =java.awt.Toolkit.getDefaultToolkit().getScreenSize;
-width = hh.width;
-height = hh.height;
+ScreenWidth = hh.width;
+ScreenHeight = hh.height;
 end

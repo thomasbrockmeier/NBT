@@ -75,7 +75,7 @@ try
     if(~isempty(WindowSize))
         OscBobject.WindowSize = WindowSize;
     end
-    Fs = InfoObject.converted_sample_frequency;
+    Fs = InfoObject.convertedSamplingFrequency;
     OscBobject = nbt_UpdateBiomarkerInfo(OscBobject, InfoObject);
 catch
     Fs = varargin{1};

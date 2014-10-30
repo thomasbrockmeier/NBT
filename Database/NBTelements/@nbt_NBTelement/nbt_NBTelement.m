@@ -55,18 +55,38 @@ classdef nbt_NBTelement %< handle
         ElementID = []; % define element position
         Key = []; % define format of ID
         Uplink = [];
+        Children = [];
         Relation =[];
         ID = cell(0,0); % ID
         Data = []; %Data
         Biomarkers = cell(0,0);
         ProjectID = [];
         Info = [];
+        Identifier = false;
     end
     methods
         function NBTelement = nbt_NBTelement(ElementID, Key, Uplink)
             NBTelement.ElementID = ElementID;
             NBTelement.Key = Key;
             NBTelement.Uplink = Uplink;
+            if ~isempty(Uplink)
+                s = evalin('caller','whos');
+                parentName = [];
+                for i = 1:length(s)
+                    if strcmp(s(i).class,'nbt_NBTelement')
+                        sID = evalin('caller',[s(i).name '.ElementID']);
+                        if sID == Uplink
+                            parentName = s(i).name;
+                        end
+                    end
+                end               
+                if isempty(parentName)
+                    disp('Parent Not Found');
+                else
+                    evalin('caller',[parentName '.Children = unique([' parentName '.Children; ' num2str(ElementID) ']);']);
+                end
+            end
+            NBTelement.Children = [];
             NBTelement.Relation = [];
             NBTelement.ID = [];
             NBTelement.Data = [];
@@ -123,8 +143,8 @@ classdef nbt_NBTelement %< handle
                                 NewPool = [NewPool mm];
                             end
                         end
-                    end 
-                end 
+                    end
+                end
             end
             
             
@@ -157,10 +177,12 @@ classdef nbt_NBTelement %< handle
                 end
                 
                 %% % update UpPool - strip off until NBTelement.UpLink match
-                for i=1:(TokenStep-1)
-                    [StripOff, UpPool] = strtok(UpPool,'.');
+                if(~UplinkMissing)
+                    for i=1:(TokenStep-1)
+                        [StripOff, UpPool] = strtok(UpPool,'.');
+                    end
+                    UpPool = nbt_TrimCellStr(UpPool);
                 end
-                UpPool = nbt_TrimCellStr(UpPool);
                 
                 %% % Match UpPool
                 [StripOff, NewPoolIDstpup] = strtok(NewPoolID,'.');
@@ -169,9 +191,9 @@ classdef nbt_NBTelement %< handle
                     UplinkSteps = 1;
                     [tmpKey, TreeKey] = strtok(NBTelement.Key, '.');
                     [tmpKey, TreeKey] = strtok(TreeKey,'.');
-                    [tmpKey, TreeKey] = strtok(TreeKey,'.');
-                    while(strcmp(KeepKey, tmpKey))
-                        [tmpKey, TreeKey] = strok(TreeKey);
+                     
+                    while(~strcmp(['.' UpPoolKey], TreeKey))
+                        [tmpKey, TreeKey] = strtok(TreeKey,'.');
                         UplinkSteps = UplinkSteps +1;
                     end
                     for mm = 1:UplinkSteps

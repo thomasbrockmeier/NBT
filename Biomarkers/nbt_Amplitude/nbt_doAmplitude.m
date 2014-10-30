@@ -52,7 +52,7 @@ function [amplitude_1_4_Hz amplitude_4_8_Hz amplitude_8_13_Hz amplitude_13_30_Hz
 % error(nargchk(4,4,nargin))
 
 %%   give information to the user
-disp(['Computing Amplitudes for ',Info.file_name])
+%disp(['Computing Amplitudes for ',Info.file_name])
 
 %%    assigning fields
 coolWarm = load('nbt_CoolWarm','coolWarm');
@@ -68,7 +68,7 @@ Signal = nbt_RemoveIntervals(Signal,Info);
 
 %% determine intervals at which power is calculated
 
-FS=Info.converted_sample_frequency;
+FS=Info.convertedSamplingFrequency;
 
 interval_Hz(1,:)=[1 4];
 interval_Hz(2,:)=[4 8];
@@ -112,8 +112,8 @@ for i=1:number_of_channels
 end
 
 %% Set Bad Channels to NaNs
-integrated(:,find(Info.BadChannels)) = NaN;
-normalized(:,find(Info.BadChannels)) = NaN;
+integrated(:,find(Info.badChannels)) = NaN;
+normalized(:,find(Info.badChannels)) = NaN;
 
 %% Create amplitude objects and assign values
 amplitude_1_4_Hz=nbt_amplitude(number_of_channels,integrated(1,:),[],0,'\muV');
@@ -140,7 +140,7 @@ amplitude_30_45_Hz_Normalized.FrequencyRange = interval_Hz(5,:);
 
 %% in case of 129-channel EEG data, compute values at 6 subregions and check plotting option
 
-if isfield(Info.Interface,'EEG') && number_of_channels==129
+if isfield(Info.interface,'EEG') && number_of_channels==129
     
     % integrated(:,129)=nanmedian(integrated'); % set reference channel to mean of all channels
     % normalized(:,129)=nanmedian(normalized');

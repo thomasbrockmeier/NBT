@@ -45,7 +45,7 @@
 % See Readme.txt for additional copyright information.
 % -------------------------------------------------------------------------
 
-classdef nbt_barlow < nbt_Biomarker
+classdef nbt_barlow < nbt_SignalBiomarker
    properties
        amplitude
        frequency
@@ -57,8 +57,8 @@ classdef nbt_barlow < nbt_Biomarker
            BiomarkerObject.amplitude = nan(NumChannels,1);
            BiomarkerObject.frequency = nan(NumChannels,1);
            BiomarkerObject.spi = nan(NumChannels,1);
-           BiomarkerObject.PrimaryBiomarker =  'amplitude';
-           BiomarkerObject.Biomarkers ={'amplitude', 'frequency', 'spi'};
+           BiomarkerObject.primaryBiomarker =  'amplitude';
+           BiomarkerObject.biomarkers ={'amplitude', 'frequency', 'spi'};
        end
        
    end

@@ -1,5 +1,5 @@
 %ref see: Hjorth 1970, EEG ANALYSIS BASED ON TIME DOMAIN PROPERTIES. 
-classdef nbt_hjorthpara < nbt_Biomarker
+classdef nbt_hjorthpara < nbt_SignalBiomarker
 
    properties
        activity
@@ -12,8 +12,8 @@ classdef nbt_hjorthpara < nbt_Biomarker
            BiomarkerObject.activity = nan(NumChannels,1);
            BiomarkerObject.mobility = nan(NumChannels,1);
            BiomarkerObject.complexity = nan(NumChannels,1);
-           BiomarkerObject.PrimaryBiomarker = 'activtiy';
-           BiomarkerObject.Biomarkers = {'activity', 'mobility', 'complexity'};
+           BiomarkerObject.primaryBiomarker = 'activtiy';
+           BiomarkerObject.biomarkers = {'activity', 'mobility', 'complexity'};
        end
    end
 end 

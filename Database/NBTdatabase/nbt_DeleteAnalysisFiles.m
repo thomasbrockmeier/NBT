@@ -24,13 +24,13 @@ function nbt_DeleteAnalysisFiles(startpath)
 d= dir (startpath);
 for j=3:length(d)
     if (d(j).isdir )
-        nbt_DeleteAnalysisFiles([startpath,'/', d(j).name ]);
+        nbt_DeleteAnalysisFiles([startpath,filesep, d(j).name ]);
     else
         b = strfind(d(j).name,'mat');
         cc= strfind(d(j).name,'analysis');
         
         if (length(b)~=0  && length(cc)~=0)
-            delete([startpath , '/',d(j).name]);
+            delete([startpath , filesep,d(j).name]);
         end
     end
 end

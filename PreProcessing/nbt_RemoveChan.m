@@ -54,13 +54,12 @@ RemovedData = Signal(:, ChToRemove);
 Signal = Signal(:, ChRemain);
 
 % Update SignalInfo
-SignalInfo.Interface.number_of_channels = size(Signal,2);
-SignalInfo.Interface.EEG.nbchan = SignalInfo.Interface.number_of_channels;
+SignalInfo.interface.EEG.nbchan = size(Signal,2);
 
-OldChanlocs = SignalInfo.Interface.EEG.chanlocs;
+OldChanlocs = SignalInfo.interface.EEG.chanlocs;
 
 for mm=1:length(ChRemain)
     NewChanlocs(mm) = OldChanlocs(ChRemain(mm));
 end
-SignalInfo.Interface.EEG.chanlocs = NewChanlocs;
+SignalInfo.interface.EEG.chanlocs = NewChanlocs;
 end

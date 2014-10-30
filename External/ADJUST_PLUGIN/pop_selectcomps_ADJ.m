@@ -5,9 +5,9 @@
 %                  color. Based on pop_selectcomps.
 %
 % Usage:
-%   >> [EEG, com] = pop_selectcomps_ADJ( EEG, compnum, art, horiz, vert, blink, disc,...
-%       soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-%       soglia_TDR, topog_DR, soglia_V, maxvar, soglia_D, maxdin, fig );
+%   >>  [EEG,com] = pop_selectcomps_ADJ( EEG, compnum, art, horiz, vert, blink, disc,...
+%         soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+%         soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin, fig )
 %
 % Inputs:
 %   EEG        - current dataset structure or structure array 
@@ -52,8 +52,9 @@
 %
 %
 %
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -69,10 +70,12 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-
+% function [EEG,com] = pop_selectcomps_ADJ( EEG, compnum, art, horiz, vert, blink, disc,...
+%         soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
+%         soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin, fig )
 function [EEG,com] = pop_selectcomps_ADJ( EEG, compnum, art, horiz, vert, blink, disc,...
-        soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-        soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin, fig )
+        soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin, fig )
 
 COLREJ = '[1 0.6 0.6]';
 COLACC = '[0.75 1 0.75]';
@@ -100,14 +103,15 @@ if nargin < 2
     end;
 
 end;
-fprintf('Drawing figure...\n');
+
 currentfigtag = ['selcomp' num2str(rand)]; % generate a random figure tag
 
 if length(compnum) > PLOTPERFIG
     for index = 1:PLOTPERFIG:length(compnum)
+        fprintf('Drawing figure...\n');
         EEG = pop_selectcomps_ADJ(EEG, compnum([index:min(length(compnum),index+PLOTPERFIG-1)]), art, horiz, vert, blink, disc,...
-        soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-        soglia_GDSF, GDSF, soglia_V, maxvar, soglia_D, maxdin);
+        soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, maxvar, soglia_D, maxdin);
     end;
 
     com = [ 'pop_selectcomps(' inputname(1) ', ' vararg2str(compnum) ');' ];
@@ -193,11 +197,11 @@ for ri = compnum
 		% ---------------
 		button = uicontrol(gcf, 'Style', 'pushbutton', 'Units','Normalized', 'Position',...
                            [X Y+sizewy sizewx sizewy*0.25].*s+q, 'tag', ['comp' num2str(ri)]);
-		command = sprintf('pop_prop_ADJ( %s, 0, %d, %3.15f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f);', ...
+ 		command = sprintf('pop_prop_ADJ( %s, 0, %d, %3.15f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f);', ...
             inputname(1), ri, button, ...
             ~isempty(intersect(horiz,ri)), ~isempty(intersect(vert,ri)), ~isempty(intersect(blink,ri)), ~isempty(intersect(disc,ri)),...
-            soglia_DV, diff_var(ri), soglia_K, meanK(ri), soglia_SED, SED(ri),...
-            soglia_SAD, SAD(ri), soglia_GDSF, GDSF, soglia_V, maxvar(ri), soglia_D, maxdin);
+            soglia_DV, diff_var(ri), soglia_K, med2_K, meanK(ri), soglia_SED, med2_SED, SED(ri),...
+            soglia_SAD, med2_SAD, SAD(ri), soglia_GDSF, med2_GDSF, GDSF(ri), soglia_V, med2_V, maxvar(ri), soglia_D, maxdin(ri));
 		set( button, 'callback', command );
 	end;
     

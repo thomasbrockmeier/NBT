@@ -15,7 +15,7 @@
 %% Copyright (c) 2009,  Simon-Shlomo Poil (Center for Neurogenomics and Cognitive Research (CNCR), VU University Amsterdam)
 %% ChangeLog -
 
-function PlotHandle = nbt_DotPlot(PlotHandle,xSpotGroupDistance, xSpotMeanDistance, PairedSwitch,FuncHandle,Labels,StatTest,varargin)
+function PlotHandle = nbt_DotPlot(PlotHandle,xSpotGroupDistance, xSpotMeanDistance, XRand, PairedSwitch,FuncHandle,Labels,StatTest,varargin)
 
 % Figure handles
 try
@@ -56,7 +56,7 @@ for Bid = 1:3:length(varargin) %for-loop biomarkers
     BtoPlot  = varargin{Bid}; %biomarker to plot
     
     %Plot group dots
-    plot(xSpot.*ones(length(varargin{Bid+1}),1), FuncHandle(BtoPlot(varargin{Bid+2},varargin{Bid+1}),1),MarkerList{1,MarkerIndex}) 
+    plot(xSpot.*ones(length(varargin{Bid+1}),1)+XRand*randn(length(varargin{Bid+1}),1), FuncHandle(BtoPlot(varargin{Bid+2},varargin{Bid+1}),1),MarkerList{1,MarkerIndex}) 
     MinValue(Bid) = min(FuncHandle(BtoPlot(varargin{Bid+2},varargin{Bid+1}),1)); %to use for for setting axis value
     MaxValue(Bid) = max(FuncHandle(BtoPlot(varargin{Bid+2},varargin{Bid+1}),1));
     

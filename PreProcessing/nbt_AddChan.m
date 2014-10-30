@@ -55,7 +55,6 @@ for mm = 1:length(AddIndex)
 end
 
 % Update SignalInfo
-SignalInfo.Interface.number_of_channels = size(Signal,2);
-SignalInfo.Interface.EEG.nbchan = SignalInfo.Interface.number_of_channels;
-SignalInfo.Interface.EEG.chanlocs = OldChanlocs;
+SignalInfo.interface.EEG.nbchan = size(Signal,2);
+SignalInfo.interface.EEG.chanlocs = OldChanlocs;
 end

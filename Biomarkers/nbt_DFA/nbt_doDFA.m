@@ -77,18 +77,12 @@ else
 end
 
 % get parameters from Signalobject
-Fs = InfoObject.converted_sample_frequency;
-DFAobject.Condition = InfoObject.condition;
+Fs = InfoObject.convertedSamplingFrequency;
 % set parameters in DFAobject
 DFAobject.FitInterval = FitInterval;
 DFAobject.CalcInterval = CalcInterval;
 DFAobject.Overlap = DFA_Overlap;
 
-%Set information from InfoObject
-DFAobject.ReseacherID = InfoObject.researcherID;
-DFAobject.ProjectID = InfoObject.projectID;
-DFAobject.SubjectID = InfoObject.subjectID;
-DFAobject.Condition = InfoObject.condition;
 
 
 %******************************************************************************************************************
@@ -111,19 +105,18 @@ if ((DFA_x(1)/Fs)>FitInterval(1) || (DFA_x(end)/Fs)<FitInterval(2))
 end
 
 %% The DFA algorithm...
-ChannelID = 1;
 
 for ChannelID = 1:(size(Signal,2)) % loop over channels
     disp(ChannelID);
-    if (isempty(DFAobject.DFA_y{GetChannelID,1}))
+    if (isempty(DFAobject.DFA_y{ChannelID,1}))
         DFA_y = nan(size(DFA_x,2),1);
         %% Do check of CalcInterval
-%         if (CalcInterval(2) > 0.1*length(Signal(:,GetChannelID))/Fs)
+%         if (CalcInterval(2) > 0.1*length(Signal(:,ChannelID))/Fs)
 %             display('The upper limit of CalcInterval is larger than the recommended 10% of the signal lenght')
 %         end
         
-        y = Signal(:,GetChannelID)./mean(Signal(:,GetChannelID));
-        %y = Signalobject(GetChannelID)-mean(Signalobject(GetChannelID),1);		% First we convert the time series to a series of fluctuations y(i) around the mean.
+        y = Signal(:,ChannelID)./mean(Signal(:,ChannelID));
+        %y = Signalobject(ChannelID)-mean(Signalobject(ChannelID),1);		% First we convert the time series to a series of fluctuations y(i) around the mean.
         y = y-mean(y);
         y = cumsum(y);         		% Integrate the above fluctuation time series ('y').
         for i = 1:size(DFA_x,2);				% 'DFA_x(i)' is the window size, which increases uniformly on a log10 scale!
@@ -135,14 +128,14 @@ for ChannelID = 1:(size(Signal,2)) % loop over channels
             end
             DFA_y(i) = mean(D(1:tt),1);						% the root-mean-square fluctuation of the integrated and detrended time series
         end  					  	       			% -- the F(n) in eq. (1) in Peng et al. 1995.
-        DFAobject.DFA_y{GetChannelID,1} = DFA_y;
+        DFAobject.DFA_y{ChannelID,1} = DFA_y;
     end
 end
 
 
 %% Fitting power-law
 for ChannelID = 1:(size(Signal,2)) % loop over channels
-    DFA_y = DFAobject.DFA_y{GetChannelID,1};
+    DFA_y = DFAobject.DFA_y{ChannelID,1};
     DFA_SmallTime_LogSample = min(find(DFA_x>=CalcInterval(1)*Fs));		%
     DFA_LargeTime_LogSample = max(find(DFA_x<=CalcInterval(2)*Fs));
     DFA_SmallTimeFit_LogSample = min(find(DFA_x>=FitInterval(1)*Fs));
@@ -151,7 +144,7 @@ for ChannelID = 1:(size(Signal,2)) % loop over channels
     Y = log10(DFA_y(DFA_SmallTimeFit_LogSample:DFA_LargeTimeFit_LogSample));
     DFA_exp = X\Y; %least-square fit
     DFA_exp = DFA_exp(2);
-    DFAobject.MarkerValues(GetChannelID,1) = DFA_exp;
+    DFAobject.markerValues(ChannelID,1) = DFA_exp;
 end
 
 DFAobject = nbt_UpdateBiomarkerInfo(DFAobject, InfoObject);

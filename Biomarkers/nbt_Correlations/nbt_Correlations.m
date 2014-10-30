@@ -1,5 +1,5 @@
 
-classdef nbt_Correlations < nbt_Biomarker  % define here the name of the new object, here we choose nbt_Biomarker_template
+classdef nbt_Correlations < nbt_CrossChannelBiomarker  % define here the name of the new object, here we choose nbt_Biomarker_template
     properties
         % add here the fields that are specific for your biomarker.
         %See the definition of nbt_Biomarker for fields that are allready there. For example:

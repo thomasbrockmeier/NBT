@@ -64,11 +64,11 @@ try
 catch
 end
 if(isempty(varargin))
-    NBT_version = nbt_GetVersion;
+    NBT_version = [nbt_getVersion ' -  www.nbtwiki.net'];
     
     %% Make menu
     if(standalone)
-    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  88.5000], ...
+    NBTMenu = figure('Units','pixels', 'name',NBT_version,'numbertitle','off', 'Userdata', {[] []},'Tag','NBT','DockControls','off','Position',[390.0000  456.7500 810  91], ...
         'MenuBar','none','NextPlot','new','Resize','off');
    
    %make sure the GUI is onscreen
@@ -93,7 +93,8 @@ end
 if (standalone)
     %%  NBT standalone GUI
     %define "use NBTelements" check box
-    uicontrol(NBTMenu, 'Style', 'Checkbox','String', 'Use NBTelements','Position',[10 10 200 20],'Tag','NBTelementSwitch')
+    tmpG = nbt_Group;
+    uicontrol(NBTMenu, 'Style', 'Text','String', ['Database type: ' tmpG.databaseType],'Position',[0 15 200 14])
     
     %define menu
     FileSub = uimenu(NBTMenu,'label', ' &File ');
@@ -102,6 +103,7 @@ if (standalone)
     uimenu( FileSub, 'label', 'Save NBT Signal', 'callback', ['nbt_SaveSignal(Signal,SignalInfo,[]);']);
     FileSubImportSub = uimenu(FileSub, 'label', ' &Import options');
     uimenu( FileSubImportSub, 'label', 'Import BrainVision Analyzer files', 'callback', 'nbt_import_files([],[], @nbt_loadbv);');
+    uimenu( FileSubImportSub, 'label', 'Import EDF files', 'callback', 'nbt_import_files([],[], @nbt_loadEDF);');   
     FileSubExportSub = uimenu(FileSub,'label', ' &Export options');
     uimenu(FileSubExportSub,'label', 'Export to BrainVision Analyzer format', 'callback', 'nbt_EEGLABwrp(@pop_writebva, Signal, SignalInfo, SignalPath, 0);');
     uimenu( FileSubExportSub, 'label', 'Export NBT Signal to a matrix', 'callback', 'ExSignal = nbt_exportSignal(Signal, SignalInfo);');
@@ -165,11 +167,8 @@ if (standalone)
     
     Stat = uimenu(NBTMenu, 'label', ' &Biomarker statistics');
     uimenu(Stat, 'label', ' &Current Signal', 'callback',  ['nbt_statistics_group([SignalPath  SignalInfo.file_name ''.mat''])'  ]);
-    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_selectrunstatistics;');
-%     uimenu(Stat, 'label', ' &Within a group','callback', 'nbt_stat_group;');
-%     uimenu(Stat, 'label', ' &Between two conditions','callback', 'nbt_stat_conditions;');
-%     uimenu(Stat, 'label', ' &Between two groups','callback', 'nbt_stat_groups;');
-%     uimenu(Stat,'label', 'List of Performed Tests', 'callback', 'nbt_list_statistics');
+    uimenu(Stat, 'label', ' &Statistics GUI','callback', 'nbt_statisticsGUI;');
+
     
     
     nbt_commonMenu

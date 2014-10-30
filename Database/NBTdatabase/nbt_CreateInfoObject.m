@@ -3,7 +3,7 @@
 %
 % Usage:
 % nbt_CreateInfoObject(filename, FileExt)
-% or 
+% or
 % nbt_CreateInfoObject(filename, FileExt, Fs)
 % or
 % nbt_CreateInfoObject(filename, FileExt, Fs, NBTSignalObject)
@@ -12,8 +12,8 @@
 %   nbt_Info
 
 %--------------------------------------------------------------------------
-% Copyright (C) 2008  Neuronal Oscillations and Cognition group, 
-% Department of Integrative Neurophysiology, Center for Neurogenomics and 
+% Copyright (C) 2008  Neuronal Oscillations and Cognition group,
+% Department of Integrative Neurophysiology, Center for Neurogenomics and
 % Cognitive Research, Neuroscience Campus Amsterdam, VU University Amsterdam.
 %
 % Part of the Neurophysiological Biomarker Toolbox (NBT)
@@ -35,18 +35,16 @@
 % See Readme.txt for additional copyright information.
 %--------------------------------------------------------------------------
 
-function Info = nbt_CreateInfoObject(filename, FileExt, Fs, NBTSignalObject);
+function [SignalInfo, SubjectInfo] = nbt_CreateInfoObject(filename, FileExt, Fs, SignalName, Signal)
+disp('Creating Info objects')
 
-error(nargchk(2,4,nargin))
-disp('Creating Info object')
-
-file_name_format= '<ProjectID>.S<SubjectID>.<Date in YYMMDD>.Condition';
 
 if(~exist('Fs'))
     Fs = input('Please, specify the sampling frequency? ');
 end
 try
     IDdots = strfind(filename,'.');
+<<<<<<< HEAD
     if(~isempty(FileExt))
         Info = nbt_Info(filename(1:(strfind(filename,FileExt)-1)),file_name_format,filename((IDdots(3)+1):(IDdots(4)-1)), ...
             filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
@@ -54,26 +52,42 @@ try
         Info = nbt_Info(filename,file_name_format,filename((IDdots(3)+1):end), ...
             filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
     end
+=======
+    [SignalInfo, SubjectInfo] = generateObjects;
+>>>>>>> d940d42694c83d1148b3be8a652abb67974e3a9a
 catch
     filename = input('Please write filename in correct format, <ProjectID>.S<SubjectID>.<Date in YYMMDD>.Condition ','s');
-    IDdots = strfind(filename,'.');
-    if(~isempty(FileExt))
-        Info = nbt_Info(filename(1:(strfind(filename,FileExt)-2)),file_name_format,filename((IDdots(3)+1):(IDdots(4)-1)), ...
-            filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
-    else
-        Info = nbt_Info(filename,file_name_format,filename((IDdots(3)+1):end), ...
-            filename((IDdots(2)+1):(IDdots(3)-1)),[],[],[],str2double(filename((IDdots(1)+2):(IDdots(2)-1))),filename(1:(IDdots(1)-1)),[],[],[],[],[],[]);
-    end
+    IDdots = strfind(filename,'.'); 
+    [SignalInfo, SubjectInfo] = generateObjects;
 end
-Info.converted_sample_frequency = Fs;
 
-if(exist('NBTSignalObject'))
-    Info.Info = NBTSignalObject.Info;
-    try
-        Info.Interface.EEG = Info.Info.EEG;
-        Info.Info.EEG = [];
-    catch
+
+%nested function part
+    function [SignalInfo, SubjectInfo] = generateObjects
+        SubjectInfo = nbt_SubjectInfo;
+        SignalInfo  = nbt_SignalInfo;
+        if(~isempty(FileExt))
+            SubjectInfo.fileName  = filename(1:(strfind(filename,FileExt)-2));  % Filename of the Signal file
+            SignalInfo.subjectInfo = [SubjectInfo.fileName '_info.mat'];
+            SubjectInfo.conditionID = filename((IDdots(3)+1):(IDdots(4)-1));
+        else
+            SubjectInfo.fileName  = filename;  % Filename of the Signal file
+            SignalInfo.subjectInfo = [SubjectInfo.fileName '_info.mat'];
+              SubjectInfo.conditionID = filename((IDdots(3)+1):end);
+        end
+        SubjectInfo.projectInfo = [filename(1:(IDdots(1)-1)) '.mat' ]; %pointer to projectInfo.mat files
+        SubjectInfo.subjectID = str2double(filename((IDdots(1)+2):(IDdots(2)-1)));  % The subject ID
+       % The condition ID, e.g., ECR1
+        SubjectInfo.fileNameFormat = '<ProjectID>.S<SubjectID>.<Date in YYYYMMDD>.Condition'; %Filename format, should always be in NBT format (but open for other format)
+        SubjectInfo.info.dateOfRecording = filename((IDdots(2)+1):(IDdots(3)-1));
+        
+        SignalInfo.timeOfRecording =  filename((IDdots(2)+1):(IDdots(3)-1));
+        SignalInfo.signalName = SignalName;                  %The name of the signal
+        SignalInfo.signalID   = nbt_MakeNBTDID;                    %A unique ID genearated by nbt_makeNBTDID;
+        SignalInfo.signalSHA256  =  nbt_getHash(Signal);             %The SHA256 hash of the Signal
+        SignalInfo.nbtVersion   = nbt_getVersion;               % The NBT version using nbt_getVersion
+        SignalInfo.convertedSamplingFrequency = Fs;
+        SubjectInfo.lastUpdate = datestr(now);
+        SignalInfo.lastUpdate  = datestr(now);
     end
-end
-Info.LastUpdate = datestr(now);
 end

@@ -4,9 +4,9 @@
 %
 % Usage:
 %   >> [art, horiz, vert, blink, disc,...
-%         soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-%         soglia_GDSF, GDSF, soglia_V, nuovaV]=ADJUST(EEG,out);
-%
+%         soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+%         soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, nuovaV, soglia_D, maxdin]=ADJUST (EEG,out)
+% 
 % Inputs:
 %   EEG        - current dataset structure or structure array (has to be epoched)
 %   out        - (string) report file name 
@@ -35,23 +35,27 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % ADJUST
-% Automatic EEG artifact Detector with Joint Use of Spatial and Temporal
-% features
-% Developed May2007 - October2008
-% Andrea Mognon and Marco Buiatti
-% CIMeC - Center for Mind/Brain Science, University of Trento
-% Last update: 26/11/2009 by Andrea Mognon
+% Automatic EEG artifact Detector based on the Joint Use of Spatial and Temporal features
+% 
+% Developed 2007-2014
+% Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
+% 
+% Last update: 02/05/2014 by Marco Buiatti
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 % Reference paper:
-% Mognon, Jovicich, Bruzzone, Buiatti, ADJUST: An Automatic EEG artifact Detector based on the
-% Joint Use of Spatial and Temporal features. Reviewed
+% Mognon A, Bruzzone L, Jovicich J, Buiatti M, 
+% ADJUST: An Automatic EEG artifact Detector based on the Joint Use of Spatial and Temporal features. 
+% Psychophysiology 48 (2), 229-240 (2011).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -70,7 +74,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % VERSIONS LOG
+%
+% 02/05/14: Modified text in Report.txt (MB).
+%
+% 30/03/14: Removed 'message to the user' (redundant). (MB)
 % 
+% 22/03/14: kurtosis is replaced by kurt for compatibility if signal processing
+%           toolbox is missing (MB).
+%
 % V2 (07 OCTOBER 2010) - by Andrea Mognon
 % Added input 'nchannels' to compute_SAD and compute_SED_NOnorm;
 % this is useful to differentiate the number of ICs (n) and the number of
@@ -80,15 +91,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-
+% function [art, horiz, vert, blink, disc,...
+%         soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
+%         soglia_GDSF, GDSF, soglia_V, nuovaV, soglia_D, maxdin]=ADJUST (EEG,out)
 function [art, horiz, vert, blink, disc,...
-        soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-        soglia_GDSF, GDSF, soglia_V, nuovaV, soglia_D, maxdin]=ADJUST (EEG,out)
+        soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+        soglia_GDSF, med2_GDSF, GDSF, soglia_V, med2_V, nuovaV, soglia_D, maxdin]=ADJUST (EEG,out)
 
     
-    
-
 %% Settings
 
 % ----------------------------------------------------
@@ -98,15 +108,12 @@ function [art, horiz, vert, blink, disc,...
 % ----------------------------------------------------
 % |  Initial message to user:                        |
 % ----------------------------------------------------
-
-disp(' ')
-disp(' ')
-disp ('ADJUST')
-disp(' ')
-disp('Detects Horizontal and Vertical eye movements,')
-disp('Blinks and Discontinuities in dataset:')
-disp([EEG.filename])
-disp(' ')
+% 
+% disp(' ')
+% disp('Detects Horizontal and Vertical eye movements,')
+% disp('Blinks and Discontinuities in dataset:')
+% disp([EEG.filename])
+% disp(' ')
 
 % ----------------------------------------------------
 % |  Collect useful data from EEG structure          |
@@ -139,13 +146,13 @@ if isempty(EEG.icaact)
     end
 end
 
-
 topografie=EEG.icawinv'; %computes IC topographies
 
 % Topographies and time courses normalization
-
-disp('Normalizing topographies...')
-disp('Scaling time courses...')
+% 
+% disp(' ');
+% disp('Normalizing topographies...')
+% disp('Scaling time courses...')
 
 for i=1:size(EEG.icawinv,2) % number of ICs
     
@@ -160,11 +167,9 @@ for i=1:size(EEG.icawinv,2) % number of ICs
     end
     
 end
-
-disp('Done.')
-disp(' ')
-
-
+% 
+% disp('Done.')
+% disp(' ')
 
 % Variables memorizing artifacted ICs indexes
 
@@ -176,62 +181,71 @@ vert=[];
 
 disc=[];
 
+%% Check EEG channel position information
+nopos_channels=[];
+for el=1:length(EEG.chanlocs)
+    if(any(isempty(EEG.chanlocs(1,el).X)&isempty(EEG.chanlocs(1,el).Y)&isempty(EEG.chanlocs(1,el).Z)&isempty(EEG.chanlocs(1,el).theta)&isempty(EEG.chanlocs(1,el).radius)))
+        nopos_channels=[nopos_channels el];
+    end;
+end
+
+if ~isempty(nopos_channels)
+    warning(['Channels ' num2str(nopos_channels) ' have incomplete location information. They will NOT be used to compute ADJUST spatial features']);
+    disp(' ');
+end;
+
+pos_channels=setdiff(1:length(EEG.chanlocs),nopos_channels);
 
 %% Feature extraction
 
-disp('Extracting features:')
 disp(' ')
+disp('Features Extraction:')
 
 %GDSF - General Discontinuity Spatial Feature
 
 disp('GDSF - General Discontinuity Spatial Feature...')
 
-GDSF = compute_GD_feat(topografie,EEG.chanlocs,size(EEG.icawinv,2));
+GDSF = compute_GD_feat(topografie,EEG.chanlocs(1,pos_channels),size(EEG.icawinv,2));
 
 
 %SED - Spatial Eye Difference
 
 disp('SED - Spatial Eye Difference...')
 
-[SED,medie_left,medie_right]=computeSED_NOnorm(topografie,EEG.chanlocs,size(EEG.icawinv,2),size(EEG.icawinv,1)); 
+[SED,medie_left,medie_right]=computeSED_NOnorm(topografie,EEG.chanlocs(1,pos_channels),size(EEG.icawinv,2)); 
 
 
 %SAD - Spatial Average Difference
 
 disp('SAD - Spatial Average Difference...')
 
-[SAD,var_front,var_back,mean_front,mean_back]=computeSAD(topografie,EEG.chanlocs,size(EEG.icawinv,2),size(EEG.icawinv,1));
+[SAD,var_front,var_back,mean_front,mean_back]=computeSAD(topografie,EEG.chanlocs(1,pos_channels),size(EEG.icawinv,2));
 
 
 %SVD - Spatial Variance Difference between front zone and back zone
 
 diff_var=var_front-var_back;
 
-disp(' ')
-disp('Done.')
-disp(' ')
-
-
 %epoch dynamic range, variance and kurtosis
 
 K=zeros(num_epoch,size(EEG.icawinv,2)); %kurtosis
+Kloc=K;
 
 Vmax=zeros(num_epoch,size(EEG.icawinv,2)); %variance
 
-disp('Computing variance and kurtosis of all epochs...')
+% disp('Computing variance and kurtosis of all epochs...')
 
 for i=1:size(EEG.icawinv,2) % number of ICs
     
-    for j=1:num_epoch
-                
-        Vmax(j,i)=var(EEG.icaact(i,:,j));
-        
-        K(j,i)=kurtosis(EEG.icaact(i,:,j));
-        
-    end
-    
+    for j=1:num_epoch              
+        Vmax(j,i)=var(EEG.icaact(i,:,j));        
+%         Kloc(j,i)=kurtosis(EEG.icaact(i,:,j));
+        K(j,i)=kurt(EEG.icaact(i,:,j));
+    end  
 end
 
+% check that kurt and kurtosis give the same values:
+% [a,b]=max(abs(Kloc(:)-K(:)))
 
 %TK - Temporal Kurtosis
 
@@ -276,19 +290,24 @@ nuovaV=maxvar./meanvar;
 
 disp('Computing EM thresholds...')
 
-soglia_K=EM(meanK);
+% soglia_K=EM(meanK);
+% 
+% soglia_SED=EM(SED);
+% 
+% soglia_SAD=EM(SAD);
+% 
+% soglia_GDSF=EM(GDSF);
+% 
+% soglia_V=EM(nuovaV); 
+[soglia_K,med1_K,med2_K]=EM(meanK);
 
-soglia_SED=EM(SED);
+[soglia_SED,med1_SED,med2_SED]=EM(SED);
 
-soglia_SAD=EM(SAD);
+[soglia_SAD,med1_SAD,med2_SAD]=EM(SAD);
 
-soglia_GDSF=EM(GDSF);
+[soglia_GDSF,med1_GDSF,med2_GDSF]=EM(GDSF);
 
-soglia_V=EM(nuovaV); 
-
-disp('Done.')
-disp(' ')
-
+[soglia_V,med1_V,med2_V]=EM(nuovaV); 
 
 %% Output file header
 
@@ -302,14 +321,20 @@ fprintf(file,'ADJUST\n');
 
 fprintf(file,'Automatic EEG artifacts Detector with Joint Use of Spatial and Temporal features\n\n');
 
+fprintf(file,'Andrea Mognon and Marco Buiatti (2009-2014)\n\n');
+
 fprintf(file,['Analyzed dataset: ' EEG.filename '\n']);
+
+fprintf(file,['Analysis date: ' date '\n']);
 
 fprintf(file,'Analysis carried out on the %d Independent Components\n\n',size(EEG.icawinv,2));
 
 
 %% Horizontal eye movements (HEM)
 
-disp('Evaluating Horizontal movements...')
+disp(' ');
+disp('Artifact Identification:');
+disp('Horizontal Eye Movements...')
 
 % ----------------------------------------------------
 % |  Writes HEM header in the report file            |
@@ -317,16 +342,13 @@ disp('Evaluating Horizontal movements...')
 
 fprintf(file,'> HEM - Horizontal movements\n\n');
 
-fprintf(file,'Classification based on features:\n\n');
+fprintf(file,'Classification based on features:\n');
 
 fprintf(file,'SED - Spatial eye difference (threshold=%f)\n',soglia_SED);
 
 fprintf(file,'MEV - Maximum epoch variance (threshold=%f)\n\n',soglia_V);
 
 fprintf(file,'ICs with Horizontal eye movements:\n');
-
-
-
 
 horiz=intersect(intersect(find(SED>=soglia_SED),find(medie_left.*medie_right<0)),...
     (find(nuovaV>=soglia_V)));
@@ -350,7 +372,7 @@ end
 
 %% Vertical eye movements (VEM)
 
-disp('Evaluating Vertical movements...')
+disp('Vertical Eye Movements...')
 
 % ----------------------------------------------------
 % |  Writes VEM header in the report file            |
@@ -359,11 +381,11 @@ disp('Evaluating Vertical movements...')
 
 fprintf(file,'>> VEM - Vertical movements\n\n');
 
-fprintf(file,'Classification based on features:\n\n');
+fprintf(file,'Classification based on features:\n');
 
 fprintf(file,'SAD - Spatial average difference (threshold=%f)\n',soglia_SAD);
 
-fprintf(file,'MEV - Maximum epoch variance (threshold=%f)\n',soglia_V);
+fprintf(file,'MEV - Maximum epoch variance (threshold=%f)\n\n',soglia_V);
 
 fprintf(file,'ICs with Vertical eye movements:\n');
 
@@ -393,7 +415,7 @@ end
 
 %% Eye Blink (EB)
 
-disp('Evaluating Blinks...')
+disp('Eye Blinks...')
 
 % ----------------------------------------------------
 % |  Writes EB header in the report file             |
@@ -401,11 +423,11 @@ disp('Evaluating Blinks...')
 
 fprintf(file,'>>> EB - Blinks\n\n');
 
-fprintf(file,'Classification based on features:\n\n');
+fprintf(file,'Classification based on features:\n');
 
 fprintf(file,'SAD (threshold=%f)\n',soglia_SAD);
 
-fprintf(file,'TK - Temporal kurtosis (threshold=%f)\n',soglia_K);
+fprintf(file,'TK - Temporal kurtosis (threshold=%f)\n\n',soglia_K);
 
 fprintf(file,'ICs with Blinks:\n');
 
@@ -433,7 +455,7 @@ end
 
 %% Generic Discontinuities (GD)
 
-disp('Evaluating Discontinuities...')
+disp('Generic Discontinuities...')
 
 % ----------------------------------------------------
 % |  Writes GD header in the report file             |
@@ -441,13 +463,13 @@ disp('Evaluating Discontinuities...')
 
 fprintf(file,'>>>> GD - Discontinuities\n');
 
-fprintf(file,'Classification based on features:\n\n');
+fprintf(file,'Classification based on features:\n');
 
 fprintf(file,'GDSF - Generic Discontinuities Spatial Feature (threshold=%f)\n',soglia_GDSF);
 
 fprintf(file,'MEV - Maximum epoch variance (threshold=%f)\n\n',soglia_V);
 
-fprintf(file,'ICs with Discontinuities:\n');
+fprintf(file,'ICs with Generic Discontinuities:\n');
 
 
 disc=intersect(find(GDSF>=soglia_GDSF),find(nuovaV>=soglia_V));
@@ -465,6 +487,11 @@ else
     fprintf(file,'\n');    
 end
 
+aic=unique([blink disc horiz vert]);
+
+fprintf(file,'Artifacted ICs (total):\n');
+    fprintf(file,[num2str(aic) '\n']);
+    fprintf(file,'\n');    
 
 
 
@@ -493,24 +520,27 @@ return
 %% The following sections have been moved to interface_ADJ in order to manage
 %% continuous data
 
-
-%% Saving artifacted ICs for further analysis
-
-nome=['List_' EEG.setname '.mat'];
-
-save (nome, 'blink', 'horiz', 'vert', 'disc');
-
-disp(' ')
-disp(['Artifact ICs list saved in ' nome]);
-
-
-%% IC show & remove
-% show all ICs; detected ICs are highlighted in red color. Based on
-% pop_selectcomps.
-
-art = nonzeros( union (union(blink,horiz) , union(vert,disc)) )'; %artifact ICs
-
-    [EEG] = pop_selectcomps_ADJ( EEG, 1:size(EEG.icawinv,1), art, horiz, vert, blink, disc,...
-        soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
-        soglia_TDR, topog_DR, soglia_V, maxvar, soglia_D, maxdin );
+% 
+% %% Saving artifacted ICs for further analysis
+% 
+% nome=['List_' EEG.setname '.mat'];
+% 
+% save (nome, 'blink', 'horiz', 'vert', 'disc');
+% 
+% disp(' ')
+% disp(['Artifact ICs list saved in ' nome]);
+% 
+% 
+% %% IC show & remove
+% % show all ICs; detected ICs are highlighted in red color. Based on
+% % pop_selectcomps.
+% 
+% art = nonzeros( union (union(blink,horiz) , union(vert,disc)) )'; %artifact ICs
+% 
+% %     [EEG] = pop_selectcomps_ADJ( EEG, 1:size(EEG.icawinv,1), art, horiz, vert, blink, disc,...
+% %         soglia_DV, diff_var, soglia_K, meanK, soglia_SED, SED, soglia_SAD, SAD, ...
+% %         soglia_TDR, topog_DR, soglia_V, maxvar, soglia_D, maxdin );
+%     [EEG] = pop_selectcomps_ADJ( EEG, 1:size(EEG.icawinv,1), art, horiz, vert, blink, disc,...
+%         soglia_DV, diff_var, soglia_K, med2_K, meanK, soglia_SED, med2_SED, SED, soglia_SAD, med2_SAD, SAD, ...
+%         soglia_GDSF, med2_GDSF, topog_DR, soglia_V, med2_V, maxvar, soglia_D, maxdin );
 

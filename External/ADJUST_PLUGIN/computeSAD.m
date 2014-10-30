@@ -18,8 +18,9 @@
 %   mean_back  - Posterior Area average values
 %
 %
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -36,8 +37,9 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-function [rapp,var_front,var_back,mean_front,mean_back]=computeSAD(topog,chanlocs,n,nchannels)
+function [rapp,var_front,var_back,mean_front,mean_back]=computeSAD(topog,chanlocs,n)
 
+nchannels=length(chanlocs);
 
 %% Define scalp zones
 

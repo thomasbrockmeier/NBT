@@ -51,7 +51,7 @@
 
 function nbt_runDFA_gui(Signal, SignalInfo, SaveDir)
 SettingsDFA = evalin('base','SettingsDFA');
-duration = floor(size(Signal,1)/SignalInfo.converted_sample_frequency);
+duration = floor(size(Signal,1)/SignalInfo.convertedSamplingFrequency);
 display(['Signal duration: ' num2str(duration) ' sec' ])
 if ~exist('SettingsDFA','var') || isempty(SettingsDFA)
     Frange = (input('Specify frequency range in Hz [lowF highF] (i.e. [8 13]): '));
@@ -62,7 +62,7 @@ if ~exist('SettingsDFA','var') || isempty(SettingsDFA)
         fir_order = 2/hp;
     end
 %--- The DFA is not accurate for very short windows nor for long windows,
-    Fs = SignalInfo.converted_sample_frequency;
+    Fs = SignalInfo.convertedSamplingFrequency;
     %
     Overlap = (input('Specify windows overlap (for default=0.5 press Enter): '));
     if isempty(Overlap)
@@ -83,8 +83,8 @@ if ~exist('SettingsDFA','var') || isempty(SettingsDFA)
 %--- test with random noise chose a fitting interval
 Nrand = 10;
 NoiseSignal = randn(N,Nrand);
-NoiseSignalInfo = nbt_Info;
-NoiseSignalInfo.converted_sample_frequency = Fs;
+NoiseSignalInfo = nbt_SignalInfo;
+NoiseSignalInfo.convertedSamplingFrequency = Fs;
 [NoiseSignal,NoiseSignalInfo] = nbt_GetAmplitudeEnvelope(NoiseSignal, NoiseSignalInfo, hp, lp, fir_order);
 % t1 = tic;
 [DFAobject,DFA_exp] = nbt_doDFA(NoiseSignal,NoiseSignalInfo,FitInterval, CalcInterval, Overlap, 0, 0, logbin);
@@ -167,7 +167,7 @@ end
 
 else
     N = size(Signal,1);
-    Fs = SignalInfo.converted_sample_frequency;
+    Fs = SignalInfo.convertedSamplingFrequency;
     hp = SettingsDFA.hp;
     lp = SettingsDFA.lp;
     fir_order = SettingsDFA.fir_order;

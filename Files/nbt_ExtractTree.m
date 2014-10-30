@@ -8,13 +8,13 @@ end
 d = dir (startpath);
 for j=3:length(d)
     if (d(j).isdir )
-        A =nbt_ExtractTree([startpath,'/', d(j).name ], fileext, filetype, A);
+        A =nbt_ExtractTree([startpath filesep d(j).name ], fileext, filetype, A);
     else
         b = strfind(d(j).name,fileext);
         cc= strfind(d(j).name,filetype);
         
         if (length(b)~=0  && length(cc)~=0)
-            A = [A, [startpath , '/',d(j).name]];
+            A = [A, [startpath filesep d(j).name]];
         end
     end
 end

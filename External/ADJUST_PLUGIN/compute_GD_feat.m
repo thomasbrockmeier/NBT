@@ -11,8 +11,9 @@
 % Outputs:
 %   res       - GDSF values
 
-% Copyright (C) 2009 Andrea Mognon and Marco Buiatti, 
-% Center for Mind/Brain Sciences, University of Trento, Italy
+% Copyright (C) 2009-2014 Andrea Mognon (1) and Marco Buiatti (2), 
+% (1) Center for Mind/Brain Sciences, University of Trento, Italy
+% (2) INSERM U992 - Cognitive Neuroimaging Unit, Gif sur Yvette, France
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -48,10 +49,10 @@ for ic=1:num_componenti
     
     aux=[];
     
-    for el=1:length(pos)-1
+    for el=1:length(canali)-1
         
         P=pos(el,:); %position of current electrode
-        d=pos-repmat(P,length(pos),1);
+        d=pos-repmat(P,length(canali),1);
         %d=pos-repmat(P,62,1);
         dist=sqrt(sum((d.*d),2));
         

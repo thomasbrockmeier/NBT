@@ -2,7 +2,7 @@
 % nbt_Rename(StartPath,filenameExt,BlockSep, BlockDef)
 % 
 %E.g.
-% nbt_Rename('/media/Data/','.cnt','_',{'dyslex';1;'yymmdd';5}
+% nbt_Rename('/media/Data/','.cnt','_',{'dyslex';1;'yymmdd';5})
 % will rename the file format <SubjectID>_x_x_x_<Condition>.cnt to
 % dyslex.<SubjectID>.yymmdd.<Condition>.cnt
 

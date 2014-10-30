@@ -25,7 +25,7 @@
 % See Readme.txt for additional copyright information.
 % 
 
-classdef nbt_MFDFA < nbt_Biomarker
+classdef nbt_MFDFA < nbt_SignalBiomarker
     properties
         s       % s:            scale
         q       % q:            q-order
