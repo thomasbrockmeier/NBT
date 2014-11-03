@@ -38,14 +38,16 @@ switch GrpObj.databaseType
                        NBTelementCall = [NBTelementCall  bIdentifiers{bIdent,1} ',' num2str(bIdentifiers{bIdent,2}) ';'];
                    end
                 end
-            else %biomarker identifiers were not selected, we generate the list from all available identifieres.
-                disp('break')
-                for ii=1:length(GrpObj.biomarkerList)
-                   if(strcmp(GrpObj.biomarkerList{ii,1}, StatObj.biomarkers{bID,1}))
-                       disp('here the list of biomarker identifiers should be generated')
-                       break %jump out of GrpObj ii for-loop
-                   end
-                end
+%             else %biomarker identifiers were not selected, we generate
+%             the list from all available identifieres. >> Maybe not the
+%             best idea? If empty we just continue.
+%                 disp('break')
+%                 for ii=1:length(GrpObj.biomarkerList)
+%                    if(strcmp(GrpObj.biomarkerList{ii,1}, StatObj.biomarkers{bID,1}))
+%                        disp('here the list of biomarker identifiers should be generated')
+%                        break %jump out of GrpObj ii for-loop
+%                    end
+%                 end
             end
             NBTelementCall = NBTelementCall(1:end-1); % to remove ';'
             NBTelementCall = [NBTelementCall '},' ''''  subBiomarker '''' ');'];

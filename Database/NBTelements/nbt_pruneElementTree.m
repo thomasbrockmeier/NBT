@@ -5,7 +5,6 @@ elements = load('NBTelementBase.mat');
 flds = fields(elements);
 level = zeros(length(flds),1);
 for i = 1:length(flds)
-    
     keys(i).k = eval(['elements.' flds{i} '.Key;']);
     level(i) = length(strfind(keys(i).k,'.'));
     ids(i) = eval(['elements.' flds{i} '.ElementID;']);
@@ -49,13 +48,12 @@ for i = maxLevel:-1:0
                 for k = 1:length(childs)
                     child = childs(k);
                     childName = ['elements.' flds{find(ids==child)}];
-                    
+                    eval([parentName '.Children = [' parentName '.Children; ' childName '.ElementID];']) 
                     eval([childName '.Uplink = parent;']);
                     elements = removeID(elements,ids, flds, childName,ids(leaf));
                 end
                 id = eval(['elements.' flds{leaf} '.ElementID;']);
                 eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
-                eval([parentName '.Children = [' parentName '.Children; ' childName '.ElementID]']) 
                 elements = rmfield(elements,flds{leaf});
             end
         end
