@@ -1,7 +1,17 @@
 function GrpObj = defineSubjectGroupGUI(GrpObj, InfoCell, BioCell, IdentCell)
-
 %defineGroupGUI returns a nbt_Group object based on the selection made in
 %the GUI
+
+%first we transform the InfoCell numbers into strings
+for i=1:size(InfoCell,1)
+    if(isnumeric(InfoCell{i,2}))
+        for m = 1:length(InfoCell{i,2})
+            tmp{1,m} = num2str(InfoCell{i,2}(m));
+        end
+        InfoCell{i,2} = tmp;
+        clear tmp;
+    end
+end
 
 
 %Define "Define Group" window
@@ -28,7 +38,7 @@ if noPanels > 6
         listBox(i) = uicontrol(Gp(i),'Style','listbox','Units','pixels',...
             'Position',[1 1 panelWidth-20 180],...
             'BackgroundColor','white',...
-            'Max',10,'Min',1, 'String', num2str(InfoCell{i,2}),'Value',[]);
+            'Max',10,'Min',1, 'String', InfoCell{i,2},'Value',[]);
     end
     
     
@@ -38,7 +48,7 @@ if noPanels > 6
         listBox(i) = uicontrol(Gp(i),'Style','listbox','Units','pixels',...
             'Position',[1 1 panelWidth-20 180],...
             'BackgroundColor','white',...
-            'Max',10,'Min',1, 'String', num2str(InfoCell{i,2}),'Value',[]);
+            'Max',10,'Min',1, 'String', InfoCell{i,2},'Value',[]);
     end
     
     
@@ -54,7 +64,7 @@ else
         listBox(i) = uicontrol(Gp(i),'Style','listbox','Units','pixels',...
             'Position',[1 1 panelWidth-20 180],...
             'BackgroundColor','white',...
-            'Max',10,'Min',1, 'String', num2str(InfoCell{i,2}),'Value',[]);
+            'Max',10,'Min',1, 'String', InfoCell{i,2},'Value',[]);
     end
     
     
