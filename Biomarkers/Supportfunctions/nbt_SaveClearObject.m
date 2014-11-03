@@ -55,7 +55,7 @@ if(exist(an_file,'file') == 2)
  save(an_file, ObjectName, '-append');
     disp('NBT: Analysis File already exists. Appending to existing file!');
 elseif(exist(an_file,'file') == 0)
-    save(an_file, ObjectName)
+    save(an_file, ObjectName,'-v7') 
 end
 
 %And then we clear it
