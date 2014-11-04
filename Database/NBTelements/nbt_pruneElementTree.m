@@ -41,20 +41,17 @@ for i = maxLevel:-1:0
                     disp(['      node ' flds{leaf} ' has no parent']);
                 else
                     parentName = ['elements.' flds{find(ids==parent)}];
+                    for k = 1:length(childs)
+                        child = childs(k);
+                        childName = ['elements.' flds{find(ids==child)}];
+                        eval([parentName '.Children = [' parentName '.Children; ' childName '.ElementID];'])
+                        eval([childName '.Uplink = parent;']);
+                        elements = removeID(elements,ids, flds, childName,ids(leaf));
+                    end
+                    id = eval(['elements.' flds{leaf} '.ElementID;']);
+                    eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
+                    elements = rmfield(elements,flds{leaf});
                 end
-                
-                
-                
-                for k = 1:length(childs)
-                    child = childs(k);
-                    childName = ['elements.' flds{find(ids==child)}];
-                    eval([parentName '.Children = [' parentName '.Children; ' childName '.ElementID];']) 
-                    eval([childName '.Uplink = parent;']);
-                    elements = removeID(elements,ids, flds, childName,ids(leaf));
-                end
-                id = eval(['elements.' flds{leaf} '.ElementID;']);
-                eval([parentName '.Children = ' parentName '.Children(' parentName '.Children ~= id);']);
-                elements = rmfield(elements,flds{leaf});
             end
         end
     end
@@ -74,6 +71,9 @@ if ~isempty(grandChilds)
 end
 kys = eval([childName '.Key;']);
 place = strfind(kys,num2str(ID));
+if(isempty(place)) % nothing to remove
+    return
+end
 place = place(end); %Hack for double digit numbers
 indPlace = strfind(kys,'.');
 indd = max(find(indPlace<place));
