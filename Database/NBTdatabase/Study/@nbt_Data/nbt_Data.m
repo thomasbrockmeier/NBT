@@ -36,6 +36,24 @@ classdef nbt_Data
                    end
                    B = tmp;
                end
+           elseif(strcmp(S(1).type,'()')) %this will return a large matrix [biomarkerIDs,ChannelIDs]
+               if(isempty(S.subs))
+                  S.subs{1,1} = 1:size(A.dataStore,1);
+                  S.subs{1,2} = 1:size(A.dataStore{1,1}{1,1},1);
+               end
+               B = [];
+               numSubjects = size(A.dataStore{1,1},1);
+                    %returning all biomarkers in Subject x Biomarker format
+               
+                   for bID = S.subs{1,1} %looping over biomarkers
+                       tmp = nan(numSubjects,size(S.subs{1,2},2));
+                       for sID = 1:numSubjects %looping over subjects
+                            tmp(sID,:) = A.dataStore{bID,1}{sID,1}(S.subs{1,2},1)'; 
+                       end
+                       B = [B tmp];
+                       clear tmp
+                   end
+               
            end
            
        end 

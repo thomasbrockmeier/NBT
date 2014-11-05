@@ -19,6 +19,12 @@ bioms_ind = get(findobj('Tag','ListBiomarker'),'Value');
 bioms_name = get(findobj('Tag','ListBiomarker'),'String');
 S.channelsRegionsSwitch = get(findobj('Tag', 'ListRegion'),'Value');
 S.biomarkers = bioms_name(bioms_ind);
+%HACK: to make this work before the GUI is ready!
+for i=1:length(bioms_ind)
+    tmp{i,1} = [];
+end
+S.biomarkerIdentifiers =   tmp;
+%end HACK
 
 S = S.calculate(NBTstudy);
 
