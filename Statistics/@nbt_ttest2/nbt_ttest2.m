@@ -6,6 +6,7 @@ classdef nbt_ttest2 < nbt_UnPairedStat
         function obj = nbt_ttest2(obj)
             obj.testOptions.tail = 'both';
             obj.testOptions.vartype = 'equal';
+            obj.testName = 'Parametric (Bi-variate): Student unpaired t-test';
         end
         
         

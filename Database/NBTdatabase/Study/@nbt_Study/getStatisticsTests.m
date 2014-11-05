@@ -1,7 +1,7 @@
 
 
 %------------------------------------------------------------------------------------
-% Originally created by Simon-Shlomo Poil (20124), see NBT website (http://www.nbtwiki.net) for current email address
+% Originally created by Simon-Shlomo Poil (2014), see NBT website (http://www.nbtwiki.net) for current email address
 %------------------------------------------------------------------------------------
 %
 % ChangeLog - see version control log at NBT website for details.
@@ -82,14 +82,14 @@ switch index
       
         
     case 7 % Parametric (Univariate): Student paired t-test
-      
+      S = nbt_ttest;
         
     case 8 % Non-Parametric (Univariate): Wilcoxon signed rank test
         
       
         
     case 9 % Parametric (Bi-variate): Student unpaired t-test
-        S = nbt_ttest;
+        S = nbt_ttest2;
         
     case 10 % Non-Parametric (Bi-variate):  Wilcoxon rank sum test
         %.statfuncname='Wilcoxon rank sum test';
