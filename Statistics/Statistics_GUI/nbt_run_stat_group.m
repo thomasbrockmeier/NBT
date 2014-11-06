@@ -130,6 +130,7 @@ elseif strcmp(char(statfunc),'nbt_perm_group_diff')
 elseif strcmp(char(statfunc),'nbt_perm_corr')
     warning('This test requires more than 1 group');
 elseif strcmp(char(statfunc),'zscore')
+%     B = abs(B); % absolute values for a difference group e.g.
     dim = 2;
     sigma = nanstd(B,1,dim);
     mu = nanmean(B,dim);

@@ -1,30 +1,3 @@
-%------------------------------------------------------------------------------------
-% Originally created by Simon-Shlomo Poil (2012), see NBT website for current email address
-%------------------------------------------------------------------------------------
-%
-% ChangeLog - see version control log at NBT website for details.
-%
-% Copyright (C) 2012  Simon-Shlomo Poil  
-%
-% Part of the Neurophysiological Biomarker Toolbox (NBT)
-%
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 3 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with this program; if not, write to the Free Software
-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-%
-% See Readme.txt for additional copyright information.
-% ---------------------------------------------------------------------------------------
-
 function [s] = nbt_TrainClassifier(DataMatrix,outcome, s)
 %% still missing in this function:
 % check for case of multi-class classification!
@@ -51,13 +24,9 @@ switch lower(s.statfunc)
         %   the path. RelTol is the relative tolerance of CCD algorithm and
         %   affects how long the algorithm tries to converge.
         
-        [B,FitInfo] = lassoglm(DataMatrix, outcome,'binomial','Alpha',0.8,'RelTol',1e-6,...
-            'CV',3,'NumLambda',100,'Standardize',1);
-        try
-            lam=FitInfo.IndexMinDeviance;
-        catch
-            [~,lam]=min(FitInfo.Deviance);
-        end
+        [B,FitInfo] = lassoglm(DataMatrix, outcome,'binomial','Alpha',0.5,'RelTol',1e-6,...
+            'CV',10,'NumLambda',100,'Standardize',1);
+        lam=FitInfo.IndexMinDeviance;
         s.ModelVar=[FitInfo.Intercept(lam); B(:,lam)];
     case 'aenet'
       

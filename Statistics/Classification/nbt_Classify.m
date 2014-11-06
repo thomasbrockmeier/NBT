@@ -1,48 +1,55 @@
-% nbt_Classify - Main classification interface
-% 
-%
-% Usage:
-%   [s,ModelVars,Bioms] = nbt_Classify(BCell,Outcome,s,Type, ChannelsToUse)
-%
-% Inputs:
-%  
-% Outputs:
-
-
-%------------------------------------------------------------------------------------
-% Originally created by Simon-Shlomo Poil (2012), see NBT website for current email address
-%------------------------------------------------------------------------------------
-%
-% ChangeLog - see version control log at NBT website for details.
-%
-% Copyright (C) 2012  Simon-Shlomo Poil  
-%
-% Part of the Neurophysiological Biomarker Toolbox (NBT)
-%
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 3 of the License, or
-% (at your option) any later version.
-%
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with this program; if not, write to the Free Software
-% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-%
-% See Readme.txt for additional copyright information.
-% ---------------------------------------------------------------------------------------
-
-function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsToUse)
+function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsOrRegionsToUse)
+% function [DataMatrix, Outcome]=nbt_Classify(BCell,Outcome,s,Type, ChannelsToUse)
 NCrossVals=100;
+
 %% create DataMatrix from BCell:
+
+%if ~isstruct(ChannelsOrRegionsToUse) % channels classification or per region
+
 DataMatrix = extract_BCell(BCell);
+
+% else % classification with all regions
+%     
+%     DataMatrix = [];
+%     
+%     for regId = 1:length(ChannelsOrRegionsToUse)
+%         
+%         RegMatrix = extract_BCell(BCell);
+%         DataMatrix = [DataMatrix RegMatrix];
+%         
+%     end
+%     
+% end
+
+
+% n_group1=size(BCell{1},2); % no of subjects in the first group
+% n_group2=size(BCell{2},2); % no of subjects in the second group
+
+% Outcome = [zeros(1,n_group1) ones(1,n_group2)]'; % n x 1
+
+%% Set up parameters && remove NaN biomarkers
+% It's possible to treat the NaN's in another way; interpolate them with EM
+% algorithms, set them to 0, etc. Now, we remove ...
+% the entire biomarker if it contains any missing data.
+%[~,Y]=find(isnan(DataMatrix)==1);
+%Y=unique(Y);
+%DataMatrix=DataMatrix(:,setdiff(1:size(DataMatrix,2),Y));
+%DataMatrix(1:92,:) = DataMatrix(1:92,:)-DataMatrix(93:end,:);
+%DataMatrix(93:end,:) = -1.*DataMatrix(1:92,:);
+%DataMatrix = sign(DataMatrix).*log10(abs(DataMatrix));
+
+
+% [c, Sample, l] = princomp(DataMatrix);
+% tmp=cumsum(l);
+% nr = find(tmp/tmp(end)>0.999,1)
+% DataMatrix = Sample(:,1:nr);
+% ChannelsToUse =[];
 
 Outcome = Outcome-1;
 Outcome = Outcome.';
+
+save DataMatrix DataMatrix
+save Outcome Outcome
 
 
 Bioms=NaN(size(DataMatrix,2),NCrossVals);
@@ -52,14 +59,17 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-     if length(ChannelsToUse)>1  % using channels, not regions
-         [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsToUse, size(BCell{1},3));
+        DataMatrix = abs(DataMatrix);
+     %   DataMatrix = zscore(DataMatrix);
+     if ~isstruct(ChannelsOrRegionsToUse) && length(ChannelsOrRegionsToUse)>1 % using channels, not regions
+         [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsOrRegionsToUse, size(BCell{1},3));
      end
          
         % For this type we randomly
         TestLimit = floor(size(DataMatrix,1)*1/3); %a potential parameter!
       tic
       
+  %     BiomsToUse{1,1} = [1:1:length(ChannelsToUse)]'; % use all channels
       
         for i=1:NCrossVals % also potential parametere!
             disp(i)
@@ -169,6 +179,14 @@ s.MatthewCorr =  MM;
 s.AUC=AUC;
 s.H_measure=H_measure;
 
+%                 s.BaselineSE=BaselineSE;
+%                 s.BaselineSP=BaselineSP;
+%                 s.BaselineAUC=BaselineAUC;
+%                 s.ESE=ESE;
+%                 s.ESP=ESP;
+%                 s.EAUC=EAUC;
+%                 s.HAE=HAE;
+%                 s.HE=HE;
 
 %% plotting 
 %first calculate pp for the full matrix
@@ -223,13 +241,19 @@ title('Precision (PP)')
 
 %% nested function part
     function DataMatrix = extract_BCell(BCell)
-        if(isempty(ChannelsToUse))
-            ChannelsToUse = 1:size(BCell{1},1);
+        if(isempty(ChannelsOrRegionsToUse))
+            ChannelsOrRegionsToUse = 1:size(BCell{1},1);
         end
         
             for ii=1:size(BCell{1},3)
                 disp(ii)
-                for i=ChannelsToUse;
+                if isstruct(ChannelsOrRegionsToUse)
+                    ChansOrRegsToUse = [1: size(ChannelsOrRegionsToUse,2)]; % all regions
+                else 
+                    ChansOrRegsToUse = ChannelsOrRegionsToUse; % single region
+                end
+                
+                for i=ChansOrRegsToUse;
                 if ~exist('becell');
                     becell{1,1}=BCell{1}(i,:,ii);
                     becell{2,1}=BCell{2}(i,:,ii);

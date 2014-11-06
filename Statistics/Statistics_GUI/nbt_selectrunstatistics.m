@@ -60,6 +60,7 @@
 function nbt_selectrunstatistics
 global questions
 global G
+global region_classification
 try
     G = evalin('base','G');
 catch
@@ -76,10 +77,10 @@ G = evalin('base','G');
 %----------------------
 % First we build the Interface
 %----------------------
-StatSelection = figure('Units','pixels', 'name','NBT: Select Statistics' ,'numbertitle','off','Position',[200  200  610  750.000],...
-    'MenuBar','none','NextPlot','new','Resize','off');
+StatSelection = figure('Units','pixels', 'name','NBT: Select Statistics' ,'numbertitle','off','Position',[1  1  625  750],...
+    'MenuBar','none','NextPlot','new','Resize','on');
 % fit figure to screen, adapt to screen resolution
-StatSelection=nbt_movegui(StatSelection);
+% nbt_movegui(StatSelection); % messes up the figure dimensions!
 
 % This loads the statistical tests- these needs to be set in nbt_statisticslog.
 statindex = 1;
@@ -136,6 +137,7 @@ removeGroupButton = uicontrol(StatSelection,'Style','pushbutton','String','Remov
 saveGroupButton = uicontrol(StatSelection,'Style','pushbutton','String','Save Group(s)','Position',[185 70 90 30],'fontsize',8,'callback',@save_groups);
 % export bioms
 ExportBio = uicontrol(StatSelection,'Style','pushbutton','String','Export Biomarker(s) to .txt','Position',[5 10 150 30],'fontsize',8,'callback',@export_bioms);
+PrintVisualize = uicontrol(StatSelection,'Style','pushbutton','String','NBT Print Visualizaiton','Position',[230 10 150 30],'fontsize',8,'callback',@Print_Visualize);
 
 % move up
 upButton = uicontrol(StatSelection,'Style','pushbutton','String','/\','Position',[370 165 25 25],'fontsize',8,'callback',@up_group);
@@ -168,15 +170,22 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         group_name = get(ListGroup,'String');
         group_name = group_name(group_ind);
         
-        %% ---- adding grand average hack in here - let's structure better in the new format
-        if(statTest == 1) % Grand average PSD
-            figure; hold on;
-            nbt_plotGrandAveragePSD(G(group_ind(1)).fileslist,G(group_ind(1)).chansregs.channel_nr,'b');
-            nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
-            
-            return %just breaking here..
+%         save bioms_name bioms_name
+%         clear bioms_name
+%         load bioms_name 
+        
+        if strcmp(regs_or_chans_name,'Regions') && ~isempty(strfind(nameTest{1}, 'Classification'))
+           
+                hreg = figure('Units','pixels', 'name','Define region classification' ,'numbertitle','off','Position',[573  137  402  165],...
+                    'MenuBar','none','NextPlot','new','Resize','on');
+                 col =  get(hreg,'Color' );                
+                text_reg= uicontrol(hreg,'Style','text','Position',[35 98 327 37],'string','How do you want to perform classification?','fontsize',10,'fontweight','Bold','BackgroundColor',col);
+                reg_sep= uicontrol(hreg,'Style','pushbutton','Position',[61 65 80 30],'string','Per region','fontsize',10,'callback',{@reg_classification_single,hreg});
+                reg_all= uicontrol(hreg,'Style','pushbutton','Position',[190 65 155 32],'string','All regions together','fontsize',10,'callback',{@reg_classification_all,hreg});
+            uiwait(hreg)
         end
-        %% --------------
+        
+       
         %% ----------------------
         % within a group
         %----------------------
@@ -382,7 +391,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                         tmp = cell(length(SubjectList),1);
                     end
                     for mm=1:size(tmp,1)
-                        tmp{mm,1} = tmp{mm,1}(:);
+                       tmp{mm,1} = tmp{mm,1}(:); 
                     end
                     if(exist('B_values1_cell','var'))
                         B_values1_cell = [B_values1_cell, tmp];
@@ -421,7 +430,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                         tmp = cell(length(SubjectList),1);
                     end
                     for mm=1:size(tmp,1)
-                        tmp{mm,1} = tmp{mm,1}(:);
+                       tmp{mm,1} = tmp{mm,1}(:); 
                     end
                     if(exist('B_values2_cell','var'))
                         B_values2_cell = [B_values2_cell, tmp];
@@ -483,9 +492,6 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             
             % load statistical test
             s = nbt_statisticslog(statTest);
-            
-            
-            
             %----------------------
             % biomarkers for channels or regions
             %----------------------
@@ -494,31 +500,39 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             % compute statistics and plot biomarkers which have values for all the channels
             if ~isempty(biomPerChans)
                 B_values1 = nbt_extractBiomPerChans(biomPerChans,B_values1_cell);
-                B_values1(:,:,1) = nbt_FindAbnormalData(B_values1(:,:,1));
                 B_values2 = nbt_extractBiomPerChans(biomPerChans,B_values2_cell);
-                B_values2(:,:,1) = nbt_FindAbnormalData(B_values2(:,:,1));
-                warning('Abnormal data removed')
                 % select channels or regions
                 if strcmp(regs_or_chans_name,'Channels')
                     ChannelsToUse = Group1.chansregs.channel_nr;
-                    B_gebruik1(:,:,:) = B_values1(ChannelsToUse,:,:);
-                    B_gebruik2(:,:,:) = B_values2(ChannelsToUse,:,:);
+                    if(strcmp(s.statType,'Classification'))
+                        Bcell{1,1} = B_values1;
+                        Bcell{2,1} = B_values2;
+                    else
+                        B_gebruik1(:,:,:) = B_values1(ChannelsToUse,:,:);
+                        B_gebruik2(:,:,:) = B_values2(ChannelsToUse,:,:);
+                    end
                     regs = [];
                 elseif strcmp(regs_or_chans_name,'Regions')
                     regions = Group1.chansregs.listregdata;
-                    for j = 1:n_files1 % subject
+                   % for j = 1:n_files1 % subject
+                   for j = 1:size(B_values1, 2)
                         for l = 1:length(bioms_name) % biomarker
                             B1 = B_values1(:,j,l);
                             B_gebruik1(:,j,l) = get_regions(B1,regions,s);
                         end
                     end
-                    for j = 1:n_files2 % subject
+                  %  for j = 1:n_files2 % subject
+                  for j = 1:size(B_values2, 2)
                         for l = 1:length(bioms_name) % biomarker
                             B2 = B_values2(:,j,l);
                             B_gebruik2(:,j,l) = get_regions(B2,regions,s);
                         end
                     end
                     regs = regions;
+                    if(strcmp(s.statType,'Classification'))
+                        Bcell{1,1} = B_gebruik1;
+                        Bcell{2,1} = B_gebruik2;
+                    end
                 elseif strcmp(regs_or_chans_name,'Match channels');
                     ChannelsToUse = Group1.chansregs.channel_nr;
                     B_gebruik1(:,:,:) = B_values1(ChannelsToUse,:,:);
@@ -530,11 +544,6 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     B_gebruik2(:,:,:) = NewValuesB2(ChannelsToUse,:,:);
                     regs =[];
                 end
-                if(strcmp(s.statType,'Classification'))
-                    Bcell{1,1} = B_gebruik1;
-                    Bcell{2,1} = B_gebruik2;
-                end
-                
                 clear B1 B_values1 B2 B_values2
                 
                 
@@ -542,32 +551,46 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 % Run Statistics
                 %----------------------
                 
-                
                 if(strcmp(s.statType,'Classification')) %call classification algorithms
                     if(isempty(regs)) % channel based
                         stat_results = nbt_Classify(Bcell, [], s, 'CrossValidate',ChannelsToUse);
                     else  % region based
+                        
+                        % all regions together or classification per region
+                        
+                     switch region_classification
+                         
+                         case 'Single regions'
+                            
                         for regId = 1:length(regs)
-                            stat_results = nbt_Classify(Bcell, [], s, 'CrossValidate', regId);
+                           stat_results = nbt_Classify(Bcell, [], s, 'CrossValidate', regId);
                         end
-                    end
+                        
+                         case 'All regions'
+
+                           stat_results = nbt_Classify(Bcell, [], s, 'CrossValidate', regs);
+
+                     end
+                 end
+                     
+                    
                 else  % compute statistics for biomarker with values on each channels
                     bioms_name2 = bioms_name(biomPerChans);
                     for i = 1:length(bioms_name2)
                         disp(['Run ', s.statfuncname, ' for ', bioms_name2{i}])
                         B1(:,:) = B_gebruik1(:,:,i);
                         B2(:,:) = B_gebruik2(:,:,i);
-                        [stat_results(biomPerChans(i))] = 		nbt_run_stat_2groups_or_2conditions(Group1,Group2,B1,B2,s,bioms_name2{i},regs,unit{1,i});
+                        [stat_results(biomPerChans(i))] = nbt_run_stat_2groups_or_2conditions(Group1,Group2,B1,B2,s,bioms_name2{i},regs,unit{1,i});
                     end
+                    
+                    
+                    %assign results to stat_results in base stack
+                    
+                    %----------------------
+                    % Plot Statistics
+                    %----------------------
+                    pvaluesmatrix(s,stat_results(biomPerChans),regs_or_chans_name,bioms_name(biomPerChans),regs,Group1,Group2,nameG1,nameG2)
                 end
-                
-                %assign results to stat_results in base stack
-                
-                %----------------------
-                % Plot Statistics
-                %----------------------
-                pvaluesmatrix(s,stat_results(biomPerChans),regs_or_chans_name,bioms_name(biomPerChans),regs,Group1,Group2,nameG1,nameG2)
-                
                 
                 try
                     B=evalin('base','stat_results');
@@ -617,29 +640,29 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                             % Plot Statistics
                             %----------------------
                             try
-                                [firstname,secondname]=strtok(bioms_name2{1},'.');
-                                
-                                data = load([Group1.fileslist(1).path '/' Group1.fileslist(1).name],firstname);
-                                name = genvarname(char(fields(data)));
-                                
-                                if eval(['isa(data.' name ',''nbt_questionnaire'')']);
-                                    eval(['questions = data.' name '.Questions;'])
-                                    questions = questions(1:size(B1,1));
-                                else
-                                    questions = 1:size(B1,1);
+                            [firstname,secondname]=strtok(bioms_name2{1},'.');
+                            
+                            data = load([Group1.fileslist(1).path '/' Group1.fileslist(1).name],firstname);
+                            name = genvarname(char(fields(data)));
+                            
+                            if eval(['isa(data.' name ',''nbt_questionnaire'')']);
+                                eval(['questions = data.' name '.Questions;'])
+                                questions = questions(1:size(B1,1));
+                            else
+                                questions = 1:size(B1,1);
+                            end
+                            pvaluesmatrix_noChansBiom(s,stat_results(dimBio(dim2)),bioms_name(dimBio(dim2)),Group1,Group2,nameG1,nameG2);
+                            
+                            clear data
+                            if isfield(stat_results,'p')
+                                set(get(gca, 'YLabel'), 'String','')
+                                set(gca, 'Ytick',1:length(questions))
+                                set(gca, 'Yticklabel',[])
+                                xlim = get(gca,'xlim');
+                                for ticklab = 1:length(questions)
+                                    text(xlim(1)+1,ticklab,questions{ticklab},'rotation',-60,'fontsize',8)
                                 end
-                                pvaluesmatrix_noChansBiom(s,stat_results(dimBio(dim2)),bioms_name(dimBio(dim2)),Group1,Group2,nameG1,nameG2);
-                                
-                                clear data
-                                if isfield(stat_results,'p')
-                                    set(get(gca, 'YLabel'), 'String','')
-                                    set(gca, 'Ytick',1:length(questions))
-                                    set(gca, 'Yticklabel',[])
-                                    xlim = get(gca,'xlim');
-                                    for ticklab = 1:length(questions)
-                                        text(xlim(1)+1,ticklab,questions{ticklab},'rotation',-60,'fontsize',8)
-                                    end
-                                end
+                            end
                             end
                         end
                     end
@@ -729,7 +752,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            h2=nbt_movegui(h2);
+            nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -804,7 +827,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            h2=nbt_movegui(h2);
+            nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -895,7 +918,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            h2=nbt_movegui(h2);
+            nbt_movegui(h2);
             %---
             bh=bar3(x);
             for i=1:length(bh)
@@ -1006,9 +1029,14 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 scrsz = get(0,'ScreenSize');
                 % fit figure to screen, adapt to screen resolution
                 hh2 = figure('Units','pixels', 'name','Define group difference' ,'numbertitle','off','Position',[scrsz(3)/4  scrsz(4)/2  250  120],...
-                    'MenuBar','none','NextPlot','new','Resize','off');
+                    'MenuBar','none','NextPlot','new','Resize','on');
                 col =  get(hh2,'Color' );
-                hh2 = nbt_movegui(hh2);
+                set(hh2,'CreateFcn','movegui')
+                hgsave(hh2,'onscreenfig')
+                close(hh2)
+                hh2 = hgload('onscreenfig');
+                currentFolder = pwd;
+                delete([currentFolder '/onscreenfig.fig']);
                 step = 40;
                 
                 nameg1 = group_name{1};
@@ -1024,7 +1052,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 text_diff4= uicontrol(hh2,'Style','edit','Position',[150 10+step 80 30],'string',nameg2,'fontsize',10,'BackgroundColor',col);
                 OkButton = uicontrol(hh2,'Style','pushbutton','String','OK','Position',[25 10 200 30],'fontsize',10,'callback',{@confirm_diff_group,G,text_diff2,text_diff4});
             else
-                warning('The two groups must have same numebr of subjects!')
+                warning('The two groups must have same number of subjects!')
             end
             
         end
@@ -1226,7 +1254,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         for biomindex = 1:length(G(gindex).biomarkerslist)
             biomName= G(gindex).biomarkerslist{biomindex};
             
-            fid = fopen([savedir filesep biomName '.txt'], 'w');
+            fid = fopen([savedir '/' biomName '.txt'], 'w');
             firstraw = {'SubID' 'GroupName' 'BiomarkerName'};
             for gindex = 1:length(G)
                 for subindex = 1:length(G(gindex).fileslist)
@@ -1297,7 +1325,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         fontsize = 10;
         fig1 = figure('name',['NBT: Statistics (Channels) for all selected biomarkers'],...
             'NumberTitle','off','position',[10          80       1500      500]); %128
-        fig1=nbt_movegui(fig1);
+        nbt_movegui(fig1);
         hold on;
         NR_Biomarkers = length(stat_results);
         for biomIndex = 1:NR_Biomarkers
@@ -1342,7 +1370,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                h4=nbt_movegui(h4);
+                nbt_movegui(h4);
                 
                 hold on
                 plot([1.2 1.8],g,'g')
@@ -1423,7 +1451,12 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                h4 = nbt_movegui(h4);
+                set(h4,'CreateFcn','movegui')
+                hgsave(h4,'onscreenfig')
+                close(h4)
+                h4= hgload('onscreenfig');
+                currentFolder = pwd;
+                delete([currentFolder '/onscreenfig.fig']);
                 
                 hold on
                 plot(1.2,g1,'g')
@@ -1493,11 +1526,15 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 text(ticklab,-3,questions{ticklab},'rotation',-30,'fontsize',10, 'fontweight','bold')
             end
             if length(Group1.fileslist) == length(Group2.fileslist)
-                h5 = figure('Visible','on','numbertitle','off','resize','off','Menubar','none',...
+                h5 = figure('Visible','on','numbertitle','off','resize','on','Menubar','none',...
                     'Name',['Table with all items and their numbering that have a p-value lower than 0.05' ],...
                     'Position',[100   200  1000   500]);
-                h5 = nbt_movegui(5);
-                
+                set(h5,'CreateFcn','movegui')
+                hgsave(h5,'onscreenfig')
+                close(h5)
+                h4= hgload('onscreenfig');
+                currentFolder = pwd;
+                delete([currentFolder '/onscreenfig.fig']);
                 Notsign = find(s.p>=0.05);
                 for i = 1:length(s.p)
                     strp{i} = (sprintf('%.4f',s.p(i)));
@@ -1556,7 +1593,12 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 pval = sprintf('%.4f', s.p(chan_or_reg));
                 h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for item ' num2str(chan_or_reg) ' for each subjects'],'Position',[1000   200   350   700]);
                 
-                h4 = nbt_movegui(h4);
+                set(h4,'CreateFcn','movegui')
+                hgsave(h4,'onscreenfig')
+                close(h4)
+                h4= hgload('onscreenfig');
+                currentFolder = pwd;
+                delete([currentFolder '/onscreenfig.fig']);
                 
                 hold on
                 plot([1.2 1.8],g,'g')
@@ -1585,8 +1627,13 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h5 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ': Relative Frequencies of Responses'],...
                         'Position',[1000   500   450   300]);
-                    h5 = nbt_movegui(h5);
                     
+                    set(h5,'CreateFcn','movegui')
+                    hgsave(h5,'onscreenfig')
+                    close(h5)
+                    h4= hgload('onscreenfig');
+                    currentFolder = pwd;
+                    delete([currentFolder '/onscreenfig.fig']);
                     
                     c_hist = hist(answ,floor(min(min(answ))):ceil(max(max(answ))));
                     c_hist = c_hist/size(answ,1)*100;
@@ -1602,8 +1649,13 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h6 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ' Difference Distribution'],...
                         'Position',[1000   500   450   300]);
-                    h6 = nbt_movegui(h6);
                     
+                    set(h6,'CreateFcn','movegui')
+                    hgsave(h6,'onscreenfig')
+                    close(h6)
+                    h6= hgload('onscreenfig');
+                    currentFolder = pwd;
+                    delete([currentFolder '/onscreenfig.fig']);
                     ansdiff = s.c2(chan_or_reg,:)-s.c1(chan_or_reg,:);
                     pdiff = s.p(chan_or_reg);
                     d_hist = hist(ansdiff,floor(min(min(ansdiff))):ceil(max(max(ansdiff))));
@@ -1667,7 +1719,13 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 pval = sprintf('%.4f',s.p(chan_or_reg));
                 
                 h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for item ' num2str(chan_or_reg) ' for each subjects'],'Position',[1000   200   350   700]);
-                h4 = nbt_movegui(h4);
+                
+                set(h4,'CreateFcn','movegui')
+                hgsave(h4,'onscreenfig')
+                close(h4)
+                h4= hgload('onscreenfig');
+                currentFolder = pwd;
+                delete([currentFolder '/onscreenfig.fig']);
                 
                 hold on
                 plot(1.2 ,g1,'g')
@@ -1708,8 +1766,13 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     h5 = figure('Visible','on','numbertitle','off','Name',...
                         [biom ' for question ' num2str(chan_or_reg) ': Relative Frequencies of Responses'],...
                         'Position',[1000   500   450   300]);
-                    h5 = nbt_movegui(h5);
                     
+                    set(h5,'CreateFcn','movegui')
+                    hgsave(h5,'onscreenfig')
+                    close(h5)
+                    h4= hgload('onscreenfig');
+                    currentFolder = pwd;
+                    delete([currentFolder '/onscreenfig.fig']);
                     c_hist1 = hist(answ1,floor(min(min([answ1 answ2]))):ceil(max(max([answ1 answ2]))));
                     c_hist2 = hist(answ2,floor(min(min([answ1 answ2]))):ceil(max(max([answ1 answ2]))));
                     c_hist1 = c_hist1/size(answ1,2)*100;
@@ -1732,4 +1795,26 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             end
         end
     end
+    function Print_Visualize(d1,d2)
+        
+        %Initialize a Print Visualize
+        group_ind = get(ListGroup,'Value');
+        if(length(group_ind) >1)
+            group_ind = group_ind(1);
+        end
+        group_name = get(ListGroup,'String');
+        group_name = group_name(group_ind);
+        nbt_Print(group_name,group_ind)
+    end
+
+        function reg_classification_single(a1,b1,fighandle)
+            region_classification = 'Single regions';
+            close(fighandle)
+        end
+        
+        function reg_classification_all(a2,b2,fighandle)
+            region_classification = 'All regions';
+            close(fighandle)
+        end
+
 end
