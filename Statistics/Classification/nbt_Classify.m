@@ -1,26 +1,10 @@
 function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsOrRegionsToUse)
-% function [DataMatrix, Outcome]=nbt_Classify(BCell,Outcome,s,Type, ChannelsToUse)
+
 NCrossVals=100;
 
 %% create DataMatrix from BCell:
 
-%if ~isstruct(ChannelsOrRegionsToUse) % channels classification or per region
-
 DataMatrix = extract_BCell(BCell);
-
-% else % classification with all regions
-%     
-%     DataMatrix = [];
-%     
-%     for regId = 1:length(ChannelsOrRegionsToUse)
-%         
-%         RegMatrix = extract_BCell(BCell);
-%         DataMatrix = [DataMatrix RegMatrix];
-%         
-%     end
-%     
-% end
-
 
 % n_group1=size(BCell{1},2); % no of subjects in the first group
 % n_group2=size(BCell{2},2); % no of subjects in the second group
@@ -178,6 +162,8 @@ s.LikelihoodRatioNeg  =  LN;
 s.MatthewCorr =  MM;
 s.AUC=AUC;
 s.H_measure=H_measure;
+
+save s s
 
 %                 s.BaselineSE=BaselineSE;
 %                 s.BaselineSP=BaselineSP;
