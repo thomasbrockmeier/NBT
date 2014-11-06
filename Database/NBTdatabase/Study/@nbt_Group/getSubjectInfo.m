@@ -15,9 +15,11 @@ switch GrpObj.databaseType
         end
         if k==0
             try
+                disp('Loading NBTelementBase.mat...please wait...')
                 evalin('base', 'load(''NBTelementBase.mat'')');
             catch % in the case the NBTelement database does not exist
-                warning('NBT: Assuming your data is in current directory: importing from current directory')
+                disp('NBTeleementBase.mat not found...generating...')
+                disp('NBT: Assuming your data is in current directory: importing from current directory')
                 nbt_importGroupInfos(pwd); %import data to NBTelements
                 nbt_pruneElementTree;      %prune elements with only one level
                 evalin('base', 'load(''NBTelementBase.mat'')');
