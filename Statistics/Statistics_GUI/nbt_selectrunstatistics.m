@@ -138,7 +138,6 @@ saveGroupButton = uicontrol(StatSelection,'Style','pushbutton','String','Save Gr
 % export bioms
 ExportBio = uicontrol(StatSelection,'Style','pushbutton','String','Export Biomarker(s) to .txt','Position',[5 10 150 30],'fontsize',8,'callback',@export_bioms);
 PrintVisualize = uicontrol(StatSelection,'Style','pushbutton','String','NBT Print Visualizaiton','Position',[230 10 150 30],'fontsize',8,'callback',@Print_Visualize);
-
 % move up
 upButton = uicontrol(StatSelection,'Style','pushbutton','String','/\','Position',[370 165 25 25],'fontsize',8,'callback',@up_group);
 % move down
@@ -169,6 +168,14 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         group_ind = get(ListGroup,'Value');
         group_name = get(ListGroup,'String');
         group_name = group_name(group_ind);
+        
+         %% ---- adding grand average hack in here - let's structure better in the new format
+        if(statTest == 1) % Grand average PSD
+            figure; hold on;
+            nbt_plotGrandAveragePSD(G(group_ind(1)).fileslist,G(group_ind(1)).chansregs.channel_nr,'b');
+            nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
+            
+            return %just breaking here..
         
 %         save bioms_name bioms_name
 %         clear bioms_name
@@ -500,7 +507,10 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             % compute statistics and plot biomarkers which have values for all the channels
             if ~isempty(biomPerChans)
                 B_values1 = nbt_extractBiomPerChans(biomPerChans,B_values1_cell);
+                %B_values1(:,:,1) = nbt_FindAbnormalData(B_values1(:,:,1));
                 B_values2 = nbt_extractBiomPerChans(biomPerChans,B_values2_cell);
+                %B_values2(:,:,1) = nbt_FindAbnormalData(B_values2(:,:,1));
+                %warning('Abnormal data removed')
                 % select channels or regions
                 if strcmp(regs_or_chans_name,'Channels')
                     ChannelsToUse = Group1.chansregs.channel_nr;
@@ -752,7 +762,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -827,7 +837,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             hh=uicontextmenu;
             hh2 = uicontextmenu;
@@ -918,7 +928,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             ah=bar3(y);
             h2 = figure('Visible','on','numbertitle','off','Name',['p-values of biomarkers for ', s.statfuncname],'position',[10          80       1700      500]);
             %--- adapt to screen resolution
-            nbt_movegui(h2);
+            h2=nbt_movegui(h2);
             %---
             bh=bar3(x);
             for i=1:length(bh)
@@ -1325,7 +1335,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
         fontsize = 10;
         fig1 = figure('name',['NBT: Statistics (Channels) for all selected biomarkers'],...
             'NumberTitle','off','position',[10          80       1500      500]); %128
-        nbt_movegui(fig1);
+        fig1=nbt_movegui(fig1);
         hold on;
         NR_Biomarkers = length(stat_results);
         for biomIndex = 1:NR_Biomarkers
@@ -1370,7 +1380,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                nbt_movegui(h4);
+                h4=nbt_movegui(h4);
                 
                 hold on
                 plot([1.2 1.8],g,'g')
@@ -1451,12 +1461,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                     regname = regexprep(regs(chan_or_reg).reg.name,'_',' ');
                     h4 = figure('Visible','on','numbertitle','off','Name',[biom ' values for reagion ' regname ' for each subjects'],'Position',[1000   200   350   700]);
                 end
-                set(h4,'CreateFcn','movegui')
-                hgsave(h4,'onscreenfig')
-                close(h4)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h4=nbt_movegui(h4);
                 
                 hold on
                 plot(1.2,g1,'g')
@@ -1529,12 +1534,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
                 h5 = figure('Visible','on','numbertitle','off','resize','on','Menubar','none',...
                     'Name',['Table with all items and their numbering that have a p-value lower than 0.05' ],...
                     'Position',[100   200  1000   500]);
-                set(h5,'CreateFcn','movegui')
-                hgsave(h5,'onscreenfig')
-                close(h5)
-                h4= hgload('onscreenfig');
-                currentFolder = pwd;
-                delete([currentFolder '/onscreenfig.fig']);
+                h5=nbt_move_gui(h5);
                 Notsign = find(s.p>=0.05);
                 for i = 1:length(s.p)
                     strp{i} = (sprintf('%.4f',s.p(i)));
