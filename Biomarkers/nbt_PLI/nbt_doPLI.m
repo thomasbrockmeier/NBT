@@ -38,6 +38,20 @@ for i = 1:(numChannels-1)
     end
 end
 
+pli = PLIobject.pliVal;
+pli = triu(pli);
+pli = pli+pli';
+pli(eye(size(pli))~=0)=1;
+PLIobject.pliVal = pli;
+
+for i=1:numChannels
+    pli_chan = pli(i,:);
+    PLIobject.Median(i) = nanmedian(pli_chan(pli_chan ~= 1));
+    PLIobject.Mean(i) = nanmean(pli_chan(pli_chan ~= 1));
+    PLIobject.IQR(i) = iqr(pli_chan(pli_chan ~= 1));
+    PLIobject.Std(i) = std(pli_chan(pli_chan ~= 1));
+end
+
 %% update biomarker objects (here we used the biomarker template):
 PLIobject = nbt_UpdateBiomarkerInfo(PLIobject, SignalInfo);
 end

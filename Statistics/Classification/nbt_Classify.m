@@ -1,6 +1,9 @@
-function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsToUse)
+function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsOrRegionsToUse)
+
 NCrossVals=100;
+
 %% create DataMatrix from BCell:
+
 DataMatrix = extract_BCell(BCell);
 
 % n_group1=size(BCell{1},2); % no of subjects in the first group
@@ -29,6 +32,9 @@ DataMatrix = extract_BCell(BCell);
 Outcome = Outcome-1;
 Outcome = Outcome.';
 
+%save DataMatrix DataMatrix %sorry Sonja :(  
+%save Outcome Outcome  %also not saving s further down
+
 
 Bioms=NaN(size(DataMatrix,2),NCrossVals);
 ModelVars=cell(NCrossVals,1);
@@ -37,10 +43,10 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-    %    DataMatrix = abs(DataMatrix);
+     %   DataMatrix = abs(DataMatrix);
      %   DataMatrix = zscore(DataMatrix);
-     if length(ChannelsToUse)>1  % using channels, not regions
-         [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsToUse, size(BCell{1},3));
+     if ~isstruct(ChannelsOrRegionsToUse) && length(ChannelsOrRegionsToUse)>1 % using channels, not regions
+         [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsOrRegionsToUse, size(BCell{1},3));
      end
          
         % For this type we randomly
@@ -157,6 +163,8 @@ s.MatthewCorr =  MM;
 s.AUC=AUC;
 s.H_measure=H_measure;
 
+%save s s
+r
 %                 s.BaselineSE=BaselineSE;
 %                 s.BaselineSP=BaselineSP;
 %                 s.BaselineAUC=BaselineAUC;
@@ -219,13 +227,19 @@ title('Precision (PP)')
 
 %% nested function part
     function DataMatrix = extract_BCell(BCell)
-        if(isempty(ChannelsToUse))
-            ChannelsToUse = 1:size(BCell{1},1);
+        if(isempty(ChannelsOrRegionsToUse))
+            ChannelsOrRegionsToUse = 1:size(BCell{1},1);
         end
         
             for ii=1:size(BCell{1},3)
                 disp(ii)
-                for i=ChannelsToUse;
+                if isstruct(ChannelsOrRegionsToUse)
+                    ChansOrRegsToUse = [1: size(ChannelsOrRegionsToUse,2)]; % all regions
+                else 
+                    ChansOrRegsToUse = ChannelsOrRegionsToUse; % single region
+                end
+                
+                for i=ChansOrRegsToUse;
                 if ~exist('becell');
                     becell{1,1}=BCell{1}(i,:,ii);
                     becell{2,1}=BCell{2}(i,:,ii);

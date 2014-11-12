@@ -1,7 +1,11 @@
 
-classdef nbt_PLI < nbt_CrossChannelBiomarker 
+classdef nbt_PLI < nbt_Biomarker 
     properties
         pliVal
+        Median
+        Mean 
+        IQR
+        Std
     end
     methods
         function BiomarkerObject = nbt_PLI(NumChannels)
