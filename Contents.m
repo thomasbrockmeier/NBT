@@ -5,5 +5,5 @@
 % Use the NBTwiki at http://www.nbtwiki.net
 
 % Copyright (C) 2008-2014  The developers
-% Main development team: Simon-Shlomo Poil, Sonja Simpraga, Klaus Linkenkaer-Hansen.
+% Main development team: Simon-Shlomo Poil, Sonja Simpraga, Richard Hardstone, Klaus Linkenkaer-Hansen.
 % 
