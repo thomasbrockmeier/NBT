@@ -97,8 +97,8 @@ NumberOfContours1 = 6-(MinLevelIndex1-1);
 NumberOfContours2 = 6-(MinLevelIndex2-1);
 %NumberOfContours1 = 5;
 %NumberOfContours2 = 5;
-meanc1(meanc1 < levs(MinLevelIndex1)) = levs(MinLevelIndex1);
-meanc2(meanc2 < levs(MinLevelIndex2)) = levs(MinLevelIndex2);
+%meanc1(meanc1 < levs(MinLevelIndex1)) = levs(MinLevelIndex1);
+%meanc2(meanc2 < levs(MinLevelIndex2)) = levs(MinLevelIndex2);
 
 xa=-2.5;
 ya = 0.25;
@@ -111,21 +111,21 @@ maxline = 20;
   axis off
   cbfreeze
   freezeColors
-  drawnow
+ % drawnow
 % 
 % % % %---plot grand average condition 2 per channel(Interpolated Plot)
     subplot(4,MaxSubplotIndex,MaxSubplotIndex+subplotIndex)
     plot_interpolatedTopo(2);
     cbfreeze
     freezeColors
-    drawnow
+%    drawnow
 
 % %---plot grand average difference between conditions or difference between group means (Interpolated Plot)
   subplot(4,MaxSubplotIndex,2*MaxSubplotIndex+subplotIndex)
   plot_interpolatedTopo(3)
   freezeColors
   cbfreeze
-  drawnow
+ % drawnow
 
 % 
 % %---plot P-values for the test (log scaled colorbar)
@@ -148,7 +148,6 @@ pLog(pLog> maxPValue) = maxPValue;
 
    subplot(4,MaxSubplotIndex,3*MaxSubplotIndex+subplotIndex)
    plot_pTopo()
-  freezeColors
   cbfreeze
   drawnow
 
@@ -160,7 +159,7 @@ pLog(pLog> maxPValue) = maxPValue;
             coolWarm = CoolWarm.nbt_colormapContourBlueRed;
             colormap(coolWarm);
             if strcmp(char(statfunc),'ttest') || strcmp(char(statfunc),'signrank')
-                topoplot(statistic(diffC2C1,2),chanloc,'headrad','rim','numcontour',6,'electrodes','on');
+                topoplot(statistic(diffC2C1,2),chanloc,'headrad','rim','numcontour',0,'electrodes','on');
                 if(subplotIndex ==1)
                     textThis = sprintf('Grand average for condition %s minus incondition %s ',condition2,condition1);
                 end
@@ -168,7 +167,7 @@ pLog(pLog> maxPValue) = maxPValue;
                 cmin = -1.*cmax;
                 caxis([cmin cmax])
             else
-                topoplot(statistic(diffC2C1_2,2),chanloc,'headrad','rim','numcontour',6,'electrodes','on');
+                topoplot(statistic(diffC2C1_2,2),chanloc,'headrad','rim','numcontour',0,'electrodes','on');
                 if(subplotIndex == 1)
                     textThis = sprintf('Grand average for group %s minus group %s',condition2,condition1);
                 end
@@ -182,9 +181,9 @@ pLog(pLog> maxPValue) = maxPValue;
             nbt_redwhite = nbt_redwhite.nbt_colormapContourWhiteRed;
             colormap(nbt_redwhite);
             if(ConditionNr == 1)
-                topoplot(meanc1',chanloc,'headrad','rim','numcontour',NumberOfContours1,'electrodes','on');
+                topoplot(meanc1',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
             else
-                topoplot(meanc2',chanloc,'headrad','rim','numcontour',NumberOfContours2,'electrodes','on');
+                topoplot(meanc2',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
             end
             caxis([cmin,cmax])
             if(subplotIndex == 1)
@@ -225,7 +224,7 @@ pLog(pLog> maxPValue) = maxPValue;
 %        CoolWarm = load('nbt_colortmap', 'nbt_colortmap');
  %       CoolWarm = CoolWarm.nbt_colortmap;
         colormap(CoolWarm);
-        topoplot(pLog,chanloc,'headrad','rim','numcontour',3,'electrodes','on')
+        topoplot(pLog,chanloc,'headrad','rim','numcontour',0,'electrodes','on')
         cb = colorbar('westoutside');
         caxis([minPValue maxPValue])
         
