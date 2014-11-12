@@ -32,8 +32,8 @@ DataMatrix = extract_BCell(BCell);
 Outcome = Outcome-1;
 Outcome = Outcome.';
 
-save DataMatrix DataMatrix
-save Outcome Outcome
+%save DataMatrix DataMatrix %sorry Sonja :(  
+%save Outcome Outcome  %also not saving s further down
 
 
 Bioms=NaN(size(DataMatrix,2),NCrossVals);
@@ -43,7 +43,7 @@ switch lower(Type)
     case 'crossvalidate'
         % Type CrossValidate
         disp('Cross validation needs work')
-        DataMatrix = abs(DataMatrix);
+     %   DataMatrix = abs(DataMatrix);
      %   DataMatrix = zscore(DataMatrix);
      if ~isstruct(ChannelsOrRegionsToUse) && length(ChannelsOrRegionsToUse)>1 % using channels, not regions
          [DataMatrix, BiomsToUse] = nbt_RemoveFeatures( DataMatrix,Outcome,'ttest2',ChannelsOrRegionsToUse, size(BCell{1},3));
@@ -163,8 +163,8 @@ s.MatthewCorr =  MM;
 s.AUC=AUC;
 s.H_measure=H_measure;
 
-save s s
-
+%save s s
+r
 %                 s.BaselineSE=BaselineSE;
 %                 s.BaselineSP=BaselineSP;
 %                 s.BaselineAUC=BaselineAUC;

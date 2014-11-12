@@ -25,8 +25,12 @@ switch lower(s.statfunc)
         %   affects how long the algorithm tries to converge.
         
         [B,FitInfo] = lassoglm(DataMatrix, outcome,'binomial','Alpha',0.5,'RelTol',1e-6,...
-            'CV',10,'NumLambda',100,'Standardize',1);
-        lam=FitInfo.IndexMinDeviance;
+            'CV',3,'NumLambda',100,'Standardize',1);
+        try
+            lam=FitInfo.IndexMinDeviance;
+        catch
+            [~,lam]=min(FitInfo.Deviance);
+        end
         s.ModelVar=[FitInfo.Intercept(lam); B(:,lam)];
     case 'aenet'
       
