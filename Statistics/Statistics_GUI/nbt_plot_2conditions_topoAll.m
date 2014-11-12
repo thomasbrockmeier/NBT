@@ -189,10 +189,12 @@ pLog(pLog> maxPValue) = maxPValue;
             nbt_redwhite = nbt_redwhite.nbt_colormapContourWhiteRed;
             colormap(nbt_redwhite);
             if(ConditionNr == 1)
-                topoplot(meanc1',chanloc,'headrad','rim','numcontour',NumberOfContours1,'electrodes','on');
+%                 topoplot(meanc1',chanloc,'headrad','rim','numcontour',NumberOfContours1,'electrodes','on');
+                topoplot(meanc1',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
                 cmin = min(meanc1); cmax = max(meanc1);
             else
-                topoplot(meanc2',chanloc,'headrad','rim','numcontour',NumberOfContours2,'electrodes','on');
+%                 topoplot(meanc2',chanloc,'headrad','rim','numcontour',NumberOfContours2,'electrodes','on');
+                topoplot(meanc1',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
                 cmin = min(meanc2); cmax = max(meanc2);
             end
             caxis([cmin,cmax])
@@ -215,7 +217,7 @@ pLog(pLog> maxPValue) = maxPValue;
         cb = colorbar('westoutside');
         set(get(cb,'title'),'String',unit);
         cin = (cmax-cmin)/6;
-        set(cb,'YTick',[cmin:cin:cmax]);
+        %set(cb,'YTick',round([cmin:cin:cmax]/0.01)*0.01);
        
         
         if(subplotIndex == 1)
