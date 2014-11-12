@@ -163,16 +163,24 @@ pLog(pLog> maxPValue) = maxPValue;
                 if(subplotIndex ==1)
                     textThis = sprintf('Grand average for condition %s minus incondition %s ',condition2,condition1);
                 end
-                cmax =  max(abs([min(diffC2C1) max(diffC2C1)]));
-                cmin = -1.*cmax;
+                %cmax =  max(abs([min(diffC2C1) max(diffC2C1)]));
+                %cmin = -1.*cmax;
+                
+                cmax = max(statistic(diffC2C1,2));
+                cmin = min(statistic(diffC2C1,2));
+                
                 caxis([cmin cmax])
             else
                 topoplot(statistic(diffC2C1_2,2),chanloc,'headrad','rim','numcontour',0,'electrodes','on');
                 if(subplotIndex == 1)
                     textThis = sprintf('Grand average for group %s minus group %s',condition2,condition1);
                 end
-                cmax =  max(abs([min(diffC2C1_2) max(diffC2C1_2)]));
-                cmin = -1.*cmax;
+%                 cmax =  max(abs([min(diffC2C1_2) max(diffC2C1_2)]));
+%                 cmin = -1.*cmax;
+                
+                cmax = max(statistic(diffC2C1,2));
+                cmin = min(statistic(diffC2C1,2));
+                
                 caxis([cmin cmax])
             end
             
@@ -181,9 +189,13 @@ pLog(pLog> maxPValue) = maxPValue;
             nbt_redwhite = nbt_redwhite.nbt_colormapContourWhiteRed;
             colormap(nbt_redwhite);
             if(ConditionNr == 1)
+%                 topoplot(meanc1',chanloc,'headrad','rim','numcontour',NumberOfContours1,'electrodes','on');
                 topoplot(meanc1',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
+                cmin = min(meanc1); cmax = max(meanc1);
             else
-                topoplot(meanc2',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
+%                 topoplot(meanc2',chanloc,'headrad','rim','numcontour',NumberOfContours2,'electrodes','on');
+                topoplot(meanc1',chanloc,'headrad','rim','numcontour',0,'electrodes','on');
+                cmin = min(meanc2); cmax = max(meanc2);
             end
             caxis([cmin,cmax])
             if(subplotIndex == 1)
@@ -205,7 +217,7 @@ pLog(pLog> maxPValue) = maxPValue;
         cb = colorbar('westoutside');
         set(get(cb,'title'),'String',unit);
         cin = (cmax-cmin)/6;
-        set(cb,'YTick',[cmin:cin:cmax]);
+        %set(cb,'YTick',round([cmin:cin:cmax]/0.01)*0.01);
        
         
         if(subplotIndex == 1)
