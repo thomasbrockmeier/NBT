@@ -176,7 +176,7 @@ downButton = uicontrol(StatSelection,'Style','pushbutton','String','\/','Positio
             nbt_plotGrandAveragePSD(G(group_ind(2)).fileslist,G(group_ind(2)).chansregs.channel_nr,'r');
             
             return %just breaking here..
-        
+        end
 %         save bioms_name bioms_name
 %         clear bioms_name
 %         load bioms_name 

@@ -1,4 +1,4 @@
-% NBT Toolbox v.0.5.1-alpha, see https://github.com/NeurophysiologicalBiomarkerToolbox/NBT 
+% NBT Toolbox v.0.5.2-alpha, see https://github.com/NeurophysiologicalBiomarkerToolbox/NBT 
 % See our webpage http://www.nbtwiki.net/ for more information
 % Copyright (C) 2008-2014 The developers, see http://www.nbtwiki.net/doku.php?id=copyrights 
 % Main development team: Simon-Shlomo Poil, Sonja Simpraga, Richard Hardstone, Klaus Linkenkaer-Hansen.

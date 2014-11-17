@@ -76,7 +76,7 @@ if(nbt_determineNBTelementState) %use NBTelement
     readdate = evalin('base','Date.Data');
     
     for mm=1:length(SubjList);
-        readsubject{mm} = SubjList(mm);
+        readsubject{mm} = num2str(SubjList(mm));
     end
 else %then we read the information from the analysis files
     if nargs<1
