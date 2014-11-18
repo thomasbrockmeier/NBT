@@ -15,7 +15,7 @@ If you want to contribute to NBT then please see here: http://www.nbtwiki.net/do
 
 # Branch structure
 
-NBT is developed on three core branches:
+NBT is developed on two core branches:
  * release - the stable branch (use this branch if you are not an expert user). 
  * master  - the development branch, please target your contributions to this branch. 
  
