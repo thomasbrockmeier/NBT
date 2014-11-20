@@ -235,10 +235,11 @@ end
 
     function nbt_commonMenu %nested function
         dbSub = uimenu(NBTMenu, 'label', '&Database tools');
+        uimenu( dbSub, 'label', 'Info file statistics (current folder)', 'callback', 'nbt_fileStat(pwd)')
         uimenu( dbSub, 'label', 'NBTdatabase','callback',['nbt_NBTdb']);
         dbElements = uimenu( dbSub, 'label', 'NBTelements');
            uimenu(dbElements,'label', 'Connect NBTelements', 'callback', 'nbt_ConnectNBTelements');
-           uimenu(dbElements,'label', 'Import Biomarkrs', 'callback', 'nbt_importBiomarkers');
+           uimenu(dbElements,'label', 'Import Biomarkers', 'callback', 'nbt_importBiomarkers');
            uimenu(dbElements,'label', 'Query database', 'callback', 'nbt_NBTelementGUIcmd');
         
         HelpMenu = uimenu(NBTMenu, 'label', '&Help');
