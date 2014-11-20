@@ -105,7 +105,11 @@ Col = get(g,'Color');
 
 text_ui1= uicontrol(Chans_RegsSelection,'Style','text','Position',[10 360 120 20],'string','Select Channels','fontsize',10,'fontweight','bold','BackgroundColor',Col);
 badchans = find(SignalInfo.BadChannels);
-chans = SignalInfo.Interface.number_of_channels;
+if isfield('number_of_channels',SignalInfo.Interface)
+    chans = SignalInfo.Interface.number_of_channels;
+else
+    chans = SignalInfo.Interface.EEG.nbchan;
+end
 if isfield(SignalInfo.Interface,'EEG') %% eeg signal;
     for chl = 1:chans
         chanlocs{chl,1} = ['<HTML><FONT color="black">', SignalInfo.Interface.EEG.chanlocs(chl).labels, '</FONT></HTML>'];
