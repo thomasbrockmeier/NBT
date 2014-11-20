@@ -30,7 +30,7 @@ for m = 1:length(fileTree)
             SubjectInfo.info.(importParameters{ip,1}) = rawXLS{subjectIndex,importParameters{ip,2}};
         end
     end
-    save(fileTree{1,m},'SubjectInfo')
+    save(fileTree{1,m},'SubjectInfo','-append')
 end
 disp('Following subjects were missing or do not have consistent IDs')
 disp(unique(subjectsMissing));
