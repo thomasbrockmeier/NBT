@@ -1,4 +1,4 @@
-function ProjectInfo = importSubjectInfoFromXLS(XLSfilename,ProjectInfo)
+function SubjectInfo = importSubjectInfoFromXLS(SubjectInfo,XLSfilename,SubjectIDcolumn, Paramenters)
 %import subject info from external XLS sheet
 if(~exist('ProjectInfo','var'))
    ProjectInfo = nbt_Info; 

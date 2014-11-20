@@ -65,10 +65,8 @@ classdef nbt_SubjectInfo
             SubjectInfo.info.notes = [];
             SubjectInfo.info.researcherID = [];
         end
-    end
     
-    methods(Static)
-        InfoObject = importSubjectInfoFromXLS;
-        InfoObject = importSubjectInfoFromCSV(filename,InfoObject);
+        SubjectInfo = importSubjectInfoFromXLS(SubjectInfo,filename, SubjectIDcolumn, importparameters);
+        SubjectInfo = importSubjectInfoFromCSV(SubjectInfo,filename);
     end
 end
