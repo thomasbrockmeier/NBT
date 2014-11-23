@@ -33,7 +33,7 @@ switch GrpObj.databaseType
                 end
             end
         end
-        
+        index = zeros(length(flds),1);
         for i = 1:length(flds)
             index(i) = evalin('base',[flds{i} '.ElementID';]);
         end
@@ -56,10 +56,62 @@ switch GrpObj.databaseType
                     InfoCell{k,1} = flds{inds(i)};
                     InfoCell{k,2} = evalin('base',[flds{inds(i)} '.Data';]);
                 else
-                    for j = 1:length(bios)
-                        n = n+1;
-                        BioCell{n} = [flds{inds(i)} '.' bios{j}];
+                    %Its a biomarker
+                    
+                    %work out how many unique identifiers the biomarker has
+                    identStore = [];
+                    parent = evalin('base',[flds{inds(i)} '.Uplink']);
+                    parent = find(index==parent);
+                    while evalin('base',[flds{parent} '.Identifier == 1'])
+                        identStore = [identStore; parent];
+                        parent = evalin('base',[flds{parent} '.Uplink']);
+                        parent = find(index==parent);
                     end
+                    noIdents = length(identStore);
+                    
+                    if noIdents >0
+                        %work out how many unique biomarkers there, by
+                        %looking at the ids
+                        ids = evalin('base',[flds{identStore(1)} '.ID']);
+                        idsStore = zeros(length(ids),length(identStore));
+                        for id = 1:length(ids)
+                            stt = strsplit(ids{id},'.');
+                            for j = 1:length(identStore)
+                                idsStore(id,j) = str2num(stt{j});
+                            end
+                        end
+                        uniqueIds = unique(idsStore,'rows');
+                        
+                        %Get names of identifiers
+                        nameIdent = [];
+                        for a = 1:noIdents
+                            if a==1
+                                nameIdent{a} = flds{identStore(a)};
+                            else
+                                tmp = flds{identStore(a)};
+                                nameIdent{a} = tmp(length(flds{inds(i)}) + 1:end);
+                            end
+                        end
+                        
+                        %construct overall biomarkers
+                        for j = 1:size(uniqueIds,1)
+                            nm = [];
+                            for a = 1:noIdents
+                                nm = [nm nameIdent{a} '_' evalin('base',[flds{identStore(a)} '.Data{' num2str(uniqueIds(j,a))  '};'])];
+                            end
+                            
+                            for k = 1:length(bios)
+                                n = n+1;
+                                BioCell{n} = [nm '.' bios{k}];
+                            end
+                        end
+                        
+                    else
+                        for j = 1:length(bios)
+                            n = n+1;
+                            BioCell{n} = [flds{inds(i)} '.' bios{j}];
+                        end
+                    end   
                 end
             end
         end
