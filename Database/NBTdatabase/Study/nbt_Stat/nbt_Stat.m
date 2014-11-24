@@ -6,11 +6,20 @@ classdef nbt_Stat
         testName
         testOptions
         groups
-        biomarkers
-        biomarkerIdentifiers = cell(1,1);
+        group % This is wh
+        %group{x}.biomarkers
+        %group{x}.subBiomarkers
+        %group{x}.biomarkerIdentifiers
+        %group{x}.class
+        %biomarkerIdentifiers = cell(1,1);
+        %subBiomarkers
         channels
         channelsRegionsSwitch
         pValues
+        sigPValues
+        ccPValues
+        qPValues
+        
         statValues
         statStruct 
     end

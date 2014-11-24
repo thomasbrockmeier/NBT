@@ -63,6 +63,7 @@ classdef nbt_NBTelement %< handle
         ProjectID = [];
         Info = [];
         Identifier = false;
+        Class = []; %w.g. subjectInfo, nbt_CrossChannelBiomarker, nbt_SignalBiomarker, nbt_QBiomarker
     end
     methods
         function NBTelement = nbt_NBTelement(ElementID, Key, Uplink)

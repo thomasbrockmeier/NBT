@@ -85,24 +85,24 @@ switch GrpObj.databaseType
                         %Get names of identifiers
                         nameIdent = [];
                         for a = 1:noIdents
-                            if a==1
-                                nameIdent{a} = flds{identStore(a)};
-                            else
-                                tmp = flds{identStore(a)};
+%                             if a==1
+%                                 nameIdent{a} = flds{identStore(a)};
+%                             else
+                                 tmp = flds{identStore(a)};
                                 nameIdent{a} = tmp(length(flds{inds(i)}) + 1:end);
-                            end
+%                             end
                         end
                         
                         %construct overall biomarkers
                         for j = 1:size(uniqueIds,1)
-                            nm = [];
+                            nm = [flds{inds(i)} '{'];
                             for a = 1:noIdents
                                 nm = [nm nameIdent{a} '_' evalin('base',[flds{identStore(a)} '.Data{' num2str(uniqueIds(j,a))  '};'])];
                             end
                             
                             for k = 1:length(bios)
                                 n = n+1;
-                                BioCell{n} = [nm '.' bios{k}];
+                                BioCell{n} = [nm '}.' bios{k}];
                             end
                         end
                         

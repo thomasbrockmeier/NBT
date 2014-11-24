@@ -18,7 +18,15 @@ end
 Project = nbt_NBTelement(1,'1',[]);
 Subject = nbt_NBTelement(2, '2.1',1);
 Condition = nbt_NBTelement(3,'3.2.1',2);
+
+Project.Class = 'subjectInfo';
+Subject.Class = 'subjectInfo';
+Condition.Class = 'subjectInfo';
+   
 Signals = nbt_NBTelement(4,'4.3.2.1',3);
+Signals.Identifier = true;
+Signals.Class = 'Identifier';
+
 
 % could include last Update
 
@@ -58,6 +66,7 @@ for i=1:length(FileList)
         addflag = ~exist(NBTelementName,'var');
         if(addflag)
             eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.3.2.1'', 3);']);
+            eval([NBTelementName '.Class = NBTelementClass;']);
             NextID = NextID + 1;
         end
         
@@ -86,6 +95,7 @@ for i=1:length(FileList)
         addflag = ~exist(NBTelementName,'var');
         if addflag
             eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID) '.3.2.1'', 3);'])
+            eval([NBTelementName '.Class = ''nbt_QBiomarker'' ;']);
             NextID = NextID + 1;
         end
         %Create the Data cell
@@ -114,7 +124,6 @@ for i=1:length(FileList)
         end
             % create NBTelement, unless it exists
             eval(['NBTelementName = [''NBTe_'' class(' BiomarkerList{m} ')];']);
-        
             NumIdentifiers  = eval([BiomarkerList{m} '.uniqueIdentifiers;']);
             
             connector = 'Signals';
@@ -126,6 +135,7 @@ for i=1:length(FileList)
                     uplink = eval(['num2str(' connector '.ElementID);']);
                     eval([NBTelementName '_' NumIdentifiers{ni} '= nbt_NBTelement(' int2str(NextID) ',''' newkey ''',' uplink ');']); 
                     eval([NBTelementName '_' NumIdentifiers{ni} '.Identifier = true;']);
+                    eval([NBTelementName '_' NumIdentifiers{ni} '.Class = ''Identifier'';']);
                     NextID = NextID + 1;
                 end
                 
@@ -150,6 +160,18 @@ for i=1:length(FileList)
             addflag = ~exist(NBTelementName,'var');
             if(addflag)
                 eval([NBTelementName '= nbt_NBTelement(' int2str(NextID) ',''' int2str(NextID)  '.' ky '''  , ' num2str(kid) ');'])    
+                superClass =  superclasses(NBTelementName(6:end));
+                superClass = superClass{1};
+                if strcmp(superClass,'nbt_CrossChannelBiomarker')
+                    eval([NBTelementName '.Class = ''nbt_CrossChannelBiomarker'';']);
+                else
+                    if strcmp(superClass,'nbt_SignalBiomarker')
+                        eval([NBTelementName '.Class = ''nbt_SignalBiomarker'';']);
+                    else
+                        disp([NBTelementName '.Class = ''unknown'';']);    
+                        eval([NBTelementName '.Class = ''unknown'';']) ;        
+                    end
+                end
                 NextID = NextID + 1;
             else  % then we just update the Key and Uplink
                 eval([NBTelementName '.Key =' '[num2str(' NBTelementName '.ElementID' ') ''' '.' ky '''' '];' ])

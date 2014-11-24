@@ -20,7 +20,9 @@
 %[Data, Pool] = GetData(Biomarker, {Biomarker2,'find(NBTelement.Data == ...
 %4)';Condition,'find(strcmp(NBTelement.Data,''ECR2''))'});
 %
-%
+% e.g. if Biomarker2 data is in a cell {'8  13'} and you want the subBiomarker
+%'markerValues
+%[Data, Pool] = nbt_GetData(Biomarkers, {Biomarker2,'8  13'}, 'markerValues');
 % See also:
 %   NBT_SETDATA, NBT_NBTELEMENT, NBT_CONNECTNBTELEMENTS, NBT_SEARCHSTRING
 

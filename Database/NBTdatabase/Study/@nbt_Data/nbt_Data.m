@@ -8,6 +8,9 @@ classdef nbt_Data
         pool
         poolKey  
         biomarkers
+        biomarkerIdentifiers
+        subBiomarkers
+        classes
         %Further parameters..
         outputFormat %output format - remove nans, etc. cell vs matrix vs struct
     end 

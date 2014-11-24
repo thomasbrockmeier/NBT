@@ -18,15 +18,15 @@ S.groups = get(findobj('Tag', 'ListGroup'),'Value');
 bioms_ind = get(findobj('Tag','ListBiomarker'),'Value');
 bioms_name = get(findobj('Tag','ListBiomarker'),'String');
 S.channelsRegionsSwitch = get(findobj('Tag', 'ListRegion'),'Value');
-S.biomarkers = bioms_name(bioms_ind);
-%HACK: to make this work before the GUI is ready!
-for i=1:length(bioms_ind)
-    tmp{i,1} = [];
+
+
+for gp = 1:length(S.groups)
+    for i = 1:length(bioms_ind)
+        [S.group{gp}.biomarkers{i}, S.group{gp}.biomarkerIdentifiers{i}, S.group{gp}.subBiomarkers{i}, S.group{gp}.classes{i}] = nbt_parseBiomarkerIdentifiers(bioms_name{bioms_ind(i)});
+    end
 end
-S.biomarkerIdentifiers =   tmp;
-%end HACK
 
 S = S.calculate(NBTstudy);
 
-
+NBTstudy.statAnalysis{length(NBTstudy.statAnalysis)+1} = S;
 end

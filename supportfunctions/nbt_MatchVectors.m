@@ -11,6 +11,8 @@ function [A, B, SubjListA, SubjListB]=nbt_MatchVectors(A, B, SubjListA, SubjList
     
 if(HarmonizeFlag)
     %Check if Subject Lists are matching, and correct if not
+    %%ERROR, no point doing this unless condition and project are looked at
+    %%as well
     SubjectIndex = nbt_searchvector(SubjListA,SubjListB);
     A = A(:,SubjectIndex);
     SubjListA = SubjListA(SubjectIndex);
