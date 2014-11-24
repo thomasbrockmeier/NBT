@@ -48,15 +48,15 @@ function NBTelement = nbt_SetData(NBTelement, Data, JoinArray)
 if isempty(Data)
     Data = {'nbt_empty'};
 end
-if iscell(Data)
-    if isnan(Data{1})
-        Data = {'nbt_nan'};
-    end
-else
-    if isnan(Data)
-        Data = {'nbt_nan'};
-    end
-end
+% if iscell(Data)
+%     if isnan(Data{1})
+%         Data = {'nbt_nan'};
+%     end
+% else
+%     if isnan(Data)
+%         Data = {'nbt_nan'};
+%     end
+% end
 
 
 if(~isempty(JoinArray))

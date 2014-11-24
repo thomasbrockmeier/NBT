@@ -45,6 +45,7 @@ if(isempty(vector) || isempty(searchvector))
     positive  = [];
     return;
 end
+
 if(iscell(searchvector))
     if(length(searchvector) == 1)
         if(ischar(searchvector{1,1}))
@@ -72,6 +73,10 @@ if(iscell(searchvector))
         end
     end
 else
+    if(isnan(searchvector))
+        positive = find(isnan(vector));
+        return
+    end
     positive = [];
     for i=1:length(searchvector)
         temp = find(vector == searchvector(i));
