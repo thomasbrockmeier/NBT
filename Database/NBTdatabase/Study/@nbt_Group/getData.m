@@ -1,5 +1,5 @@
 function  DataObj = getData(GrpObj,Parameters)
-%Get data loads the data from a Database dependang on the settings in the
+%Get data loads the data from a Database depending on the settings in the
 %Group Object and the Statistics Object.
 %grpNumber refers to the ordering in the StatObj
 StatObj = Parameters{1};
