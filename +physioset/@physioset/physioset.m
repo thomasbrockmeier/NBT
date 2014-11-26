@@ -890,6 +890,7 @@ classdef physioset < ...
             obj.SamplingTime    = opt.samplingtime;
             obj.TimeOrig        = opt.starttime;
             
+<<<<<<< HEAD
             if ~isempty(opt.event)
                  try
                     opt.event = sort(opt.event);
@@ -897,6 +898,10 @@ classdef physioset < ...
                      opt.event = [];
                      warning('Events not imported')
                  end
+=======
+            if ~isempty(opt.event),
+                opt.event = sort(opt.event);
+>>>>>>> meegpipe/meegpipe
             end
             obj.Event           = opt.event;
             obj.EqWeights       = opt.eqweights;
