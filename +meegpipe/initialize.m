@@ -15,7 +15,8 @@ depRoot = hash;
 
 verboseLabel = '(meegpipe) ';
 
-fprintf(['\n\n' verboseLabel 'Initializing...\n\n']);
+fprintf(['\n\n' verboseLabel 'Initializing at host %s on account %s ...\n\n'], ...
+    misc.get_hostname, misc.get_username);
 
 if nargin < 1 || isempty(cfg),
     cfg = get_config();
@@ -37,10 +38,14 @@ if ischar(depList) && ~isempty(depList), depList = {depList}; end
 for i = 1:numel(depList)
     
     uniqueFile = val(cfg, depList{i}, 'unique_mfile');
+    url = val(cfg, depList{i}, 'url');
     fullPathToFile = which(uniqueFile);
     if isempty(fullPathToFile),
         warning('meegpipe:initialize:MissingDependency', ...
-            'Could not find dependency: %s', depList{i});
+            ['Could not find dependency: %s\n' ...
+            'Get it from: %s\n' ...
+            'Otherwise, meegpipe will miss some functionality'], ...
+            depList{i}, url);
     else
         depPath = fileparts(fullPathToFile);
         depPath = strrep(rel2abs(depPath), '\', '/');
@@ -86,20 +91,21 @@ for i = 1:numel(subdirList)
     end
 end
 dirList = [dirList(:); cell2mat(subdirList)];
-
-fprintf([verboseLabel 'Attempting to remove problematic dirs from path:\n\n']);
-fprintf(join('\n', dirList));
-fprintf('\n\n');
+dirList = unique(dirList);
 
 fprintf([verboseLabel 'Removed the following paths:\n\n']);
-fprintf(join('\n', dirList));
+
 for i = 1:numel(dirList)
     
     isProblematic = cellfun(@(x) ~isempty(strfind(x, dirList{i})), pathList2);
     if ~any(isProblematic), continue; end
     tobeRemoved = pathList(isProblematic);
     tobeRemoved = cellfun(@(x) strrep(x, '\', '/'), tobeRemoved, 'UniformOutput', false);
-    fprintf(join('\n', tobeRemoved));
+    if numel(tobeRemoved) == 1,
+        fprintf([tobeRemoved{1} '\n']);
+    else
+        fprintf(join('\n', tobeRemoved));
+    end
     cellfun(@(x) rmpath(x), tobeRemoved);
     
 end

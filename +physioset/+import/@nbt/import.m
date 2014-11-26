@@ -1,21 +1,13 @@
 function pObj = import(obj, varargin)
-% IMPORT - Imports EEGLAB .set files
+% IMPORT - Imports files in NBT format
 %
-% pObj = import(obj, fileName)
-% pObjArray = import(obj, fileName1, fileName2, ...);
 %
-% ## Notes:
-%
-%   * Compressed .gz files are supported.
-%
-% See also: mff
+% See also: physioset.import.nbt
 
 import physioset.physioset;
-import misc.decompress;
 import pset.file_naming_policy;
 import pset.globals;
-
-misc.check_dependency('eeglab');
+import mperl.file.spec.catfile;
 
 if numel(varargin) == 1 && iscell(varargin{1}),
     varargin = varargin{1};
@@ -40,44 +32,52 @@ verboseLabel = get_verbose_label(obj);
 origVerboseLabel = goo.globals.get.VerboseLabel;
 goo.globals.set('VerboseLabel', verboseLabel);
 
-% The input file might be zipped
-[status, fileName] = decompress(fileName, 'Verbose', verbose);
-isZipped = ~status;
-
 % Determine the names of the generated (imported) files
-if isempty(obj.FileName),
-    
+if isempty(obj.FileName),   
     newFileName = file_naming_policy(obj.FileNaming, fileName);
     dataFileExt = globals.get.DataFileExt;
-    newFileName = [newFileName dataFileExt];
-    
-else
-    
+    newFileName = [newFileName dataFileExt];  
+else  
     newFileName = obj.FileName;
-    
 end
 
-[path, name ext] = fileparts(fileName);
+[path, name, ext] = fileparts(fileName);
+if isempty(regexp(name, '_info$', 'once')),
+    % user provided the data file, not the info file
+    infoFileName = catfile(path, [name '_info' ext]);
+    dataFileName = fileName;
+else
+    dataFileName = catfile(path, [name(1:end-5) ext]);
+    infoFileName = fileName;
+end
 
-cmd = sprintf('EEG = pop_loadset(''filename'', ''%s'', ''filepath'', ''%s'')', ...
-    [name ext], path);
-evalc(cmd);
-pObj = physioset.from_eeglab(EEG, ...
-    'FileName', newFileName, 'SensorClass', obj.SensorClass);
+nbtData = load(dataFileName);
+fNames = fieldnames(nbtData);
+if numel(fNames) > 1,
+    error('Invalid format for file %s', dataFileName);
+end
+nbtData = nbtData.(fNames{1});
 
+nbtInfo = load(infoFileName);
+fNames = fieldnames(nbtInfo);
+if numel(fNames) > 1,
+    error('Invalid format for file %s', infoFileName);
+end
+nbtInfo = nbtInfo.(fNames{1});
 
-%% Undoing stuff 
+if verbose,
+    fprintf([verboseLabel 'Importing NBT file %s into %s ...\n\n'], ...
+        infoFileName, newFileName);
+end
+pObj = physioset.physioset.from_nbt(nbtInfo, nbtData, ...
+    'Filename', newFileName, 'SensorClass', obj.SensorClass);
+
+if ~isempty(obj.Sensors),
+    % Sensors property takes precedence over SensorClass
+    set_sensors(pObj, obj.Sensors);
+end
 
 % Unset the global verbose
 goo.globals.set('VerboseLabel', origVerboseLabel);
-
-% Delete unzipped data file
-if isZipped,
-    delete(fileNameIn);
-end
-
-
-
-
 
 end

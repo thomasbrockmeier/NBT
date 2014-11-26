@@ -10,6 +10,8 @@ import misc.rmdir;
 import oge.has_oge;
 import misc.get_username;
 
+NB_SAMPLES = 10000;
+
 MEh     = [];
 
 initialize(6);
@@ -40,7 +42,7 @@ try
     
     myPipe = sample_pipe();
     
-    X      = randn(5, 1000);
+    X      = randn(5, NB_SAMPLES);
     data   = run(myPipe, X);
     
     condition = (rank(cov(data)) == 3);
@@ -115,7 +117,7 @@ try
     
     myPipe = sample_pipe();
     
-    X      = randn(5, 1000);
+    X      = randn(5, NB_SAMPLES);
     data   = run(myPipe, X);
     
     condition = (rank(cov(data)) == 3);
@@ -171,7 +173,7 @@ try
     
     myPipe = sample_pipe();
     
-    X      = randn(5, 1000);
+    X      = randn(5, NB_SAMPLES);
     data   = run(myPipe, X);
     
     condition = (rank(cov(data)) == 3);
@@ -213,7 +215,7 @@ try
     
     myPipe = sample_pipe();
     
-    X      = randn(5, 1000);
+    X      = randn(5, NB_SAMPLES);
     data   = run(myPipe, X);
     
     condition = (rank(cov(data)) == 3);
@@ -289,16 +291,20 @@ end
 
 if flag,
     myBadChan = ...
-        bad_channels.new('Criterion', myCrit, 'GenerateReport', false);
+        bad_channels.new('Criterion', myCrit, 'GenerateReport', false, ...
+        'DataSelector', pset.selector.good_data);
 else
     myBadChan = ...
-        bad_channels.new('Criterion', myCrit, 'GenerateReport', false);    
+        bad_channels.new('Criterion', myCrit, 'GenerateReport', false, ...
+        'DataSelector', pset.selector.good_data);    
 end
 
 myBSS = bss.eog('MinCard', 2, 'MaxCard', 2, 'GenerateReport', false, ...
-    'RegrFilter', []);
+    'RegrFilter', [], 'DataSelector', pset.selector.all_data);
+
+myImporter = physioset.import.matrix('Sensors', sensors.dummy(5));
 myPipe = pipeline.new(...
-    physioset_import.new('Importer', physioset.import.matrix), ...
+    physioset_import.new('Importer', myImporter), ...
     copy.new, ...
     myBadChan, ...
     myBSS);

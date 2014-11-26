@@ -196,13 +196,9 @@ classdef physioset < ...
             end
             
             % Do not sort the events here. Method add_event takes care of
-            % that already
+            % that already and events are sorted also in the constructor
             obj.Event = v;
-%             if ~isempty(v),
-%                 obj.Event = sort(v);
-%             else
-%                 obj.Event = v;
-%             end
+
         end
         
         function set.Sensors(obj, v)
@@ -369,10 +365,7 @@ classdef physioset < ...
             if isa(W, 'function_handle'),
                 W = W(obj);
             end
-            tmpPset = W*obj.PointSet;
-            for i = 1:size(tmpPset)
-                obj.PointSet(i,:) = tmpPset(i,:);
-            end
+            obj.PointSet = W*obj.PointSet;          
             obj.RerefMatrix = W;
         end
         
@@ -804,6 +797,8 @@ classdef physioset < ...
         
         str      = eeglab(obj, varargin);
         
+        [Signal, str, SignalPath]      = NBT(obj, varargin);
+        
         str      = fieldtrip(obj, varargin);
         
         
@@ -815,6 +810,8 @@ classdef physioset < ...
         obj = from_fieldtrip(str, varargin);
         
         obj = from_eeglab(str, varargin);
+        
+        obj = from_nbt(str, SignalInfo, varargin);
         
         obj = from_pset(obj, varargin);
         
@@ -892,6 +889,15 @@ classdef physioset < ...
             obj.Sensors         = opt.sensors;
             obj.SamplingTime    = opt.samplingtime;
             obj.TimeOrig        = opt.starttime;
+            
+            if ~isempty(opt.event)
+                 try
+                    opt.event = sort(opt.event);
+                 catch
+                     opt.event = [];
+                     warning('Events not imported')
+                 end
+            end
             obj.Event           = opt.event;
             obj.EqWeights       = opt.eqweights;
             obj.EqWeightsOrig   = opt.eqweightsorig;
@@ -913,10 +919,9 @@ classdef physioset < ...
             apply_event_mapper(obj);
             
             if obj.NbDims > 0,
-                if isempty(opt.badchannel),
-                    obj.BadChan = false(1, obj.NbDims);
-                else
-                    obj.BadChan = opt.badchannel;
+                obj.BadChan = false(1, obj.NbDims);
+                if ~isempty(opt.badchannel)
+                    obj.BadChan(opt.badchannel) = true;
                 end
             end
             

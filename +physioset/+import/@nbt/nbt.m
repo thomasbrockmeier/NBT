@@ -1,26 +1,20 @@
-classdef eeglab < physioset.import.abstract_physioset_import
-    % EEGLAB - Imports EEGLAB's .set files
+classdef nbt < physioset.import.abstract_physioset_import
+    % NBT - Imports files in NBT format
     %
     % ## Usage synopsis:
     %
-    % import physioset.import.eeglab;
-    % importer = eeglab('FileName', 'myOutputFile');
-    % data = import(importer, 'myMFFfile.set');
+    % import physioset.import.nbt;
+    % importer = nbt('FileName', 'myOutputFile');
+    % data = import(importer, 'My_NBT_file.mat');
     %
-    % ## Accepted (optional) construction arguments (as key/values):
     %
-    % * All key/values accepted by abstract_physioset_import constructor
-    %
-    % See also: abstract_physioset_import
+    % See also: physioset.import
     
     properties
-        
         SensorClass;
-        
     end
     
-    methods
-        
+    methods        
         function obj = set.SensorClass(obj, value)
             import exceptions.*;
             
@@ -54,22 +48,20 @@ classdef eeglab < physioset.import.abstract_physioset_import
             
         end
         
-    end
-    
-    
-    % physioset.import.import interface
-    methods
-        physObj = import(obj, ifilename, varargin);
-    end
-    
-    % Constructor
-    methods
-        
-        function obj = eeglab(varargin)
-            obj = obj@physioset.import.abstract_physioset_import(varargin{:});
+        % needed by parent import()
+        [sens, sr, hdr, ev, startDate, startTime] = ...
+            read_file(obj, fileName, psetFileName, verb, verbLabl);
+        function ev = read_events(~, varargin)
+           % NBT files do not encode events. Or do they?
+            ev = [];
         end
         
+        
+        % Constructor
+        function obj = nbt(varargin)
+            obj = obj@physioset.import.abstract_physioset_import(varargin{:});
+        end
     end
-    
+   
     
 end

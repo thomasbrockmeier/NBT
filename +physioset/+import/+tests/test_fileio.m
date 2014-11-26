@@ -9,10 +9,8 @@ import safefid.safefid;
 import datahash.DataHash;
 import misc.rmdir;
 
-% The sample data file to be used for testing
-% You may have to edit some of the tests below if you change this URL
-DATA_URL = ['http://kasku.org/data/meegpipe/' ...
-    'test_mux.mff.tgz'];
+DATA_URL = meegpipe.get_config('test', 'remote');    
+DATA_FILE = 'test_mux.mff';
 
 MEh     = [];
 
@@ -55,14 +53,11 @@ end
 %% download sample data file
 try
     name = 'download sample data file';
-    
-    folder = session.instance.Folder;    
-    file = untar(DATA_URL, folder);
-    file = file{1};
-    folderSc = strrep(folder, '\', '\\');
-    file = regexprep(file, [folderSc '.(.+)(\\|/).+$'], '$1');    
-    file = catfile(folder, file);
-    ok(exist(file, 'file') > 0, name);
+  
+    if ~exist(DATA_FILE, 'dir'),
+        untar([DATA_URL DATA_FILE '.tgz'], pwd);
+    end
+    ok(exist(DATA_FILE, 'dir') > 0, name);
     
 catch ME
     
@@ -76,13 +71,9 @@ try
     
     name = 'import sample data file';   
     
-    warning('off', 'sensors:InvalidLabel');
-    warning('off', 'sensors:MissingPhysDim');
-    data = import(fileio('Equalize', false), file);
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel'); 
+    data = import(physioset.import.fileio, DATA_FILE); 
     
-    evalc('dataFt = ft_read_data(file)');
+    evalc('dataFt = ft_read_data(DATA_FILE)');
     
     condition  = all(size(data) == size(dataFt)) & ...
         max(abs(data(:) - dataFt(:))) < 0.001; %#ok<NODEF>
@@ -91,9 +82,7 @@ try
     
     
 catch ME
-    
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel');
+
     clear data;
     ok(ME, name);
     MEh = [MEh ME];
@@ -106,17 +95,10 @@ try
     name = 'import multiple files';
     folder = session.instance.Folder;   
     file2 = catfile(folder, 'copy.mff');
-    copyfile(file, file2);
-    
-    warning('off', 'sensors:InvalidLabel');
-    warning('off', 'sensors:MissingPhysDim');
-    warning('off', 'equalize:ZeroVarianceData')
-    data = import(fileio, file, file2);
-    warning('on', 'equalize:ZeroVarianceData')
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel');
-    
-    
+    copyfile(DATA_FILE, file2);
+
+    data = import(physioset.import.fileio, DATA_FILE, file2);
+
     condition = iscell(data) && numel(data) == 2 && ...
         all(size(data{1})==size(data{2}));
     
@@ -125,9 +107,7 @@ try
     ok(condition, name);
     
 catch ME
-    
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel');
+
     ok(ME, name);
     MEh = [MEh ME];
     
@@ -140,22 +120,15 @@ try
     
     folder = session.instance.Folder;
    
-    warning('off', 'sensors:InvalidLabel');
-    warning('off', 'sensors:MissingPhysDim');
-    warning('off', 'equalize:ZeroVarianceData')
-    import(fileio('FileName', catfile(folder, 'myfile')), file);
-    warning('on', 'equalize:ZeroVarianceData')
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel');
+    myImporter = physioset.import.fileio('FileName', catfile(folder, 'myfile'));
+    import(myImporter, DATA_FILE);
     
     psetExt = pset.globals.get.DataFileExt;
     newFile = catfile(folder, ['myfile' psetExt]);
     ok(exist(newFile, 'file') > 0, name);
     
 catch ME
-    
-    warning('on', 'sensors:MissingPhysDim');
-    warning('on', 'sensors:InvalidLabel');
+
     ok(ME, name);
     MEh = [MEh ME];
     

@@ -1,10 +1,10 @@
-function status = make_test(userSelection)
-% MAKE_TEST - Tests EEGPIPE
+function status = make_test(userSelection, startFrom)
+% MAKE_TEST - Tests MEEGPIPE
 %
 % meegpipe.make_test
 %
 %
-% See also: eegpipe
+% See also: meegpipe
 
 
 import meegpipe.tests.*;
@@ -17,9 +17,10 @@ clc;
 
 meegpipe.initialize;
 
+if nargin < 2, startFrom = ''; end
 if nargin < 1, userSelection = {}; end
 
-verboseLabel = '(eegpipe) ';
+verboseLabel = '(meegpipe)';
 
 %% List of modules that will be tested
 moduleList = {...
@@ -74,8 +75,27 @@ moduleList = {...
     'spt.criterion', ...
     'spt.feature', ...
     'spt', ...
-    'surrogates' ...
+    'surrogates', ...
+    'tutorial_eog', ...
+    'tutorial_emg', ...
+    'tutorial_klaus' ...
     };
+
+moduleList = unique(moduleList);
+
+
+if ~isempty(startFrom)
+    isMatch = cellfun(@(x) ~isempty(regexp(x, startFrom, 'once')), moduleList);
+    if any(isMatch),
+        idx = find(isMatch);
+        moduleList = moduleList(idx(1):end);
+    end
+else
+    % Run tests in a random order. Typically I am not patient enough to
+    % finish a whole test iteration so this prevents that a few modules
+    % will be tested much more often than others
+    moduleList = moduleList(randperm(numel(moduleList)));
+end
 
 if ischar(userSelection), userSelection = {userSelection}; end
 
@@ -86,12 +106,11 @@ if ~isempty(userSelection),
 end
 
 if isempty(moduleList),
-    error('Module ''%s'' does not feature automated testing', ...
-        userSelection{1});
+    warning('meegpipe:NothingDone', ...
+        'No modules selected for testing: nothing done');
+    status = true;
+    return;
 end
-
-% just in case
-moduleList = unique(moduleList);
 
 nbTests = numel(moduleList);
 

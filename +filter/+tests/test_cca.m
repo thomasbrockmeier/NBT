@@ -91,7 +91,7 @@ try
         snrAfter = snrAfter + var(S(i,idx))/var(data(i,idx)-S(i,idx));
     end
     snrAfter = snrAfter/numel(idx);
-    ok(snrAfter > 20*snr, name);
+    ok(snrAfter > 5*snr, name);
     
 catch ME
     
@@ -301,16 +301,12 @@ import pset.session;
 import mperl.file.spec.catfile;
 import mperl.file.spec.catdir;
 
-if exist('20131121T171325_647f7.pseth', 'file') > 0,
-    data = pset.load('20131121T171325_647f7.pseth');
-else
-    % Try downloading the file
+fName = '20131121T171325_647f7.pseth';
+if ~exist(fName, 'file') > 0,
     url = 'http://kasku.org/data/meegpipe/20131121T171325_647f7.zip';
-    unzipDir = catdir(session.instance.Folder, '20131121T171325_647f7');
-    unzip(url, unzipDir);
-    fileName = catfile(unzipDir, '20131121T171325_647f7.pseth');
-    data = pset.load(fileName);
+    unzip(url, pwd);
 end
+data = pset.load(fName);
 dataCopy = copy(data);
 
 end
