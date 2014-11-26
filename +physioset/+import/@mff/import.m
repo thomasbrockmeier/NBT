@@ -466,8 +466,12 @@ end
 goo.globals.set('VerboseLabel', origVerboseLabel);
 
 % Delete unzipped data file
-if isZipped,
-    delete(fileName);
+if isZipped
+    if(~isunix)
+        delete(fileName);
+    else
+        rmdir(fileName,'s');
+    end
 end
 
 end
