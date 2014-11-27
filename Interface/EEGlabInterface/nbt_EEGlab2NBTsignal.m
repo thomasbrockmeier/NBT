@@ -43,18 +43,24 @@ function [Signal,SignalInfo, SignalPath] = nbt_EEGlab2NBTsignal(EEG,saveflag)
 EEG = eeg_checkset(EEG(1));
 Signal = double(EEG.data');
 
+if(~isempty(EEG.filepath))
+    SignalPath = EEG.filepath;
+else
 try
     SignalPath = evalin('base', 'SignalPath');
 catch
     SignalPath = input('Please specify signal path : ','s');
 end
+end
 
 %--- make Info object
-if isfield(EEG,'NBTinfo')
-    SignalInfo = EEG.NBTinfo;
-    EEG=rmfield(EEG,'NBTinfo');
-else
-    SignalInfo = nbt_CreateInfoObject(EEG.setname, [], EEG.srate);
+if isfield(EEG,'NBTinfo') 
+    if(isa(EEG.NBTinfo,'nbt_SignalInfo'))
+        SignalInfo = EEG.NBTinfo;
+        EEG=rmfield(EEG,'NBTinfo');
+    else
+        SignalInfo = nbt_CreateInfoObject(EEG.setname, [], EEG.srate);
+    end
 end
 
 SignalInfo.convertedSamplingFrequency = EEG.srate;
