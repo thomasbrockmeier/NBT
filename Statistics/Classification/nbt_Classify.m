@@ -1,5 +1,5 @@
 function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsOrRegionsToUse)
-NCrossVals=100;
+NCrossVals=20;
 
 %% create DataMatrix from BCell:
 
@@ -62,11 +62,18 @@ switch lower(Type)
             %We use a stratified sample to preserve the class balance.
             
            %let's also balance the classes
-      %     TargetNum = 2*length(find(TrainOutcome == 0 ));
-        %   TrainMatrix = TrainMatrix(1:TargetNum,:);
-        %   TrainOutcome = TrainOutcome(1:TargetNum);
+           TargetNum = round(2*length(find(TrainOutcome == 0 )));
+           TrainMatrix = TrainMatrix(1:TargetNum,:);
+           TrainOutcome = TrainOutcome(1:TargetNum);
 
-            
+            s.statfunc = 'elasticlogit';
+            [s] = nbt_TrainClassifier(TrainMatrix,TrainOutcome, s);
+            if(isempty(find(s.ModelVar(2:end))))
+                [s] = nbt_TrainClassifier(TrainMatrix,TrainOutcome, s);
+            end
+            TrainMatrix = TrainMatrix(:,find(s.ModelVar(2:end)));
+            TestMatrix = TestMatrix(:,find(s.ModelVar(2:end)));
+         %   s.statfunc = 'lssvm';
             [s] = nbt_TrainClassifier(TrainMatrix,TrainOutcome, s);
             [pp, s ] = nbt_UseClassifier(TestMatrix, s);
             [FPt, TPt, FNt, TNt, SEt, SPt, PPt, NNt, LPt, LNt, MMt, AUCt,H2] = ...
