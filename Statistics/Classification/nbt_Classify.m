@@ -1,5 +1,5 @@
 function [s,ModelVars,Bioms]=nbt_Classify(BCell,Outcome,s,Type, ChannelsOrRegionsToUse)
-NCrossVals=100;
+NCrossVals=20;
 
 %% create DataMatrix from BCell:
 
@@ -74,6 +74,7 @@ switch lower(Type)
                 nbt_RandomSubsampler( DataMatrix,Outcome,TestLimit,'stratified');
             %We use a stratified sample to preserve the class balance.
             
+
 
             
 %             %% we first remove features
