@@ -6,6 +6,9 @@ classdef nbt_hjorthpara < nbt_SignalBiomarker
        mobility
        complexity
    end
+   properties (Constant)
+        biomarkerType = {'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker'};
+   end
 
    methods 
        function BiomarkerObject=nbt_hjorthpara(NumChannels)

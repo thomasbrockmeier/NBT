@@ -11,7 +11,8 @@ if isempty(identStart)
     fndDot = strfind(biom,'.');
     biomName = biom(1:fndDot-1);
     biomarker = biom(fndDot+1:end);
-    biomarkerClass = evalin('base',[biomName '.Class;']);
+    index = evalin('base',['find(strcmp(' biomName '.Biomarkers , ''' biomarker '''))']);
+    biomarkerClass = evalin('base',[biomName '.BiomarkerType{' num2str(index) '};']);
 else
     identEnd = strfind(biom,'}');
     identString = biom(identStart(1)+1:identEnd(end)-1);
@@ -32,7 +33,8 @@ else
     fndDot = strfind(biom,'.');
     biomarker = biom(fndDot(end)+1:end);
     biomName = biom(1:identStart(1)-1);
-    biomarkerClass = evalin('base',[biomName '.Class;']);
+    index = evalin('base',['find(strcmp(' biomName '.Biomarkers , ''' biomarker '''))']);
+    biomarkerClass = evalin('base',[biomName '.BiomarkerType{' num2str(index) '};']);
 end
 
 

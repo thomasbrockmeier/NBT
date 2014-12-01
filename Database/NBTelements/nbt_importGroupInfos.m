@@ -106,6 +106,7 @@ for i=1:length(FileList)
                 eval( ['DataString = nbt_cellc(' subjectBiomarkerFields{m} '.biomarkers,dd);']);
                 eval(['Data{dd,1} = ' subjectBiomarkerFields{m} '.' DataString ';']);
                 eval([NBTelementName '.Biomarkers{ dd ,1} = DataString; '])
+                
             end
             eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {Condition, SubjectInfo.conditionID; Subject, SubjectInfo.subjectID;Project, SubjectInfo.projectInfo(1:end-4)});']);
             
@@ -180,11 +181,14 @@ for i=1:length(FileList)
             
             %Create the Data cell
             eval(['NumBiomarkers = length(' BiomarkerList{m} '.biomarkers);']);
+            eval(['BiomarkerType = ' BiomarkerList{m} '.biomarkerType;']);
+            
             if(NumBiomarkers ~=0)
                 for dd = 1:NumBiomarkers
                     eval( ['DataString = nbt_cellc(' BiomarkerList{m} '.biomarkers,dd);']);
                     eval(['Data{dd,1} = ' BiomarkerList{m} '.' DataString ';']);
                     eval([NBTelementName '.Biomarkers{ dd ,1} = DataString; '])
+                    eval([NBTelementName '.BiomarkerType{ dd ,1} = BiomarkerType{dd}; '])
                 end
                 
                 eval([NBTelementName ' = nbt_SetData(' NBTelementName ', Data, {' connectorKeys '});']);

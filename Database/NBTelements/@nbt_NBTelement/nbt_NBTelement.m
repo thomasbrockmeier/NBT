@@ -60,6 +60,7 @@ classdef nbt_NBTelement %< handle
         ID = cell(0,0); % ID
         Data = []; %Data
         Biomarkers = cell(0,0);
+        BiomarkerType = cell(0,0);
         ProjectID = [];
         Info = [];
         Identifier = false;

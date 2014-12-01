@@ -16,6 +16,10 @@ classdef nbt_freqstability < nbt_SignalBiomarker
         CentralFrqStd
         CentralFrq
     end
+    properties (Constant)
+        biomarkerType ={'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker',...
+                'nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker'};
+    end
 
     methods
         function biomarkerObject=nbt_freqstability(NumChannels)

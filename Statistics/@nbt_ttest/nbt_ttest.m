@@ -27,7 +27,7 @@ classdef nbt_ttest < nbt_PairedStat
                             [D1, D2]=nbt_MatchVectors(Data1{bID,1}, Data2{bID,1}, getSubjectList(Data1,bID), getSubjectList(Data2,bID), 0, 0);
                             [~, obj.sigPValues(:,sigBios)] = ttest(D1',D2','tail',  obj.testOptions.tail);
                         catch me
-                            disp(['Failed - ' num2str(bID) ' ' obj.group{1}.biomarkers{bID} ]);
+                            disp(['Failed - ' num2str(bID) ' ' obj.group{1}.biomarkers{bID} '.' obj.group{1}.subBiomarkers{bID}  ' class ' obj.group{1}.classes{bID}]);
                         end
                     case 'nbt_CrossChannelBiomarker'
                        try
@@ -36,7 +36,7 @@ classdef nbt_ttest < nbt_PairedStat
                        [D1, D2]=nbt_MatchVectors(Data1{bID,1}, Data2{bID,1}, getSubjectList(Data1,bID), getSubjectList(Data2,bID), 0, 0);
                        [~, obj.ccPValues(:,ccBios)] = ttest(D1',D2','tail',  obj.testOptions.tail);
                        catch me
-                             disp(['Failed - ' num2str(bID) ' ' obj.group{1}.biomarkers{bID} ]);
+                             disp(['Failed - ' num2str(bID) ' ' obj.group{1}.biomarkers{bID} '.' obj.group{1}.subBiomarkers{bID}  ' class ' obj.group{1}.classes{bID}]);
                        end
                        
                     case 'nbt_QBiomarker'

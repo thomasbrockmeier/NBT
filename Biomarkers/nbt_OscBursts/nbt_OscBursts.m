@@ -69,6 +69,9 @@ classdef nbt_OscBursts < nbt_SignalBiomarker
         WindowSwitch
         WindowSize
     end
+    properties (Constant)
+        biomarkerType = {'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker'};
+    end
     methods
         function OscBobject = nbt_OscBursts(NumChannels)
             if nargin == 0

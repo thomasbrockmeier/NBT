@@ -52,6 +52,9 @@ classdef nbt_barlow < nbt_SignalBiomarker
        spi
    end
 
+   properties (Constant)
+        biomarkerType ={'nbt_SignalBiomarker', 'nbt_SignalBiomarker', 'nbt_SignalBiomarker'};
+   end
    methods
        function BiomarkerObject=nbt_barlow(NumChannels)
            BiomarkerObject.amplitude = nan(NumChannels,1);

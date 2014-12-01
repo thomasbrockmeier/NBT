@@ -60,6 +60,9 @@ classdef nbt_ampDist < nbt_SignalBiomarker
         Range
         Cov
     end
+    properties (Constant)
+        biomarkerType = {'nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker', 'nbt_SignalBiomarker','nbt_SignalBiomarker','nbt_SignalBiomarker'};
+    end
     methods
         function BiomarkerObject = nbt_ampDist(NumChannels)
             if nargin == 0

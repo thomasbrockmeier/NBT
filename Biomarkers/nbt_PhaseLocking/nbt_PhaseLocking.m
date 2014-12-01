@@ -68,6 +68,10 @@ classdef nbt_PhaseLocking < nbt_CrossChannelBiomarker
     IndexCP_in_time
     IndexF_in_time
     end
+    properties (Constant)
+         biomarkerType = {'nbt_CrossChannelBiomarker','nbt_CrossChannelBiomarker'};
+    end
+    
     methods
        
         function BiomarkerObject = nbt_PhaseLocking(LengthSign,NumChannels)
