@@ -97,7 +97,7 @@ switch Method
                 for iotta=1:length(ChannelsToUse)
                     [h,p(iotta)] = ttest2(DataMatrix(outcome==1,(ChannelsToUse(iotta) + NRofChannels*(Bid-1))), DataMatrix(outcome==0,(ChannelsToUse(iotta) + NRofChannels*(Bid-1))));
                 end
-                p = nbt_MCcorrect(p,'holm');
+                p = nbt_MCcorrect(p,'bino');
                 if(~isempty(p))
                     BBid = BBid +1;
                     NewDataMatrix(:,BBid) = nanmedian(DataMatrix(:,(ChannelsToUse(p) + NRofChannels*(Bid-1))),2);
