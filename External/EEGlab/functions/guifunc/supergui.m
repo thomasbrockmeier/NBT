@@ -123,7 +123,7 @@ else
                 'geomvert' varargin{3} 'uilist'    varargin(4:end) }; 
 end
 g = finputcheck(options, { 'geomhoriz' 'cell'   []      {};
-                           'fig'       ''       []      0;T
+                           'fig'       ''       []      0;
                            'geom'      'cell'   []      {};
                            'uilist'    'cell'   []      {};
                            'title'     'string' []      '';
