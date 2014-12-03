@@ -80,9 +80,8 @@ else
     tmp.xmin   = 0;
     
     dataFile        = get_datafile(obj);
-    [f_path, f_name]     = fileparts(dataFile);
-    tmp.setname     = f_name;
-    tmp.filepath    = f_path;
+    [~, f_name]     = fileparts(dataFile);
+    tmp.setname     = sprintf('%s file', f_name);
     tmp.comments    = [ 'Original file: ' dataFile ];
     tmp.pnts        = size(data, 2);
     tmp.trials      = size(data, 3);
@@ -115,8 +114,6 @@ if didSelection,
         delete_event(obj, evIdx);
     end
 end
-
-EEG.NBTinfo.timeOfRecording = [obj.StartDate obj.StartTime]; 
 
 [Signal,SignalInfo, SignalPath] = nbt_EEGlab2NBTsignal(EEG,1);
 
